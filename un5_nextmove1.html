@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The SLA Truth-Hunter Challenge</title>
+  <!-- Canvas Confetti Library for victory animation -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --correct: #22c55e;
+      --incorrect: #ef4444;
+      --border: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .game-container {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 800px;
+      width: 100%;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .header h1 {
+      font-size: 1.75rem;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+
+    .header p {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .audio-controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+
+    .audio-btn {
+      background: #334155;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+    }
+
+    .audio-btn:hover {
+      background: #475569;
+      border-color: var(--accent);
+    }
+
+    .audio-btn.speaking {
+      background: #0369a1;
+      border-color: var(--accent);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      margin: 1rem 0;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+
+    .round-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: #e2e8f0;
+    }
+
+    .scenario-box {
+      background: #0f172a80;
+      border-left: 4px solid var(--accent);
+      padding: 1rem;
+      border-radius: 4px 8px 8px 4px;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .resource-box {
+      background: #1e293b;
+      border: 1px dashed var(--border);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+
+    .resource-box strong {
+      color: var(--accent);
+    }
+
+    .options-grid {
+      display: grid;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .option-btn {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      color: var(--text);
+      text-align: left;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: #1e293b;
+      transform: translateY(-2px);
+    }
+
+    .option-btn.correct {
+      background: #14532d;
+      border-color: var(--correct);
+    }
+
+    .option-btn.incorrect {
+      background: #7f1d1d;
+      border-color: var(--incorrect);
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .feedback-box {
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 1rem;
+      border-left: 4px solid var(--accent);
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      display: none;
+      line-height: 1.5;
+    }
+
+    .feedback-box.show {
+      display: block;
+    }
+
+    .feedback-box h4 {
+      margin-bottom: 0.5rem;
+      color: var(--accent);
+    }
+
+    .feedback-box ul {
+      margin-left: 1.25rem;
+      margin-top: 0.5rem;
+      color: var(--muted);
+    }
+
+    .grammar-highlight {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      color: #f59e0b;
+      font-size: 0.85rem;
+    }
+
+    .action-btn {
+      display: block;
+      width: 100%;
+      background: var(--accent);
+      color: #0f172a;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .action-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .score-screen {
+      text-align: center;
+    }
+
+    .score-screen h2 {
+      font-size: 2rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .score-screen p {
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-container">
+    <div class="header">
+      <h1>The SLA Truth-Hunter Challenge</h1>
+      <p>Sports & Weather Active-Reading Task for Rapid Linguistic Acquisition</p>
+      
+      <div class="audio-controls">
+        <button id="read-scenario-btn" class="audio-btn" onclick="readScenario()">
+          🔊 Read Mission Scenario
+        </button>
+        <button id="read-resource-btn" class="audio-btn" onclick="readResource()">
+          🔊 Read Resource Text
+        </button>
+        <button class="audio-btn" onclick="stopAudio()">
+          ⏹️ Stop Audio
+        </button>
+      </div>
+
+      <div class="progress-bar-container">
+        <div id="progress" class="progress-bar"></div>
+      </div>
+    </div>
+
+    <!-- Play Screen -->
+    <div id="game-screen">
+      <div id="round-title" class="round-title"></div>
+      <div id="story-box" class="scenario-box"></div>
+      <div id="resource-box" class="resource-box"></div>
+      
+      <div id="options-container" class="options-grid"></div>
+
+      <div id="feedback-box" class="feedback-box">
+        <h4 id="feedback-heading"></h4>
+        <p id="feedback-why-true"></p>
+        <ul id="feedback-why-lies"></ul>
+        <div id="feedback-grammar" class="grammar-highlight"></div>
+      </div>
+
+      <button id="next-btn" class="action-btn hidden" onclick="nextRound()">Next Mission</button>
+    </div>
+
+    <!-- Final Results Screen -->
+    <div id="result-screen" class="score-screen hidden">
+      <h2>Mission Complete!</h2>
+      <p id="final-score"></p>
+      <button class="action-btn" onclick="restartGame()">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    const rounds = [
+      {
+        title: "Round 1: The Tromsø Winter Survival Mission",
+        resource: `"I usually get up later but today I'm getting up at 6.30 a.m. because I'm in Norway! We're on a school exchange trip to Tromsø, an island in the Arctic Circle. It's really cold here! It's snowing now and it's foggy, too. In winter there are usually only a couple of hours of light in the day. Erik is my exchange buddy. He lives here and he loves winter sports. He often goes kayaking and ice-skating. Do you know Tromsø is Norway's candidate for the 2018 Winter Olympics? It's 7.00 a.m. now and Erik is waiting for me with the snow shoes. We use them to go to school - it's cool!"`,
+        story: "You have just landed in Tromsø, Norway, for a winter school exchange trip. Your exchange buddy, Erik, is waiting for you at 7:00 a.m. To get to school safely and pack the right gear, you must identify the one true statement about Tromsø's winter weather and sports based on the text. Selecting a lie will leave you stranded in the freezing arctic!",
+        options: [
+          { key: "A", text: "Tromsø is extremely hot and sunny in winter, so Erik suggests you wear shorts and go surfing on the beach before lessons start." },
+          { key: "B", text: "It is freezing cold, snowing, and foggy in Tromsø, so you and Erik must strap on snow shoes to walk to school safely." },
+          { key: "C", text: "Since the winter weather is warm and windy, Erik wants to take you pony trekking and mountain biking up the icy mountains." },
+          { key: "D", text: "It is bright, sunny, and warm all day and night in Tromsø during the winter, making it perfect for painting outdoors." }
+        ],
+        correct: "B",
+        whyTrue: "The source text explicitly states: \"It's really cold here! It's snowing now and it's foggy, too.\" and confirms that Erik is waiting with snow shoes to walk to school (\"Erik is waiting for me with the snow shoes. We use them to go to school\").",
+        whyLies: [
+          "Options A and D contradict the fact that winter in Tromsø is cold, dark, and snowy (having only \"a couple of hours of light\").",
+          "Option C is factually incorrect because Erik's real winter sports are \"kayaking and ice-skating,\" not mountain biking or pony trekking."
+        ],
+        grammar: null
+      },
+      {
+        title: "Round 2: Ricardo's Rio Adventure",
+        resource: `"He's a university student from Brazil... A: It's 6.00 a.m. and I'm having breakfast with Ricardo - nickname Ricky - on Corcovado Mountain in Rio de Janeiro. It's December, so the weather is great at the moment. The students aren't studying - they're on holiday. Today, I'm taking photos of Ricky for our Guess the job! competition. B: Ricky's first activity today is mountain biking. He isn't riding down the road - he's riding up the road. It isn't easy! C: It's 11.00 a.m. Now we're hiking up the mountain for Ricky's next activities. I'm not enjoying it, but Ricky likes walking and climbing. Now we're at the top. Ricky is rollerblading and skateboarding. He's having fun! D: Now it's 4.00 p.m. We aren't on the mountain, we're on Copacabana beach. Ricky is swimming and surfing. Surfing is a popular sport here and Ricky is very good at it."`,
+        story: "You are competing in the \"Guess the Job!\" competition, taking photos of nineteen-year-old Brazilian student Ricardo (Ricky) in Rio de Janeiro. To win the prize, you must select the one true statement about Ricky's December schedule and sports based on the text. Selecting a lie will disqualify you!",
+        options: [
+          { key: "A", text: "It is December, which means it is winter in Brazil, so Ricky spends his day snowboarding down Corcovado Mountain in a massive blizzard." },
+          { key: "B", text: "For his first activity at 6:00 a.m., Ricky goes mountain biking easily and quickly down the smooth roads of Corcovado Mountain." },
+          { key: "C", text: "In the afternoon at 4:00 p.m., Ricky heads to Copacabana beach to swim and surf because surfing is incredibly popular there and he is very good at it." },
+          { key: "D", text: "The reporter Amanda loves hiking up Corcovado Mountain in the hot sun and decides to join Ricky in rollerblading and skateboarding at the top." }
+        ],
+        correct: "C",
+        whyTrue: "The text confirms that at 4:00 p.m. Ricky is on Copacabana beach swimming and surfing, which is highly popular and something he is great at (\"Ricky is swimming and surfing. Surfing is a popular sport here and Ricky is very good at it.\").",
+        whyLies: [
+          "Option A is a lie because December is summer in Brazil and the university students are on holiday.",
+          "Option B is a lie because Ricky is riding up the road, and \"It isn't easy!\".",
+          "Option D is a lie because Amanda, the reporter, explicitly states \"I'm not enjoying it\"."
+        ],
+        grammar: "SLA Grammar Highlight: Point out spelling changes for continuous verbs featured in this text: run → running, write → writing, and have → having."
+      },
+      {
+        title: "Round 3: The Western Europe Flight Control Map",
+        resource: `"Let's look at the weather in Western Europe. In Portugal the weather is hot right now. In Spain, it's a lovely day. But it's raining in France. It's cloudy there, too. Switzerland is very cold and it's snowing at the moment, as well. In Italy, they've got nice warm weather, but it's windy, too. And in the UK the weather isn't cold, but it is foggy."`,
+        story: "You are a flight director coordinating travel routes across Western Europe today. You must land your plane in a country where the weather is safe. Find the one true weather report from the European map to land safely. Landing during a lie will cause a crash!",
+        options: [
+          { key: "A", text: "France is experiencing a lovely, dry, and sunny day, making it the perfect destination for outdoor swimming." },
+          { key: "B", text: "Switzerland is currently very cold and snowing, so planes landing there must watch out for icy runways." },
+          { key: "C", text: "The weather in the UK is extremely hot and sunny right now, so you should pack your sunglasses and sandals." },
+          { key: "D", text: "It is freezing cold and snowing in Portugal right now, so pack your heavy winter coat." }
+        ],
+        correct: "B",
+        whyTrue: "The European weather report explicitly states: \"Switzerland is very cold and it's snowing at the moment, as well.\"",
+        whyLies: [
+          "Option A is false because France is raining and cloudy.",
+          "Option C is false because the UK weather is foggy, not sunny.",
+          "Option D is false because Portugal is hot right now, not freezing cold."
+        ],
+        grammar: null
+      },
+      {
+        title: "Round 4: The Global Seasons Mystery",
+        resource: `"1 Blake (from Canada) [likes the color of autumn leaves]... 2 Yoko (from Japan) [favorite season is spring, cherry blossom flowers are pink and white]... 3 Paulo (from Argentina) [likes summer, Argentinian summer is NOT in July]"`,
+        story: "You are a world explorer learning about how different countries experience the seasons. To unlock the secret treasure chest, you must find the one true claim about seasons around the world. The other three claims are sabotaged traps!",
+        options: [
+          { key: "A", text: "In Japan, Yoko's favorite season is spring because the beautiful cherry blossom flowers turn pink and white." },
+          { key: "B", text: "Paulo lives in Argentina and loves summer, which is at its hottest in the month of July." },
+          { key: "C", text: "Blake is from Egypt and loves autumn because the leaves on the local palm trees turn bright purple and blue." },
+          { key: "D", text: "Summer in Canada always brings massive blizzards, so Blake spends July snowboarding down the city streets." }
+        ],
+        correct: "A",
+        whyTrue: "The listening profile explicitly states Yoko's favorite season is spring and that \"cherry blossom flowers are pink and white.\"",
+        whyLies: [
+          "Option B is a lie because the source confirms that the statement \"Argentinian summer is in July\" is false (July is winter in the Southern Hemisphere).",
+          "Option C is a lie because Blake is from Canada (not Egypt) and likes the colors of autumn leaves (not purple palm leaves).",
+          "Option D is a lie because Canadian summer is warm and sunny, not freezing with blizzards."
+        ],
+        grammar: null
+      }
+    ];
+
+    let currentRoundIdx = 0;
+    let score = 0;
+
+    const roundTitleEl = document.getElementById("round-title");
+    const storyBoxEl = document.getElementById("story-box");
+    const resourceBoxEl = document.getElementById("resource-box");
+    const optionsContainerEl = document.getElementById("options-container");
+    const feedbackBoxEl = document.getElementById("feedback-box");
+    const feedbackHeadingEl = document.getElementById("feedback-heading");
+    const feedbackWhyTrueEl = document.getElementById("feedback-why-true");
+    const feedbackWhyLiesEl = document.getElementById("feedback-why-lies");
+    const feedbackGrammarEl = document.getElementById("feedback-grammar");
+    const nextBtn = document.getElementById("next-btn");
+    const progressBar = document.getElementById("progress");
+    const btnScenario = document.getElementById("read-scenario-btn");
+    const btnResource = document.getElementById("read-resource-btn");
+
+    const gameScreen = document.getElementById("game-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const finalScoreEl = document.getElementById("final-score");
+
+    // Audio Synthesizer (SpeechSynthesis)
+    function speakText(text, onEndCallback) {
+      if (!('speechSynthesis' in window)) {
+        alert("Text-to-speech is not supported by your browser.");
+        return;
+      }
+      window.speechSynthesis.cancel(); // Stop current speech
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.95; // Clear, intelligible rate
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0; // Loud volume
+
+      const voices = window.speechSynthesis.getVoices();
+      const naturalVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha')));
+      if (naturalVoice) {
+        utterance.voice = naturalVoice;
+      }
+
+      utterance.onend = () => {
+        resetAudioButtonStyles();
+        if (onEndCallback) onEndCallback();
+      };
+
+      utterance.onerror = () => {
+        resetAudioButtonStyles();
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function resetAudioButtonStyles() {
+      btnScenario.classList.remove('speaking');
+      btnResource.classList.remove('speaking');
+    }
+
+    function readScenario() {
+      resetAudioButtonStyles();
+      btnScenario.classList.add('speaking');
+      speakText(rounds[currentRoundIdx].story);
+    }
+
+    function readResource() {
+      resetAudioButtonStyles();
+      btnResource.classList.add('speaking');
+      // Strip outer quotes and brackets for smooth, natural audio reading
+      const cleanResource = rounds[currentRoundIdx].resource.replace(/["\[\]]/g, '');
+      speakText(cleanResource);
+    }
+
+    function stopAudio() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      resetAudioButtonStyles();
+    }
+
+    // Web Audio API Hooray Sound Synthesizer
+    function playHooraySound() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioContext();
+
+        // 1. Loud Fanfare Chords (C Major triad arpeggio + fanfare)
+        const notes = [
+          { f: 523.25, time: 0.0, dur: 0.15 }, // C5
+          { f: 659.25, time: 0.12, dur: 0.15 }, // E5
+          { f: 783.99, time: 0.24, dur: 0.2 }, // G5
+          { f: 1046.50, time: 0.40, dur: 0.7 } // High C6
+        ];
+
+        notes.forEach(n => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(n.f, ctx.currentTime + n.time);
+
+          // Loud gain curve
+          gain.gain.setValueAtTime(0, ctx.currentTime + n.time);
+          gain.gain.linearRampToValueAtTime(0.6, ctx.currentTime + n.time + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + n.time + n.dur);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start(ctx.currentTime + n.time);
+          osc.stop(ctx.currentTime + n.time + n.dur);
+        });
+
+        // 2. Synthesized Vocal "Hooray" Formant Sweep
+        const voiceOsc = ctx.createOscillator();
+        const voiceGain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+
+        voiceOsc.type = "sawtooth";
+        // Pitch scoop upward like cheering
+        voiceOsc.frequency.setValueAtTime(260, ctx.currentTime + 0.1);
+        voiceOsc.frequency.exponentialRampToValueAtTime(550, ctx.currentTime + 0.5);
+
+        // Vocal formant emulation
+        filter.type = "bandpass";
+        filter.frequency.setValueAtTime(800, ctx.currentTime + 0.1);
+        filter.frequency.linearRampToValueAtTime(1400, ctx.currentTime + 0.6);
+        filter.Q.value = 4.0;
+
+        voiceGain.gain.setValueAtTime(0, ctx.currentTime + 0.1);
+        voiceGain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.3);
+        voiceGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.9);
+
+        voiceOsc.connect(filter);
+        filter.connect(voiceGain);
+        voiceGain.connect(ctx.destination);
+
+        voiceOsc.start(ctx.currentTime + 0.1);
+        voiceOsc.stop(ctx.currentTime + 0.9);
+      } catch (e) {
+        console.warn("Web Audio API not allowed without user gesture or unsupported:", e);
+      }
+    }
+
+    // Trigger Confetti Celebration
+    function fireConfetti() {
+      if (typeof confetti === 'function') {
+        // Multi-stage burst
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#38bdf8', '#22c55e', '#f59e0b', '#ec4899', '#a855f7']
+        });
+        setTimeout(() => {
+          confetti({
+            particleCount: 50,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 }
+          });
+          confetti({
+            particleCount: 50,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 }
+          });
+        }, 200);
+      }
+    }
+
+    function loadRound(idx) {
+      stopAudio();
+      const data = rounds[idx];
+      progressBar.style.width = `${((idx) / rounds.length) * 100}%`;
+      
+      roundTitleEl.innerText = data.title;
+      storyBoxEl.innerHTML = `<strong>Mission Scenario:</strong> ${data.story}`;
+      resourceBoxEl.innerHTML = `<strong>Resource Paragraph:</strong><br>${data.resource}`;
+      
+      optionsContainerEl.innerHTML = "";
+      feedbackBoxEl.className = "feedback-box";
+      nextBtn.classList.add("hidden");
+
+      data.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerHTML = `<strong>Option ${opt.key}:</strong> ${opt.text}`;
+        btn.onclick = () => selectOption(opt.key);
+        optionsContainerEl.appendChild(btn);
+      });
+    }
+
+    function selectOption(selectedKey) {
+      stopAudio();
+      const data = rounds[currentRoundIdx];
+      const buttons = optionsContainerEl.getElementsByClassName("option-btn");
+      const isCorrect = selectedKey === data.correct;
+
+      if (isCorrect) {
+        score++;
+        playHooraySound();
+        fireConfetti();
+      }
+
+      // Style buttons
+      data.options.forEach((opt, i) => {
+        buttons[i].disabled = true;
+        if (opt.key === data.correct) {
+          buttons[i].classList.add("correct");
+        } else if (opt.key === selectedKey) {
+          buttons[i].classList.add("incorrect");
+        }
+      });
+
+      // Show pedagogical breakdown
+      feedbackHeadingEl.innerText = isCorrect ? "🎉 Truth Uncovered! Safe to proceed." : "❌ Trapped by a Lie!";
+      feedbackHeadingEl.style.color = isCorrect ? "var(--correct)" : "var(--incorrect)";
+      feedbackWhyTrueEl.innerHTML = `<strong>Why ${data.correct} is True:</strong> ${data.whyTrue}`;
+      
+      feedbackWhyLiesEl.innerHTML = "";
+      data.whyLies.forEach(lie => {
+        const li = document.createElement("li");
+        li.innerText = lie;
+        feedbackWhyLiesEl.appendChild(li);
+      });
+
+      if (data.grammar) {
+        feedbackGrammarEl.innerText = data.grammar;
+        feedbackGrammarEl.classList.remove("hidden");
+      } else {
+        feedbackGrammarEl.classList.add("hidden");
+      }
+
+      feedbackBoxEl.classList.add("show");
+      nextBtn.classList.remove("hidden");
+    }
+
+    function nextRound() {
+      currentRoundIdx++;
+      if (currentRoundIdx < rounds.length) {
+        loadRound(currentRoundIdx);
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      stopAudio();
+      progressBar.style.width = "100%";
+      gameScreen.classList.add("hidden");
+      resultScreen.classList.remove("hidden");
+      finalScoreEl.innerText = `You uncovered ${score} out of ${rounds.length} truths correctly.`;
+      
+      if (score === rounds.length) {
+        playHooraySound();
+        fireConfetti();
+      }
+    }
+
+    function restartGame() {
+      score = 0;
+      currentRoundIdx = 0;
+      resultScreen.classList.add("hidden");
+      gameScreen.classList.remove("hidden");
+      loadRound(0);
+    }
+
+    // Ensure voices are loaded for SpeechSynthesis
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+
+    // Initialize round 1 on start
+    loadRound(0);
+  </script>
+</body>
+</html>
