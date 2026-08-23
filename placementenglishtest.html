@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal English Placement Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --correct: #16a34a;
+      --correct-bg: #dcfce7;
+      --wrong: #dc2626;
+      --wrong-bg: #fee2e2;
+      --warning: #f59e0b;
+      --idk-bg: #f1f5f9;
+      --idk-border: #cbd5e1;
+      --idk-text: #475569;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .test-card {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 680px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Intro Slide */
+    .intro-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .intro-desc {
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-bottom: 16px;
+      background: #f8fafc;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .info-table th, .info-table td {
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .info-table th {
+      background: #eff6ff;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .info-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .honesty-notice {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #1e40af;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* Header Controls */
+    .top-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .meta-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .level-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: #f1f5f9;
+      color: var(--text-muted);
+    }
+
+    .timer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+      transition: all 0.3s;
+    }
+
+    .timer-badge.urgent {
+      background: #fee2e2;
+      color: #b91c1c;
+      border-color: #fca5a5;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .audio-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #eff6ff;
+      color: var(--primary);
+      border: 1px solid #bfdbfe;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .audio-btn:hover {
+      background: #dbeafe;
+    }
+
+    .audio-btn.playing {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: #b91c1c;
+    }
+
+    /* Timers & Progress Bars */
+    .progress-bar {
+      height: 6px;
+      background: #f1f5f9;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .timer-bar-container {
+      height: 4px;
+      background: #e2e8f0;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .timer-bar-fill {
+      height: 100%;
+      background: var(--warning);
+      width: 100%;
+      transition: width 1s linear, background-color 0.3s ease;
+    }
+
+    /* Question Elements */
+    .passage {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      padding: 12px 14px;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 14px;
+      color: #334155;
+    }
+
+    .prompt {
+      font-size: 15.5px;
+      font-weight: 600;
+      color: #0f172a;
+      line-height: 1.45;
+      margin-bottom: 18px;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-bottom: 20px;
+    }
+
+    .option-btn {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      text-align: left;
+      padding: 11px 15px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: #ffffff;
+      font-size: 14px;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      background-color: #f8fafc;
+    }
+
+    .option-btn.correct {
+      border-color: var(--correct);
+      background-color: var(--correct-bg);
+      color: #14532d;
+      font-weight: 600;
+    }
+
+    .option-btn.wrong {
+      border-color: var(--wrong);
+      background-color: var(--wrong-bg);
+      color: #7f1d1d;
+    }
+
+    .option-btn.idk-selected {
+      border-color: #94a3b8;
+      background-color: #f1f5f9;
+      color: #334155;
+      font-style: italic;
+    }
+
+    .option-btn.idk-btn {
+      border-style: dashed;
+      color: #64748b;
+      background-color: #fafafa;
+    }
+
+    .opt-letter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      margin-right: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    /* Buttons */
+    .primary-btn {
+      display: block;
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.2s;
+    }
+
+    .primary-btn:hover {
+      background: var(--primary-hover);
+    }
+
+    .nav-btn {
+      display: none;
+      margin-top: 12px;
+    }
+
+    /* Results */
+    .score-banner {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .score-circle {
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: #eff6ff;
+      border: 4px solid var(--primary);
+      margin-bottom: 16px;
+    }
+
+    .score-num {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .score-max {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .result-level {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .result-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #475569;
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+<div class="test-card">
+  <!-- SLIDE 0: INTRO -->
+  <div class="slide active" id="slide-intro">
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+      <button class="audio-btn" id="introAudioBtn" onclick="toggleIntroAudio()">
+        <span id="introAudioIcon">🔊</span>
+        <span id="introAudioText">Listen to Instructions</span>
+      </button>
+    </div>
+
+    <h1 class="intro-title">Universal English Placement Test</h1>
+    <p class="intro-desc">
+      Assess your grammar, vocabulary, critical reading, and reasoning skills across CEFR levels from A1 to C1. Each level features a dedicated time limit per question, totaling approximately <strong>25 minutes</strong> for the complete test.
+    </p>
+
+    <table class="info-table">
+      <thead>
+        <tr>
+          <th>CEFR Level</th>
+          <th>Questions</th>
+          <th>Time per Question</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>A1 Beginner</strong></td>
+          <td>Q 1 – 5</td>
+          <td>30 seconds</td>
+        </tr>
+        <tr>
+          <td><strong>A2 Elementary</strong></td>
+          <td>Q 6 – 10</td>
+          <td>45 seconds</td>
+        </tr>
+        <tr>
+          <td><strong>B1 Intermediate</strong></td>
+          <td>Q 11 – 15</td>
+          <td>60 seconds</td>
+        </tr>
+        <tr>
+          <td><strong>B2 Upper-Intermediate</strong></td>
+          <td>Q 16 – 20</td>
+          <td>75 seconds</td>
+        </tr>
+        <tr>
+          <td><strong>C1 Advanced</strong></td>
+          <td>Q 21 – 25</td>
+          <td>90 seconds</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="honesty-notice">
+      💡 <strong>Honesty Reward:</strong> Unsure of an answer? Click <em>"I don't know"</em> (Option E) to receive <strong>+0.1 honesty bonus</strong> instead of guessing randomly.
+    </div>
+
+    <button class="primary-btn" onclick="startTest()">Begin Placement Test</button>
+  </div>
+
+  <!-- SLIDES 1–25: QUESTION CONTAINER -->
+  <div class="slide" id="slide-question">
+    <div class="top-meta">
+      <div class="meta-left">
+        <span class="level-tag" id="levelTag">Level A1</span>
+        <span class="timer-badge" id="timerBadge">⏱ <span id="timeLeft">30</span>s</span>
+      </div>
+      <button class="audio-btn" id="audioBtn" onclick="toggleAudio()">
+        <span id="audioIcon">🔊</span>
+        <span id="audioText">Read Aloud</span>
+      </button>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="timer-bar-container">
+      <div class="timer-bar-fill" id="timerBarFill"></div>
+    </div>
+
+    <div class="passage" id="qPassage" style="display: none;"></div>
+    <div class="prompt" id="qPrompt"></div>
+
+    <div class="options-list" id="optionsContainer"></div>
+
+    <button class="primary-btn nav-btn" id="nextBtn" onclick="nextQuestion()">Next Question &rarr;</button>
+  </div>
+
+  <!-- SLIDE RESULT -->
+  <div class="slide" id="slide-result">
+    <div class="score-banner">
+      <div class="score-circle">
+        <span class="score-num" id="resScore">0</span>
+        <span class="score-max">out of 25</span>
+      </div>
+      <div class="result-level" id="resLevel">Assessing...</div>
+      <div class="result-desc" id="resDesc"></div>
+    </div>
+    <button class="primary-btn" onclick="restartTest()">Retake Test</button>
+  </div>
+</div>
+
+<script>
+  const questions = [
+    {
+      level: "A1 (Beginner)",
+      timeLimit: 30,
+      passage: "",
+      prompt: "Hi, I am Lucas. I live in Madrid, but my cousin Marco _____ in Rome with his family.",
+      options: ["live", "lives", "living", "are living"],
+      answer: 1
+    },
+    {
+      level: "A1 (Beginner)",
+      timeLimit: 30,
+      passage: "Art Club meets every Tuesday at 4:00 PM in Room 12. Bring your own pencils. Paper and paint are provided for free.",
+      prompt: "What must a student bring to the Art Club?",
+      options: ["Paint", "Drawing paper", "Pencils", "Room keys"],
+      answer: 2
+    },
+    {
+      level: "A1 (Beginner)",
+      timeLimit: 30,
+      passage: "",
+      prompt: "Sara does not like winter because the weather is always _____ and rainy.",
+      options: ["warm", "sunny", "cold", "hot"],
+      answer: 2
+    },
+    {
+      level: "A1 (Beginner)",
+      timeLimit: 30,
+      passage: "",
+      prompt: "Look at those birds over there! _____ are flying very high in the sky.",
+      options: ["They", "It", "He", "This"],
+      answer: 0
+    },
+    {
+      level: "A1 (Beginner)",
+      timeLimit: 30,
+      passage: "Hey Alex, I left my jacket on the school bus. If you see the driver, can you ask him about a blue jacket with white stripes?",
+      prompt: "Why is Maya texting Alex?",
+      options: ["To invite him to ride the bus", "To ask for help finding a lost item", "To borrow his blue jacket", "To tell him about the bus driver"],
+      answer: 1
+    },
+    {
+      level: "A2 (Elementary)",
+      timeLimit: 45,
+      passage: "",
+      prompt: "Yesterday, our teacher asked us to write a short story, so I _____ two hours working on mine at the library.",
+      options: ["spend", "spent", "spending", "have spend"],
+      answer: 1
+    },
+    {
+      level: "A2 (Elementary)",
+      timeLimit: 45,
+      passage: "Many teenagers enjoy online gaming not just for entertainment, but because it allows them to collaborate with friends from different countries to solve complex puzzles.",
+      prompt: "According to the text, what is an important social benefit of gaming?",
+      options: ["It replaces school homework", "It encourages teamwork across borders", "It teaches how to buy PC parts", "It reduces time spent with friends"],
+      answer: 1
+    },
+    {
+      level: "A2 (Elementary)",
+      timeLimit: 45,
+      passage: "",
+      prompt: "You _____ wear a helmet when riding an electric scooter; it is required by city law to protect your head.",
+      options: ["must", "might", "would", "can"],
+      answer: 0
+    },
+    {
+      level: "A2 (Elementary)",
+      timeLimit: 45,
+      passage: "Dear Students, the science field trip scheduled for this Friday is postponed until next Monday due to heavy rain forecasts. Please return your signed slips by Thursday.",
+      prompt: "What changed about the science field trip?",
+      options: ["The destination of the trip", "The date of the event", "The cost of permission slips", "The students attending"],
+      answer: 1
+    },
+    {
+      level: "A2 (Elementary)",
+      timeLimit: 45,
+      passage: "Leo stared at the blank digital canvas on his tablet. He had twenty minutes before the submission deadline, and his stylus battery was sitting at two percent.",
+      prompt: "How does Leo most likely feel in this situation?",
+      options: ["Relaxed and confident", "Under pressure and hurried", "Bored and uninterested", "Proud of his finished artwork"],
+      answer: 1
+    },
+    {
+      level: "B1 (Intermediate)",
+      timeLimit: 60,
+      passage: "",
+      prompt: "If we _____ earlier, we would not have missed the opening scene of the film.",
+      options: ["leave", "had left", "would leave", "have left"],
+      answer: 1
+    },
+    {
+      level: "B1 (Intermediate)",
+      timeLimit: 60,
+      passage: "Urban vertical gardens are becoming popular in dense cities. While they significantly reduce building heat and improve air quality, maintaining irrigation systems on tall facades remains expensive for local councils.",
+      prompt: "What is the primary drawback of vertical gardens mentioned?",
+      options: ["They increase indoor temperatures", "They damage building architecture", "Upkeep costs for water systems are high", "They worsen urban air conditions"],
+      answer: 2
+    },
+    {
+      level: "B1 (Intermediate)",
+      timeLimit: 60,
+      passage: "",
+      prompt: "The documentary explored how social media algorithms _____ people's daily opinions without them realizing it.",
+      options: ["influence", "insist", "pretend", "predict"],
+      answer: 0
+    },
+    {
+      level: "B1 (Intermediate)",
+      timeLimit: 60,
+      passage: "",
+      prompt: "The team was proud of their robot, which had been _____ designed using recycled materials.",
+      options: ["entirely", "rarely", "slightly", "heavily"],
+      answer: 0
+    },
+    {
+      level: "B1 (Intermediate)",
+      timeLimit: 60,
+      passage: "Instead of following standard recipes, chef Daniel encourages young cooks to experiment with unexpected spice pairings, arguing that culinary mistakes often spark the most original dishes.",
+      prompt: "What is Daniel’s attitude toward kitchen errors?",
+      options: ["They should be strictly avoided", "They are valuable catalysts for creativity", "They prove a cook lacks discipline", "They ruin the quality of basic recipes"],
+      answer: 1
+    },
+    {
+      level: "B2 (Upper-Intermediate)",
+      timeLimit: 75,
+      passage: "",
+      prompt: "Despite facing several technical setbacks during development, the engineering students managed to pull the project _____ before the exhibition.",
+      options: ["through", "off", "over", "down"],
+      answer: 1
+    },
+    {
+      level: "B2 (Upper-Intermediate)",
+      timeLimit: 75,
+      passage: "The author’s latest novel promises a gripping dystopian future, yet the characters are so one-dimensional that even the most high-stakes conflicts feel strangely hollow and predictable.",
+      prompt: "What is the reviewer’s tone regarding the novel?",
+      options: ["Enthusiastic and supportive", "Critical and disappointed", "Neutral and purely factual", "Dismissive of science-fiction"],
+      answer: 1
+    },
+    {
+      level: "B2 (Upper-Intermediate)",
+      timeLimit: 75,
+      passage: "",
+      prompt: "Rarely _____ such dedication from a student council in organizing a community outreach event.",
+      options: ["we have witnessed", "have we witnessed", "we witnessed", "did we witnessed"],
+      answer: 1
+    },
+    {
+      level: "B2 (Upper-Intermediate)",
+      timeLimit: 75,
+      passage: "The widespread adoption of remote work has decentralized talent, allowing companies to hire skilled individuals regardless of geographic location. However, this shift risks weakening workplace culture and informal mentoring that typically occurs in shared physical spaces.",
+      prompt: "What underlying dilemma does the author present?",
+      options: ["Cost reduction versus tech investment", "Global talent access vs. team cohesion", "Independence vs. strict supervision", "Urban growth vs. rural depopulation"],
+      answer: 1
+    },
+    {
+      level: "B2 (Upper-Intermediate)",
+      timeLimit: 75,
+      passage: "When asked why she incorporated augmented reality into historical exhibits, the curator noted: 'Artifacts behind glass tell you what happened; immersive environments challenge you to imagine why choices were made under uncertainty.'",
+      prompt: "The curator believes augmented reality helps visitors:",
+      options: ["Memorize dates faster", "Empathize with historical decisions", "Replace physical artifacts", "Avoid museum visits"],
+      answer: 1
+    },
+    {
+      level: "C1 (Advanced)",
+      timeLimit: 90,
+      passage: "",
+      prompt: "The committee’s findings were so _____ compiled that even the harshest critics could find no flaws in the methodology.",
+      options: ["meticulously", "superficially", "impulsively", "tenuously"],
+      answer: 0
+    },
+    {
+      level: "C1 (Advanced)",
+      timeLimit: 90,
+      passage: "To label synthetic biology as merely an extension of traditional breeding is to mistake a tectonic shift for a ripple. It is not an incremental refinement of nature, but an ontological rewriting of biological design.",
+      prompt: "The author uses the contrast between a 'tectonic shift' and a 'ripple' primarily to:",
+      options: ["Question bio-safety rules", "Emphasize its revolutionary magnitude", "Advocate traditional farming", "Downplay bioengineering"],
+      answer: 1
+    },
+    {
+      level: "C1 (Advanced)",
+      timeLimit: 90,
+      passage: "",
+      prompt: "Had the board known the extent of the liabilities, they would never have consented _____ the merger.",
+      options: ["for", "to", "with", "at"],
+      answer: 1
+    },
+    {
+      level: "C1 (Advanced)",
+      timeLimit: 90,
+      passage: "In contemporary design, minimalism is frequently championed as the pinnacle of sophistication. Yet, when stripped of context, radical austerity often slips into sterile uniformity, confusing the absence of detail with the presence of intention.",
+      prompt: "What core critique of minimalism is the writer making?",
+      options: ["It is overly expensive to apply", "Simplicity without intent creates cold spaces", "Cluttered rooms are always better", "Users dislike visual simplicity"],
+      answer: 1
+    },
+    {
+      level: "C1 (Advanced)",
+      timeLimit: 90,
+      passage: "The paradox of algorithmic curation lies in its efficiency: by perpetually serving content tailored to verified preferences, it eliminates cognitive friction while quietly starving users of the serendipitous discoveries that cultivate genuine intellectual breadth.",
+      prompt: "According to the author, what is the hidden cost of personalized algorithms?",
+      options: ["Higher subscription fees", "Loss of spontaneous diverse ideas", "Slower loading speeds", "Complete loss of privacy"],
+      answer: 1
+    }
+  ];
+
+  let currentQ = 0;
+  let score = 0;
+  let synth = window.speechSynthesis;
+  let maleVoice = null;
+  let femaleVoice = null;
+  let timerInterval = null;
+  let timeRemaining = 0;
+  let totalAllocatedTime = 30;
+
+  // Sound Synthesizers
+  function playSuccessSound() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc1.type = 'triangle';
+      osc2.type = 'sine';
+      osc1.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc1.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.15);
+      osc2.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
+      osc2.frequency.exponentialRampToValueAtTime(1046.50, ctx.currentTime + 0.25);
+
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start();
+      osc2.start(ctx.currentTime + 0.1);
+      osc1.stop(ctx.currentTime + 0.4);
+      osc2.stop(ctx.currentTime + 0.4);
+    } catch(e) {}
+  }
+
+  function playFailSound() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(110, ctx.currentTime + 0.35);
+
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start();
+      osc.stop(ctx.currentTime + 0.35);
+    } catch(e) {}
+  }
+
+  function playNeutralSound() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, ctx.currentTime); // A4
+      osc.frequency.linearRampToValueAtTime(554.37, ctx.currentTime + 0.2); // C#5
+
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start();
+      osc.stop(ctx.currentTime + 0.2);
+    } catch(e) {}
+  }
+
+  // Voice Loading
+  function loadVoices() {
+    if (!synth) return;
+    const voices = synth.getVoices();
+    const enVoices = voices.filter(v => v.lang.startsWith('en'));
+    
+    maleVoice = enVoices.find(v => (v.name.includes('Male') || v.name.includes('David') || v.name.includes('Alex') || v.name.includes('Daniel') || v.name.includes('George'))) || enVoices[0];
+    femaleVoice = enVoices.find(v => (v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Zira') || v.name.includes('Google US English') || v.name.includes('Victoria')) && v !== maleVoice) || enVoices[1] || enVoices[0];
+  }
+
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+  loadVoices();
+
+  // Intro Narration
+  function toggleIntroAudio() {
+    if (synth.speaking && !synth.paused) {
+      synth.pause();
+      updateIntroBtn(false, true);
+    } else if (synth.paused) {
+      synth.resume();
+      updateIntroBtn(true, false);
+    } else {
+      speakIntroInstructions();
+    }
+  }
+
+  function speakIntroInstructions() {
+    stopAudio();
+    const text = "Welcome to the Universal English Placement Test. This test consists of 25 questions assessing your grammar, vocabulary, critical reading, and reasoning skills from levels A1 to C1. Each level has a specific time limit per question: 30 seconds for Level A1, 45 seconds for Level A2, 60 seconds for Level B1, 75 seconds for Level B2, and 90 seconds for Level C1. The total estimated test time is approximately 25 minutes. If you do not understand a question or text, choose the 'I don't know' option to receive a 0.1 honesty bonus point instead of guessing. Good luck!";
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.95;
+    if (maleVoice) utterance.voice = maleVoice;
+
+    utterance.onstart = () => updateIntroBtn(true, false);
+    utterance.onend = () => updateIntroBtn(false, false);
+    utterance.onerror = () => updateIntroBtn(false, false);
+
+    synth.speak(utterance);
+  }
+
+  function updateIntroBtn(isPlaying, isPaused) {
+    const btn = document.getElementById('introAudioBtn');
+    const text = document.getElementById('introAudioText');
+    const icon = document.getElementById('introAudioIcon');
+
+    if (isPlaying) {
+      btn.classList.add('playing');
+      text.innerText = 'Pause Instructions';
+      icon.innerText = '⏸';
+    } else if (isPaused) {
+      btn.classList.add('playing');
+      text.innerText = 'Resume';
+      icon.innerText = '▶';
+    } else {
+      btn.classList.remove('playing');
+      text.innerText = 'Listen to Instructions';
+      icon.innerText = '🔊';
+    }
+  }
+
+  function startTest() {
+    stopAudio();
+    currentQ = 0;
+    score = 0;
+    showSlide('slide-question');
+    renderQuestion();
+  }
+
+  function showSlide(slideId) {
+    document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+    document.getElementById(slideId).classList.add('active');
+  }
+
+  function startTimer(seconds) {
+    clearInterval(timerInterval);
+    totalAllocatedTime = seconds;
+    timeRemaining = seconds;
+    
+    updateTimerDisplay();
+
+    timerInterval = setInterval(() => {
+      timeRemaining--;
+      updateTimerDisplay();
+
+      if (timeRemaining <= 0) {
+        clearInterval(timerInterval);
+        handleTimeout();
+      }
+    }, 1000);
+  }
+
+  function updateTimerDisplay() {
+    const badge = document.getElementById('timerBadge');
+    const label = document.getElementById('timeLeft');
+    const fill = document.getElementById('timerBarFill');
+
+    label.innerText = timeRemaining;
+    const percent = Math.max(0, (timeRemaining / totalAllocatedTime) * 100);
+    fill.style.width = percent + '%';
+
+    if (timeRemaining <= 10) {
+      badge.classList.add('urgent');
+      fill.style.backgroundColor = 'var(--wrong)';
+    } else {
+      badge.classList.remove('urgent');
+      fill.style.backgroundColor = 'var(--warning)';
+    }
+  }
+
+  function handleTimeout() {
+    stopAudio();
+    const q = questions[currentQ];
+    const buttons = document.querySelectorAll('.option-btn');
+    buttons.forEach(btn => btn.disabled = true);
+    
+    buttons[q.answer].classList.add('correct');
+    playFailSound();
+
+    const nextBtn = document.getElementById('nextBtn');
+    nextBtn.innerText = currentQ < questions.length - 1 ? 'Time Expired - Next Question →' : 'Time Expired - View Results →';
+    nextBtn.style.display = 'block';
+  }
+
+  function renderQuestion() {
+    stopAudio();
+    const q = questions[currentQ];
+    document.getElementById('levelTag').innerText = q.level;
+    document.getElementById('progressFill').style.width = `${((currentQ) / questions.length) * 100}%`;
+
+    const passageEl = document.getElementById('qPassage');
+    if (q.passage) {
+      passageEl.innerText = q.passage;
+      passageEl.style.display = 'block';
+    } else {
+      passageEl.style.display = 'none';
+    }
+
+    document.getElementById('qPrompt').innerText = q.prompt;
+
+    const optContainer = document.getElementById('optionsContainer');
+    optContainer.innerHTML = '';
+    const letters = ['A', 'B', 'C', 'D', 'E'];
+
+    // 4 standard options
+    q.options.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<span class="opt-letter">${letters[idx]}</span> ${opt}`;
+      btn.onclick = () => selectAnswer(idx);
+      optContainer.appendChild(btn);
+    });
+
+    // 5th option: "I don't know"
+    const idkBtn = document.createElement('button');
+    idkBtn.className = 'option-btn idk-btn';
+    idkBtn.innerHTML = `<span class="opt-letter">E</span> <em>I don't know (+0.1 honesty bonus)</em>`;
+    idkBtn.onclick = () => selectAnswer(4);
+    optContainer.appendChild(idkBtn);
+
+    document.getElementById('nextBtn').style.display = 'none';
+    startTimer(q.timeLimit);
+  }
+
+  function selectAnswer(selectedIndex) {
+    clearInterval(timerInterval);
+    stopAudio();
+    const q = questions[currentQ];
+    const buttons = document.querySelectorAll('.option-btn');
+    buttons.forEach(btn => btn.disabled = true);
+
+    if (selectedIndex === q.answer) {
+      score += 1.0;
+      buttons[selectedIndex].classList.add('correct');
+      playSuccessSound();
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.7 }
+      });
+    } else if (selectedIndex === 4) {
+      // "I don't know" selected
+      score += 0.1;
+      buttons[selectedIndex].classList.add('idk-selected');
+      buttons[q.answer].classList.add('correct');
+      playNeutralSound();
+    } else {
+      buttons[selectedIndex].classList.add('wrong');
+      buttons[q.answer].classList.add('correct');
+      playFailSound();
+    }
+
+    const nextBtn = document.getElementById('nextBtn');
+    if (currentQ < questions.length - 1) {
+      nextBtn.innerText = 'Next Question →';
+    } else {
+      nextBtn.innerText = 'View Results →';
+    }
+    nextBtn.style.display = 'block';
+  }
+
+  function nextQuestion() {
+    if (currentQ < questions.length - 1) {
+      currentQ++;
+      renderQuestion();
+    } else {
+      showResults();
+    }
+  }
+
+  function toggleAudio() {
+    if (synth.speaking && !synth.paused) {
+      synth.pause();
+      updateAudioBtn(false, true);
+    } else if (synth.paused) {
+      synth.resume();
+      updateAudioBtn(true, false);
+    } else {
+      speakCurrentQuestion();
+    }
+  }
+
+  function stopAudio() {
+    if (synth) synth.cancel();
+    updateAudioBtn(false, false);
+    updateIntroBtn(false, false);
+  }
+
+  function updateAudioBtn(isPlaying, isPaused) {
+    const btn = document.getElementById('audioBtn');
+    const text = document.getElementById('audioText');
+    const icon = document.getElementById('audioIcon');
+
+    if (isPlaying) {
+      btn.classList.add('playing');
+      text.innerText = 'Pause';
+      icon.innerText = '⏸';
+    } else if (isPaused) {
+      btn.classList.add('playing');
+      text.innerText = 'Resume';
+      icon.innerText = '▶';
+    } else {
+      btn.classList.remove('playing');
+      text.innerText = 'Read Aloud';
+      icon.innerText = '🔊';
+    }
+  }
+
+  function speakCurrentQuestion() {
+    stopAudio();
+    const q = questions[currentQ];
+    const textToRead = (q.passage ? q.passage + ". " : "") + q.prompt;
+
+    const utterance = new SpeechSynthesisUtterance(textToRead);
+    utterance.rate = 0.95;
+
+    // Alternating voices: Even questions Female, Odd questions Male
+    if (currentQ % 2 === 0) {
+      if (femaleVoice) utterance.voice = femaleVoice;
+    } else {
+      if (maleVoice) utterance.voice = maleVoice;
+    }
+
+    utterance.onstart = () => updateAudioBtn(true, false);
+    utterance.onend = () => updateAudioBtn(false, false);
+    utterance.onerror = () => updateAudioBtn(false, false);
+
+    synth.speak(utterance);
+  }
+
+  function showResults() {
+    clearInterval(timerInterval);
+    stopAudio();
+    showSlide('slide-result');
+    
+    // Format to 1 decimal place if has honesty points, else integer
+    const formattedScore = (score % 1 === 0) ? score.toFixed(0) : score.toFixed(1);
+    document.getElementById('resScore').innerText = formattedScore;
+
+    let level = "";
+    let desc = "";
+
+    if (score < 6) {
+      level = "Level A1 (Beginner)";
+      desc = "You demonstrate an understanding of basic words, simple present structures, and everyday signs. Recommended focus: essential vocabulary and basic sentence construction.";
+    } else if (score < 11) {
+      level = "Level A2 (Elementary)";
+      desc = "You can understand routine messages, direct instructions, and standard past events. Recommended focus: irregular past tenses and expanding descriptive phrases.";
+    } else if (score < 16) {
+      level = "Level B1 (Intermediate)";
+      desc = "You understand clear standard texts on familiar topics and grasp conditionals and cause-and-effect ideas. Recommended focus: complex sentence clauses and phrasal verbs.";
+    } else if (score < 21) {
+      level = "Level B2 (Upper-Intermediate)";
+      desc = "You comfortably analyze abstract concepts, deduce author tone, and interpret nuanced grammar such as inversions. Recommended focus: idiomatic precision and academic argument construction.";
+    } else {
+      level = "Level C1 (Advanced)";
+      desc = "You demonstrate fluent command of subtle rhetorical nuances, academic registers, and complex philosophical syntheses. Excellent overall proficiency!";
+    }
+
+    document.getElementById('resLevel').innerText = level;
+    document.getElementById('resDesc').innerText = desc;
+  }
+
+  function restartTest() {
+    showSlide('slide-intro');
+  }
+</script>
+</body>
+</html>
