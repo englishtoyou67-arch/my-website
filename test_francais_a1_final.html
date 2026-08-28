@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test de Français FLE A1 - Évaluation Interactive avec Audio & Synthèse Vocale</title>
+<style>
+  :root {
+    --primary: #4361ee;
+    --primary-dark: #3a0ca3;
+    --secondary: #4cc9f0;
+    --success: #2ec4b6;
+    --danger: #e71d36;
+    --warning: #ff9f1c;
+    --info-honest: #8b5cf6;
+    --light-bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --text: #2b2d42;
+    --text-muted: #6c757d;
+    --border: #e9ecef;
+    --shadow: 0 10px 25px rgba(0,0,0,0.05);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+
+  body {
+    background-color: #f0f2f5;
+    color: var(--text);
+    padding: 20px 15px 60px 15px;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* Audio Control Floating Bar */
+  .audio-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    padding: 12px 18px;
+    border-radius: 14px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    font-size: 13.5px;
+  }
+
+  .audio-controls-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .audio-btn {
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+    color: var(--primary-dark);
+    padding: 7px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .audio-btn:hover {
+    background: #e0e7ff;
+    transform: translateY(-1px);
+  }
+
+  .audio-btn.danger {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #991b1b;
+  }
+
+  .audio-btn.danger:hover {
+    background: #fecaca;
+  }
+
+  /* Header Card */
+  .header-card {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 30px 25px;
+    border-radius: 16px;
+    margin-bottom: 25px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+
+  .header-card h1 {
+    font-size: 26px;
+    margin-bottom: 8px;
+  }
+
+  .header-card p {
+    font-size: 15px;
+    opacity: 0.9;
+  }
+
+  /* Global Live Indicator & Progress Tracker */
+  .sticky-tracker {
+    position: sticky;
+    top: 15px;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(10px);
+    padding: 15px 20px;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+    border: 1px solid var(--border);
+  }
+
+  .tracker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .tracker-stats {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .stat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+  }
+
+  .progress-bar-container {
+    height: 12px;
+    background-color: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+  }
+
+  .progress-segment-correct {
+    background-color: var(--success);
+    transition: width 0.3s ease;
+  }
+
+  .progress-segment-honest {
+    background-color: var(--info-honest);
+    transition: width 0.3s ease;
+  }
+
+  .progress-segment-wrong {
+    background-color: var(--danger);
+    transition: width 0.3s ease;
+  }
+
+  .progress-dots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 10px;
+  }
+
+  .dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    background: #e9ecef;
+    font-size: 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    transition: all 0.2s;
+  }
+
+  .dot.correct {
+    background: var(--success);
+    color: white;
+  }
+
+  .dot.honest {
+    background: var(--info-honest);
+    color: white;
+  }
+
+  .dot.wrong {
+    background: var(--danger);
+    color: white;
+  }
+
+  /* Section Styling */
+  .section-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 30px 25px;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+
+  .section-title {
+    font-size: 19px;
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .voice-tag {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: #e0e7ff;
+    color: #3730a3;
+  }
+
+  .reading-text-box {
+    background-color: #f1f7ff;
+    border-left: 4px solid var(--primary);
+    padding: 16px 20px;
+    border-radius: 0 10px 10px 0;
+    margin: 15px 0 20px 0;
+    font-style: italic;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #1e293b;
+    position: relative;
+  }
+
+  .reading-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    gap: 10px;
+  }
+
+  .reading-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary-dark);
+  }
+
+  /* Question Box */
+  .question-box {
+    padding: 18px;
+    border-radius: 12px;
+    background: var(--light-bg);
+    margin-bottom: 18px;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+  }
+
+  .question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 10px;
+  }
+
+  .question-text-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-grow: 1;
+  }
+
+  .question-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .tts-btn {
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 15px;
+    color: var(--primary);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .tts-btn:hover {
+    background: #eef2ff;
+    border-color: var(--primary);
+    transform: scale(1.08);
+  }
+
+  .tts-btn.playing, .audio-btn.playing {
+    background: var(--primary) !important;
+    color: white !important;
+    border-color: var(--primary) !important;
+    animation: pulse 1.2s infinite;
+  }
+
+  .question-badge {
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #e2e8f0;
+    color: #475569;
+    white-space: nowrap;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .option-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14.5px;
+    text-align: left;
+    transition: all 0.15s ease;
+    width: 100%;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--primary);
+    background-color: #f8faff;
+    transform: translateY(-1px);
+  }
+
+  .option-btn.opt-honest {
+    background-color: #faf5ff;
+    border-color: #e9d5ff;
+    color: #6b21a8;
+  }
+
+  .option-btn.opt-honest:hover:not(:disabled) {
+    background-color: #f3e8ff;
+    border-color: var(--info-honest);
+  }
+
+  .option-btn.selected-correct {
+    background-color: #d1fae5 !important;
+    border-color: var(--success) !important;
+    color: #065f46;
+    font-weight: 600;
+  }
+
+  .option-btn.selected-honest {
+    background-color: #f3e8ff !important;
+    border-color: var(--info-honest) !important;
+    color: #581c87;
+    font-weight: 600;
+  }
+
+  .option-btn.selected-wrong {
+    background-color: #fee2e2 !important;
+    border-color: var(--danger) !important;
+    color: #991b1b;
+    font-weight: 600;
+  }
+
+  .option-btn.show-correct {
+    border-color: var(--success) !important;
+    background-color: #ecfdf5;
+    color: #065f46;
+    font-weight: 600;
+  }
+
+  .option-btn:disabled {
+    cursor: default;
+  }
+
+  .icon-indicator {
+    font-size: 14px;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .honest-feedback-msg {
+    display: none;
+    margin-top: 8px;
+    font-size: 13px;
+    color: #6b21a8;
+    background: #faf5ff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border-left: 3px solid var(--info-honest);
+  }
+
+  /* Section Feedback Summary */
+  .section-summary-card {
+    display: none;
+    margin-top: 25px;
+    padding: 20px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 2px dashed var(--primary);
+    animation: fadeIn 0.4s ease;
+  }
+
+  .section-score-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .section-feedback-text {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: #334155;
+    padding: 12px 15px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border-left: 4px solid var(--secondary);
+  }
+
+  /* Final Global Report */
+  #final-report {
+    display: none;
+    background: white;
+    border-radius: 16px;
+    padding: 35px 30px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    border: 2px solid var(--primary);
+    margin-top: 30px;
+    animation: slideUp 0.5s ease;
+  }
+
+  .final-header {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+
+  .final-score-badge {
+    display: inline-block;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--primary);
+    background: #eef2ff;
+    padding: 10px 30px;
+    border-radius: 50px;
+    margin: 15px 0;
+  }
+
+  .level-badge {
+    font-size: 18px;
+    font-weight: 700;
+    padding: 6px 18px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+
+  .level-a1-plus { background: #d1fae5; color: #065f46; }
+  .level-a1-valid { background: #e0f2fe; color: #0369a1; }
+  .level-a1-encours { background: #fef3c7; color: #92400e; }
+  .level-a1-debut { background: #fee2e2; color: #991b1b; }
+
+  .final-breakdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 25px 0;
+  }
+
+  .breakdown-card {
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .breakdown-card h4 {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+  }
+
+  .breakdown-card .score {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .global-recommendations {
+    background: #f8faff;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+  }
+
+  .global-recommendations h3 {
+    color: var(--primary-dark);
+    font-size: 17px;
+    margin-bottom: 12px;
+  }
+
+  .global-recommendations ul {
+    padding-left: 20px;
+    font-size: 14.5px;
+    color: #334155;
+  }
+
+  .global-recommendations li {
+    margin-bottom: 8px;
+  }
+
+  .btn-restart {
+    display: block;
+    width: fit-content;
+    margin: 25px auto 0 auto;
+    padding: 12px 28px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-restart:hover {
+    background: var(--primary-dark);
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4); }
+    70% { transform: scale(1.06); box-shadow: 0 0 0 8px rgba(67, 97, 238, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .tracker-header { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .dot { width: 14px; height: 14px; font-size: 8px; }
+    .header-card h1 { font-size: 22px; }
+    .audio-bar { flex-direction: column; gap: 10px; align-items: flex-start; }
+    .audio-controls-group { width: 100%; }
+    .audio-btn { flex: 1; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Audio Controls Bar -->
+  <div class="audio-bar">
+    <div>
+      <div>🎧 <strong>Lecteur Audio Intégré & Synthèse Vocale</strong></div>
+      <div style="font-size: 12px; color: var(--text-muted);">Voix Homme (Vocabulaire) • Voix Femme (Grammaire & Textes) • BGM 0.05</div>
+    </div>
+    <div class="audio-controls-group">
+      <button class="audio-btn" id="btn-toggle-music" onclick="toggleBgm()">🎵 Musique : Off</button>
+      <button class="audio-btn" id="btn-pause-speech" onclick="toggleSpeechPause()">⏸️ Pause Voix</button>
+      <button class="audio-btn danger" onclick="stopSpeech()">⏹️ Stop Voix</button>
+      <button class="audio-btn" id="btn-toggle-sfx" onclick="toggleSfx()">🔔 Sons : On</button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="header-card">
+    <h1>Test d'Évaluation de Français FLE – Niveau A1</h1>
+    <p>Évaluation interactive pour collégienne (13 ans) • Option « Je ne sais pas » (+0.1 pt honnêteté)</p>
+  </div>
+
+  <!-- Live Tracker Bar -->
+  <div class="sticky-tracker">
+    <div class="tracker-header">
+      <div>Progression : <span id="answered-count">0</span> / 32 questions | Score actuel : <span id="current-score-tracker" style="color:var(--primary); font-weight:bold;">0.0</span> / 32</div>
+      <div class="tracker-stats">
+        <span class="stat-badge" style="color: var(--success);">✔ <span id="correct-count">0</span> correctes (+1.0)</span>
+        <span class="stat-badge" style="color: var(--info-honest);">💡 <span id="honest-count">0</span> honnêtes (+0.1)</span>
+        <span class="stat-badge" style="color: var(--danger);">✖ <span id="wrong-count">0</span> incorrectes (0.0)</span>
+      </div>
+    </div>
+    <div class="progress-bar-container">
+      <div id="bar-correct" class="progress-segment-correct" style="width: 0%;"></div>
+      <div id="bar-honest" class="progress-segment-honest" style="width: 0%;"></div>
+      <div id="bar-wrong" class="progress-segment-wrong" style="width: 0%;"></div>
+    </div>
+    <div class="progress-dots" id="dots-container"></div>
+  </div>
+
+  <!-- SECTION 1: VOCABULAIRE -->
+  <div class="section-card" id="section-1">
+    <div class="section-title">
+      <span>📚 Section 1 : Vocabulaire du quotidien (10 questions)</span>
+      <span class="voice-tag">🎙️ Voix Homme (Male)</span>
+    </div>
+    <div id="questions-vocab"></div>
+    
+    <div class="section-summary-card" id="summary-section-1">
+      <div class="section-score-title">
+        <span>Bilan Section 1 : Vocabulaire</span>
+        <span id="score-section-1">0 / 10</span>
+      </div>
+      <div class="section-feedback-text" id="feedback-section-1"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: GRAMMAIRE -->
+  <div class="section-card" id="section-2">
+    <div class="section-title">
+      <span>⚙️ Section 2 : Grammaire & Structures fondamentales (10 questions)</span>
+      <span class="voice-tag">🎙️ Voix Femme (Female)</span>
+    </div>
+    <div id="questions-gram"></div>
+    
+    <div class="section-summary-card" id="summary-section-2">
+      <div class="section-score-title">
+        <span>Bilan Section 2 : Grammaire</span>
+        <span id="score-section-2">0 / 10</span>
+      </div>
+      <div class="section-feedback-text" id="feedback-section-2"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: COMPRÉHENSION ÉCRITE -->
+  <div class="section-card" id="section-3">
+    <div class="section-title">
+      <span>📖 Section 3 : Compréhension Écrite (3 Textes – 12 questions)</span>
+      <span class="voice-tag">🎙️ Voix Femme (Female)</span>
+    </div>
+    <div id="questions-read"></div>
+    
+    <div class="section-summary-card" id="summary-section-3">
+      <div class="section-score-title">
+        <span>Bilan Section 3 : Compréhension Écrite</span>
+        <span id="score-section-3">0 / 12</span>
+      </div>
+      <div class="section-feedback-text" id="feedback-section-3"></div>
+    </div>
+  </div>
+
+  <!-- FINAL REPORT -->
+  <div id="final-report">
+    <div class="final-header">
+      <h2>🎉 Résultat Final & Bilan Pédagogique</h2>
+      <div class="final-score-badge" id="global-final-score">0.0 / 32</div>
+      <div>
+        <span class="level-badge" id="level-indicator">Niveau A1 Validé</span>
+      </div>
+    </div>
+
+    <div class="final-breakdown">
+      <div class="breakdown-card">
+        <h4>1. Vocabulaire</h4>
+        <div class="score" id="final-score-v">0.0 / 10</div>
+      </div>
+      <div class="breakdown-card">
+        <h4>2. Grammaire</h4>
+        <div class="score" id="final-score-g">0.0 / 10</div>
+      </div>
+      <div class="breakdown-card">
+        <h4>3. Compréhension Écrite</h4>
+        <div class="score" id="final-score-r">0.0 / 12</div>
+      </div>
+      <div class="breakdown-card">
+        <h4>Bonus d'Honnêteté</h4>
+        <div class="score" id="final-score-honest" style="color: var(--info-honest);">+0.0 pt</div>
+      </div>
+    </div>
+
+    <div class="global-recommendations">
+      <h3>📋 Analyse & Recommandations globales pour l'élève</h3>
+      <div id="global-recommendation-content"></div>
+    </div>
+
+    <button class="btn-restart" onclick="restartTest()">🔄 Recommencer avec un nouveau tirage aléatoire</button>
+  </div>
+
+</div>
+
+<script>
+// ==========================================
+// 1. SPEECH SYNTHESIS ENGINE (ROBUSTE & SÉCURISÉ)
+// ==========================================
+const synth = window.speechSynthesis;
+let voices = [];
+let isSpeechPaused = false;
+let currentActiveTtsBtn = null;
+let keepAliveTimer = null;
+
+function loadVoices() {
+  voices = synth.getVoices();
+}
+loadVoices();
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function getVoiceByGender(gender) {
+  if (!voices.length) voices = synth.getVoices();
+  const frVoices = voices.filter(v => v.lang && (v.lang.toLowerCase().startsWith('fr')));
+
+  if (gender === 'male') {
+    const male = frVoices.find(v => 
+      /male|homme|thomas|nicolas|henri|paul|mathieu|claude|antoine|bruno|jerome/i.test(v.name)
+    );
+    if (male) return { voice: male, pitch: 0.9, rate: 0.92 };
+    return { voice: frVoices[0] || null, pitch: 0.82, rate: 0.90 };
+  } else {
+    const female = frVoices.find(v => 
+      /female|femme|julie|celine|virginie|hortense|denise|lea|audrey|amelie|chloe/i.test(v.name)
+    );
+    if (female) return { voice: female, pitch: 1.05, rate: 0.92 };
+    return { voice: frVoices[0] || null, pitch: 1.15, rate: 0.92 };
+  }
+}
+
+// Fonction centrale de lecture vocale
+function speakDirect(text, gender, triggerBtnId) {
+  if (!('speechSynthesis' in window)) {
+    alert("La synthèse vocale n'est pas supportée par votre navigateur.");
+    return;
+  }
+
+  synth.cancel();
+  if (keepAliveTimer) clearInterval(keepAliveTimer);
+  isSpeechPaused = false;
+  document.getElementById('btn-pause-speech').innerText = "⏸️ Pause Voix";
+
+  if (currentActiveTtsBtn) {
+    currentActiveTtsBtn.classList.remove('playing');
+  }
+
+  const triggerBtn = document.getElementById(triggerBtnId);
+  if (triggerBtn) {
+    triggerBtn.classList.add('playing');
+    currentActiveTtsBtn = triggerBtn;
+  }
+
+  // Remplacement des traits et guillemets pour une prononciation naturelle
+  const cleanText = text.replace(/_+/g, " pointillée ").replace(/[«»]/g, "");
+  const utterance = new SpeechSynthesisUtterance(cleanText);
+  utterance.lang = 'fr-FR';
+
+  const voiceConfig = getVoiceByGender(gender);
+  if (voiceConfig.voice) {
+    utterance.voice = voiceConfig.voice;
+  }
+  utterance.pitch = voiceConfig.pitch;
+  utterance.rate = voiceConfig.rate;
+
+  utterance.onend = () => {
+    if (triggerBtn) triggerBtn.classList.remove('playing');
+    currentActiveTtsBtn = null;
+    if (keepAliveTimer) clearInterval(keepAliveTimer);
+  };
+
+  utterance.onerror = () => {
+    if (triggerBtn) triggerBtn.classList.remove('playing');
+    currentActiveTtsBtn = null;
+    if (keepAliveTimer) clearInterval(keepAliveTimer);
+  };
+
+  // Keep-alive anti-coupure pour les textes longs sur navigateurs Chromium
+  keepAliveTimer = setInterval(() => {
+    if (synth.speaking && !synth.paused) {
+      synth.pause();
+      synth.resume();
+    } else if (!synth.speaking) {
+      clearInterval(keepAliveTimer);
+    }
+  }, 10000);
+
+  synth.speak(utterance);
+}
+
+// Déclencheurs par ID d'objet (évite tout conflit de guillemets dans le HTML)
+function speakQuestion(displayId) {
+  const q = activeTestData.find(item => item.displayId === displayId);
+  if (q) {
+    speakDirect(q.question, q.gender, `tts-btn-q${displayId}`);
+  }
+}
+
+function speakReadingText(textId) {
+  const textObj = textsData[textId];
+  if (textObj) {
+    speakDirect(textObj.content, 'female', `tts-btn-text-${textId}`);
+  }
+}
+
+function toggleSpeechPause() {
+  if (!synth.speaking) return;
+  if (synth.paused) {
+    synth.resume();
+    isSpeechPaused = false;
+    document.getElementById('btn-pause-speech').innerText = "⏸️ Pause Voix";
+  } else {
+    synth.pause();
+    isSpeechPaused = true;
+    document.getElementById('btn-pause-speech').innerText = "▶️ Reprendre Voix";
+  }
+}
+
+function stopSpeech() {
+  synth.cancel();
+  if (keepAliveTimer) clearInterval(keepAliveTimer);
+  isSpeechPaused = false;
+  document.getElementById('btn-pause-speech').innerText = "⏸️ Pause Voix";
+  if (currentActiveTtsBtn) {
+    currentActiveTtsBtn.classList.remove('playing');
+    currentActiveTtsBtn = null;
+  }
+}
+
+
+// ==========================================
+// 2. AUDIO SFX & BACKGROUND MUSIC (0.05 Volume)
+// ==========================================
+let audioCtx = null;
+let bgmPlaying = false;
+let sfxEnabled = true;
+let bgmNodes = [];
+let bgmInterval = null;
+
+function getAudioContext() {
+  if (!audioCtx) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContext();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function playSuccessSound() {
+  if (!sfxEnabled) return;
+  const ctx = getAudioContext();
+  const notes = [523.25, 659.25, 783.99, 1046.50];
+  notes.forEach((freq, idx) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.08);
+    
+    gain.gain.setValueAtTime(0.001, ctx.currentTime + idx * 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + idx * 0.08 + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + idx * 0.08 + 0.25);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(ctx.currentTime + idx * 0.08);
+    osc.stop(ctx.currentTime + idx * 0.08 + 0.26);
+  });
+}
+
+function playHonestSound() {
+  if (!sfxEnabled) return;
+  const ctx = getAudioContext();
+  const notes = [440.0, 554.37, 659.25];
+  notes.forEach((freq, idx) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.05);
+
+    gain.gain.setValueAtTime(0.001, ctx.currentTime + idx * 0.05);
+    gain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + idx * 0.05 + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + idx * 0.05 + 0.35);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(ctx.currentTime + idx * 0.05);
+    osc.stop(ctx.currentTime + idx * 0.05 + 0.36);
+  });
+}
+
+function playWrongSound() {
+  if (!sfxEnabled) return;
+  const ctx = getAudioContext();
+  const osc1 = ctx.createOscillator();
+  const osc2 = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  osc1.type = 'sawtooth';
+  osc2.type = 'sine';
+
+  osc1.frequency.setValueAtTime(220, ctx.currentTime);
+  osc1.frequency.linearRampToValueAtTime(146.83, ctx.currentTime + 0.3);
+
+  osc2.frequency.setValueAtTime(215, ctx.currentTime);
+  osc2.frequency.linearRampToValueAtTime(140, ctx.currentTime + 0.3);
+
+  gain.gain.setValueAtTime(0.08, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.32);
+
+  osc1.connect(gain);
+  osc2.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc1.start(ctx.currentTime);
+  osc2.start(ctx.currentTime);
+  osc1.stop(ctx.currentTime + 0.33);
+  osc2.stop(ctx.currentTime + 0.33);
+}
+
+function startBgm() {
+  const ctx = getAudioContext();
+  bgmPlaying = true;
+  document.getElementById('btn-toggle-music').innerText = "⏸️ Musique : On";
+
+  const chordProgression = [
+    [174.61, 220.00, 261.63, 329.63],
+    [164.81, 196.00, 246.94, 293.66],
+    [146.83, 174.61, 220.00, 261.63],
+    [130.81, 164.81, 196.00, 246.94]
+  ];
+
+  let chordIndex = 0;
+
+  function playLoFiChord() {
+    if (!bgmPlaying) return;
+    const chord = chordProgression[chordIndex];
+    chordIndex = (chordIndex + 1) % chordProgression.length;
+
+    chord.forEach((freq) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(650, ctx.currentTime);
+
+      gain.gain.setValueAtTime(0.001, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 0.8);
+      gain.gain.linearRampToValueAtTime(0.035, ctx.currentTime + 1.8);
+      gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 2.5);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 2.6);
+      bgmNodes.push(osc);
+    });
+  }
+
+  playLoFiChord();
+  bgmInterval = setInterval(playLoFiChord, 2600);
+}
+
+function stopBgm() {
+  bgmPlaying = false;
+  document.getElementById('btn-toggle-music').innerText = "🎵 Musique : Off";
+  if (bgmInterval) {
+    clearInterval(bgmInterval);
+    bgmInterval = null;
+  }
+}
+
+function toggleBgm() {
+  getAudioContext();
+  if (bgmPlaying) stopBgm();
+  else startBgm();
+}
+
+function toggleSfx() {
+  sfxEnabled = !sfxEnabled;
+  document.getElementById('btn-toggle-sfx').innerText = sfxEnabled ? "🔔 Sons : On" : "🔕 Sons : Off";
+}
+
+
+// ==========================================
+// 3. DONNÉES DU TEST (FLE NIVEAU A1)
+// ==========================================
+const rawQuestionsData = [
+  // SECTION 1: VOCABULAIRE (Q1 à Q10) -> Voix Homme
+  {
+    id: 1,
+    section: 1,
+    gender: "male",
+    question: "Pour écrire mes devoirs dans mon cahier, j'utilise un ________.",
+    options: ["cartable", "stylo", "bureau", "tableau"],
+    answerIndex: 1
+  },
+  {
+    id: 2,
+    section: 1,
+    gender: "male",
+    question: "Le père de ma mère est mon ________.",
+    options: ["oncle", "cousin", "grand-père", "frère"],
+    answerIndex: 2
+  },
+  {
+    id: 3,
+    section: 1,
+    gender: "male",
+    question: "Aujourd'hui c'est mardi. Demain, c'est ________.",
+    options: ["lundi", "mercredi", "jeudi", "dimanche"],
+    answerIndex: 1
+  },
+  {
+    id: 4,
+    section: 1,
+    gender: "male",
+    question: "Quelle est la couleur d'une banane bien mûre ?",
+    options: ["Rouge", "Bleue", "Verte", "Jaune"],
+    answerIndex: 3
+  },
+  {
+    id: 5,
+    section: 1,
+    gender: "male",
+    question: "Au petit-déjeuner, je mange du pain et je bois du ________.",
+    options: ["jus d'orange", "poulet", "riz", "poisson"],
+    answerIndex: 0
+  },
+  {
+    id: 6,
+    section: 1,
+    gender: "male",
+    question: "Quel animal domestique ronronne, miaule et chasse les souris ?",
+    options: ["Le cheval", "Le chien", "Le chat", "L'oiseau"],
+    answerIndex: 2
+  },
+  {
+    id: 7,
+    section: 1,
+    gender: "male",
+    question: "En plein hiver, quand la température est négative, je porte un ________ chaud.",
+    options: ["maillot de bain", "short", "manteau", "t-shirt"],
+    answerIndex: 2
+  },
+  {
+    id: 8,
+    section: 1,
+    gender: "male",
+    question: "Dans un appartement, la pièce où l'on prépare les repas s'appelle la ________.",
+    options: ["chambre", "cuisine", "salle de bains", "terrasse"],
+    answerIndex: 1
+  },
+  {
+    id: 9,
+    section: 1,
+    gender: "male",
+    question: "Quelle partie de notre corps sert à entendre et à écouter la musique ?",
+    options: ["Les yeux", "Les mains", "Les oreilles", "Les pieds"],
+    answerIndex: 2
+  },
+  {
+    id: 10,
+    section: 1,
+    gender: "male",
+    question: "Regarde l'horloge : la petite aiguille pointe sur le 8 et la grande aiguille sur le 12.",
+    options: ["Il est huit heures pile.", "Il est midi.", "Il est sept heures et demie.", "Il est huit heures et quart."],
+    answerIndex: 0
+  },
+
+  // SECTION 2: GRAMMAIRE (Q11 à Q20) -> Voix Femme
+  {
+    id: 11,
+    section: 2,
+    gender: "female",
+    question: "Marie et Sarah ________ dans la même classe cette année.",
+    options: ["est", "sont", "ont", "êtes"],
+    answerIndex: 1
+  },
+  {
+    id: 12,
+    section: 2,
+    gender: "female",
+    question: "Mon frère et moi, nous ________ deux chats à la maison.",
+    options: ["avons", "sommes", "ont", "avez"],
+    answerIndex: 0
+  },
+  {
+    id: 13,
+    section: 2,
+    gender: "female",
+    question: "Mon correspondant habite ________ Rome, ________ Italie.",
+    options: ["en / à", "à / en", "au / en", "à / au"],
+    answerIndex: 1
+  },
+  {
+    id: 14,
+    section: 2,
+    gender: "female",
+    question: "J'aime beaucoup ________ nouvelle école au centre-ville.",
+    options: ["ce", "cet", "cette", "ces"],
+    answerIndex: 2
+  },
+  {
+    id: 15,
+    section: 2,
+    gender: "female",
+    question: "Les élèves attentifs ________ toujours leurs exercices à temps.",
+    options: ["finit", "finissez", "finis", "finissent"],
+    answerIndex: 3
+  },
+  {
+    id: 16,
+    section: 2,
+    gender: "female",
+    question: "C'est le sac de Marc ? – Oui, c'est ________ sac.",
+    options: ["mon", "son", "sa", "leur"],
+    answerIndex: 1
+  },
+  {
+    id: 17,
+    section: 2,
+    gender: "female",
+    question: "Complétez la phrase négative : « Je ________ veux ________ aller dehors sous la pluie. »",
+    options: ["ne / pas", "n' / non", "pas / rien", "ne / plus jamais"],
+    answerIndex: 0
+  },
+  {
+    id: 18,
+    section: 2,
+    gender: "female",
+    question: "Demain après-midi, nous ________ au musée des sciences.",
+    options: ["allons aller", "aller", "va", "vont"],
+    answerIndex: 0
+  },
+  {
+    id: 19,
+    section: 2,
+    gender: "female",
+    question: "Pour la fête, Clara a acheté une jolie jupe ________.",
+    options: ["vert", "verts", "verte", "vertes"],
+    answerIndex: 2
+  },
+  {
+    id: 20,
+    section: 2,
+    gender: "female",
+    question: "Mon cahier est tombé : il est par terre, ________ le bureau.",
+    options: ["sous", "sur", "pour", "chez"],
+    answerIndex: 0
+  },
+
+  // SECTION 3: COMPRÉHENSION ÉCRITE (Q21 à Q32) -> Voix Femme
+  // Texte 1 (Léa)
+  {
+    id: 21,
+    section: 3,
+    gender: "female",
+    textId: 1,
+    question: "Quelle discipline scolaire déplaît particulièrement à Léa ?",
+    options: ["Les cours d'arts plastiques", "Les langues étrangères", "Les mathématiques", "L'histoire-géographie"],
+    answerIndex: 2
+  },
+  {
+    id: 22,
+    section: 3,
+    gender: "female",
+    textId: 1,
+    question: "Que fait réellement Léa pendant ses samedis ?",
+    options: ["Elle reste à la maison pour lire des romans.", "Elle dispute des matchs de sport collectif.", "Elle joue à l'ordinateur avec Lucas.", "Elle révise ses leçons de géométrie."],
+    answerIndex: 1
+  },
+  {
+    id: 23,
+    section: 3,
+    gender: "female",
+    textId: 1,
+    question: "Qui passe le week-end devant des jeux ou des vidéos dans sa chambre ?",
+    options: ["Léa toute seule", "Les membres du club", "Le professeur de dessin", "Le frère de Léa"],
+    answerIndex: 3
+  },
+  {
+    id: 24,
+    section: 3,
+    gender: "female",
+    textId: 1,
+    question: "D'après le texte, quelle affirmation est correcte ?",
+    options: ["Léa pratique une activité sportive régulière.", "Léa déteste apprendre de nouvelles langues.", "Léa et son frère adorent faire du basket ensemble.", "Lucas a exactement 13 ans lui aussi."],
+    answerIndex: 0
+  },
+
+  // Texte 2 (Thomas)
+  {
+    id: 25,
+    section: 3,
+    gender: "female",
+    textId: 2,
+    question: "À quelle heure exacte Thomas sort-il de son lit le matin ?",
+    options: ["À 6h45 précises", "À 7h00", "À 7h45", "À 8h15"],
+    answerIndex: 1
+  },
+  {
+    id: 26,
+    section: 3,
+    gender: "female",
+    textId: 2,
+    question: "Quel moyen de transport Thomas refuse-t-il d'utiliser le matin, et pourquoi ?",
+    options: ["Le bus, car il arrive toujours trop tard.", "La voiture de ses parents, car ils travaillent.", "Le métro, car l'accès est trop éloigné de son domicile.", "Le vélo, parce qu'il n'aime pas le sport."],
+    answerIndex: 2
+  },
+  {
+    id: 27,
+    section: 3,
+    gender: "female",
+    textId: 2,
+    question: "Où Thomas prend-il son repas du midi ?",
+    options: ["À la cantine de son établissement scolaire.", "Dans la cuisine de sa propre maison.", "Chez son camarade de classe Julien.", "Dans une boulangerie près de l'école."],
+    answerIndex: 0
+  },
+  {
+    id: 28,
+    section: 3,
+    gender: "female",
+    textId: 2,
+    question: "Quelle règle Thomas doit-il respecter dès son retour chez lui à 16h30 ?",
+    options: ["Regarder la télévision pendant une demi-heure.", "Terminer son travail scolaire avant d'utiliser des écrans.", "Prendre son goûter devant un jeu vidéo.", "Ranger sa chambre et préparer son dîner."],
+    answerIndex: 1
+  },
+
+  // Texte 3 (Manon)
+  {
+    id: 29,
+    section: 3,
+    gender: "female",
+    textId: 3,
+    question: "Pourquoi Manon a-t-elle abandonné son premier projet de sortie ?",
+    options: ["Parce qu'il va pleuvoir le samedi 15 octobre.", "Parce que le tarif était excessif.", "Parce que le parc d'attractions est fermé.", "Parce que ses amis n'aimaient pas cette idée."],
+    answerIndex: 1
+  },
+  {
+    id: 30,
+    section: 3,
+    gender: "female",
+    textId: 3,
+    question: "Quelle activité est explicitement organisée chez Manon ?",
+    options: ["Une compétition de costumes en musique.", "Un tournoi sportif de football dans la cour.", "Une projection de film d'animation au salon.", "Un atelier pour apprendre à cuisiner des tartes."],
+    answerIndex: 0
+  },
+  {
+    id: 31,
+    section: 3,
+    gender: "female",
+    textId: 3,
+    question: "Que demande Manon à son invitée d'apporter ?",
+    options: ["Un nouveau costume acheté au magasin.", "Un cadeau d'anniversaire emballé.", "Quelque chose à boire ou à manger.", "Ses devoirs de français pour étudier."],
+    answerIndex: 2
+  },
+  {
+    id: 32,
+    section: 3,
+    gender: "female",
+    textId: 3,
+    question: "Quelle consigne Chloé doit-elle respecter avant la fin de journée de mercredi ?",
+    options: ["Prévenir Manon si elle vient ou non à la fête.", "Envoyer l'adresse de sa propre maison.", "Choisir les musiques de la fête.", "Acheter les boissons pour tout le groupe."],
+    answerIndex: 0
+  }
+];
+
+const textsData = {
+  1: {
+    title: "Texte 1 : La rentrée et les loisirs de Léa",
+    content: "« Je m'appelle Léa et j'ai 13 ans. J'adore le dessin et les langues, mais je déteste le calcul et la géométrie. Tout le monde pense que je passe mon samedi à la maison à lire des livres, pourtant je fais du basketball en compétition avec mon club chaque week-end. Mon frère Lucas préfère rester dans sa chambre devant son ordinateur. »"
+  },
+  2: {
+    title: "Texte 2 : Le rythme quotidien de Thomas",
+    content: "« Du lundi au vendredi, le réveil de Thomas sonne à 6h45, mais il reste sous la couette jusqu'à 7h00. Pour aller au collège, il ne prend jamais le métro car la station est trop loin : il prend le bus de 7h45. Contrairement à son ami Julien qui rentre chez lui à midi, Thomas mange un plateau chaud avec ses camarades à l'école. En rentrant à 16h30, il s'installe d'abord pour faire ses exercices avant d'avoir le droit d'allumer un écran. »"
+  },
+  3: {
+    title: "Texte 3 : Une fête d'anniversaire originale",
+    content: "« Salut Chloé ! J'organise ma fête d'anniversaire le samedi 15 octobre à 14h30. Au départ, je voulais aller au parc d'attractions, mais c'est trop cher. Alors nous allons nous retrouver dans mon jardin : nous allons déguster une tarte aux fruits faite maison et faire un concours de déguisements musicaux. Surtout, n'apporte pas de cadeau acheté, apporte simplement un gâteau ou une boisson. Confirme-moi ta présence avant mercredi soir ! – Manon »"
+  }
+};
+
+
+// ==========================================
+// 4. RANDOMISATION & RENDU HTML
+// ==========================================
+function shuffleArray(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+let activeTestData = [];
+let userAnswers = {};
+let userEarnedPoints = {};
+let sectionAnswered = { 1: 0, 2: 0, 3: 0 };
+let sectionScores = { 1: 0, 2: 0, 3: 0 };
+let honestCount = 0;
+
+function prepareRandomizedData() {
+  const sec1 = shuffleArray(rawQuestionsData.filter(q => q.section === 1));
+  const sec2 = shuffleArray(rawQuestionsData.filter(q => q.section === 2));
+  
+  const sec3_t1 = shuffleArray(rawQuestionsData.filter(q => q.section === 3 && q.textId === 1));
+  const sec3_t2 = shuffleArray(rawQuestionsData.filter(q => q.section === 3 && q.textId === 2));
+  const sec3_t3 = shuffleArray(rawQuestionsData.filter(q => q.section === 3 && q.textId === 3));
+  const sec3 = [...sec3_t1, ...sec3_t2, ...sec3_t3];
+
+  const combined = [...sec1, ...sec2, ...sec3];
+
+  return combined.map((q, index) => {
+    const originalAnswerText = q.options[q.answerIndex];
+    const shuffledOptions = shuffleArray(q.options);
+    const newAnswerIndex = shuffledOptions.indexOf(originalAnswerText);
+    return {
+      ...q,
+      displayId: index + 1,
+      options: shuffledOptions,
+      answer: newAnswerIndex
+    };
+  });
+}
+
+function initTest() {
+  stopSpeech();
+  userAnswers = {};
+  userEarnedPoints = {};
+  sectionAnswered = { 1: 0, 2: 0, 3: 0 };
+  sectionScores = { 1: 0, 2: 0, 3: 0 };
+  honestCount = 0;
+  activeTestData = prepareRandomizedData();
+
+  renderDots();
+  renderVocab();
+  renderGrammar();
+  renderReading();
+  updateTracker();
+
+  document.getElementById('summary-section-1').style.display = 'none';
+  document.getElementById('summary-section-2').style.display = 'none';
+  document.getElementById('summary-section-3').style.display = 'none';
+  document.getElementById('final-report').style.display = 'none';
+}
+
+function renderDots() {
+  const container = document.getElementById('dots-container');
+  container.innerHTML = '';
+  for (let i = 1; i <= 32; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+    dot.id = `dot-${i}`;
+    dot.innerText = i;
+    container.appendChild(dot);
+  }
+}
+
+function createQuestionHtml(q) {
+  let opts = '';
+  const labels = ['A', 'B', 'C', 'D'];
+  q.options.forEach((opt, idx) => {
+    opts += `
+      <button type="button" class="option-btn" id="btn-q${q.displayId}-opt${idx}" onclick="handleSelect(${q.displayId}, ${idx})">
+        <span><strong>${labels[idx]})</strong> ${opt}</span>
+        <span class="icon-indicator" id="icon-q${q.displayId}-opt${idx}"></span>
+      </button>
+    `;
+  });
+
+  // Bouton d'honnêteté supplémentaire "Je ne sais pas"
+  opts += `
+    <button type="button" class="option-btn opt-honest" id="btn-q${q.displayId}-opthonest" onclick="handleHonestSelect(${q.displayId})">
+      <span><strong>E)</strong> 🤷 Je ne sais pas <em style="font-size:12.5px; opacity:0.85;">(+0.1 point d'honnêteté)</em></span>
+      <span class="icon-indicator" id="icon-q${q.displayId}-opthonest"></span>
+    </button>
+  `;
+
+  return `
+    <div class="question-box" id="qbox-${q.displayId}">
+      <div class="question-header">
+        <div class="question-text-wrapper">
+          <button type="button" class="tts-btn" id="tts-btn-q${q.displayId}" 
+            title="Écouter la question (${q.gender === 'male' ? 'Voix Homme' : 'Voix Femme'})"
+            onclick="speakQuestion(${q.displayId})">
+            🔊
+          </button>
+          <span class="question-text">${q.displayId}. ${q.question}</span>
+        </div>
+        <span class="question-badge">Q${q.displayId}</span>
+      </div>
+      <div class="options-grid">
+        ${opts}
+      </div>
+      <div class="honest-feedback-msg" id="msg-honest-q${q.displayId}">
+        💡 <strong>Bravo pour ton honnêteté !</strong> Tu gagnes <strong>+0.1 point</strong>. La bonne réponse à mémoriser est indiquée en vert.
+      </div>
+    </div>
+  `;
+}
+
+function renderVocab() {
+  const container = document.getElementById('questions-vocab');
+  let html = '';
+  activeTestData.filter(q => q.section === 1).forEach(q => {
+    html += createQuestionHtml(q);
+  });
+  container.innerHTML = html;
+}
+
+function renderGrammar() {
+  const container = document.getElementById('questions-gram');
+  let html = '';
+  activeTestData.filter(q => q.section === 2).forEach(q => {
+    html += createQuestionHtml(q);
+  });
+  container.innerHTML = html;
+}
+
+function renderReading() {
+  const container = document.getElementById('questions-read');
+  let html = '';
+  
+  for (let tId = 1; tId <= 3; tId++) {
+    html += `
+      <div class="reading-header-bar">
+        <div class="reading-title">${textsData[tId].title}</div>
+        <button type="button" class="audio-btn" id="tts-btn-text-${tId}" 
+          onclick="speakReadingText(${tId})">
+          🔊 Écouter le texte
+        </button>
+      </div>
+      <div class="reading-text-box">${textsData[tId].content}</div>
+    `;
+    
+    activeTestData.filter(q => q.section === 3 && q.textId === tId).forEach(q => {
+      html += createQuestionHtml(q);
+    });
+  }
+  container.innerHTML = html;
+}
+
+function handleSelect(displayId, selectedIndex) {
+  if (userAnswers[displayId] !== undefined) return;
+
+  const q = activeTestData.find(item => item.displayId === displayId);
+  userAnswers[displayId] = selectedIndex;
+  sectionAnswered[q.section]++;
+
+  const isCorrect = (selectedIndex === q.answer);
+  const earned = isCorrect ? 1.0 : 0.0;
+  userEarnedPoints[displayId] = earned;
+  sectionScores[q.section] += earned;
+
+  const selectedBtn = document.getElementById(`btn-q${displayId}-opt${selectedIndex}`);
+  const iconSpan = document.getElementById(`icon-q${displayId}-opt${selectedIndex}`);
+  const dot = document.getElementById(`dot-${displayId}`);
+
+  if (isCorrect) {
+    playSuccessSound();
+    selectedBtn.classList.add('selected-correct');
+    iconSpan.innerHTML = '✔ +1.0';
+    iconSpan.style.color = '#065f46';
+    dot.classList.add('correct');
+  } else {
+    playWrongSound();
+    selectedBtn.classList.add('selected-wrong');
+    iconSpan.innerHTML = '✖ 0.0';
+    iconSpan.style.color = '#991b1b';
+    dot.classList.add('wrong');
+
+    const correctBtn = document.getElementById(`btn-q${displayId}-opt${q.answer}`);
+    if (correctBtn) {
+      correctBtn.classList.add('show-correct');
+      const correctIcon = document.getElementById(`icon-q${displayId}-opt${q.answer}`);
+      correctIcon.innerHTML = '✔ (Correcte)';
+      correctIcon.style.color = '#065f46';
+    }
+  }
+
+  disableAllOptions(displayId, q.options.length);
+  updateTracker();
+  checkSectionCompletions();
+}
+
+function handleHonestSelect(displayId) {
+  if (userAnswers[displayId] !== undefined) return;
+
+  const q = activeTestData.find(item => item.displayId === displayId);
+  userAnswers[displayId] = 'honest';
+  sectionAnswered[q.section]++;
+  honestCount++;
+
+  const earned = 0.1;
+  userEarnedPoints[displayId] = earned;
+  sectionScores[q.section] += earned;
+
+  playHonestSound();
+
+  const honestBtn = document.getElementById(`btn-q${displayId}-opthonest`);
+  const iconSpan = document.getElementById(`icon-q${displayId}-opthonest`);
+  const dot = document.getElementById(`dot-${displayId}`);
+  const msgBox = document.getElementById(`msg-honest-q${displayId}`);
+
+  honestBtn.classList.add('selected-honest');
+  iconSpan.innerHTML = '💡 +0.1 pt';
+  iconSpan.style.color = '#581c87';
+  dot.classList.add('honest');
+
+  if (msgBox) msgBox.style.display = 'block';
+
+  // Indiquer la bonne réponse
+  const correctBtn = document.getElementById(`btn-q${displayId}-opt${q.answer}`);
+  if (correctBtn) {
+    correctBtn.classList.add('show-correct');
+    const correctIcon = document.getElementById(`icon-q${displayId}-opt${q.answer}`);
+    correctIcon.innerHTML = '✔ (Réponse attendue)';
+    correctIcon.style.color = '#065f46';
+  }
+
+  disableAllOptions(displayId, q.options.length);
+  updateTracker();
+  checkSectionCompletions();
+}
+
+function disableAllOptions(displayId, numOptions) {
+  for (let idx = 0; idx < numOptions; idx++) {
+    const btn = document.getElementById(`btn-q${displayId}-opt${idx}`);
+    if (btn) btn.disabled = true;
+  }
+  const honestBtn = document.getElementById(`btn-q${displayId}-opthonest`);
+  if (honestBtn) honestBtn.disabled = true;
+}
+
+function updateTracker() {
+  const answeredTotal = Object.keys(userAnswers).length;
+  let correctTotal = 0;
+  let wrongTotal = 0;
+  let totalScoreLive = 0;
+
+  activeTestData.forEach(q => {
+    const ans = userAnswers[q.displayId];
+    if (ans !== undefined) {
+      const pts = userEarnedPoints[q.displayId] || 0;
+      totalScoreLive += pts;
+      if (ans === q.answer) correctTotal++;
+      else if (ans === 'honest') { /* counted in honestCount */ }
+      else wrongTotal++;
+    }
+  });
+
+  document.getElementById('answered-count').innerText = answeredTotal;
+  document.getElementById('current-score-tracker').innerText = totalScoreLive.toFixed(1);
+  document.getElementById('correct-count').innerText = correctTotal;
+  document.getElementById('honest-count').innerText = honestCount;
+  document.getElementById('wrong-count').innerText = wrongTotal;
+
+  const correctPct = (correctTotal / 32) * 100;
+  const honestPct = (honestCount / 32) * 100;
+  const wrongPct = (wrongTotal / 32) * 100;
+
+  document.getElementById('bar-correct').style.width = `${correctPct}%`;
+  document.getElementById('bar-honest').style.width = `${honestPct}%`;
+  document.getElementById('bar-wrong').style.width = `${wrongPct}%`;
+}
+
+function checkSectionCompletions() {
+  if (sectionAnswered[1] === 10) {
+    const summaryCard = document.getElementById('summary-section-1');
+    summaryCard.style.display = 'block';
+    const score = sectionScores[1].toFixed(1);
+    document.getElementById('score-section-1').innerText = `${score} sur 10 (${score >= 8 ? 'Excellent' : score >= 5.5 ? 'Satisfaisant' : 'À renforcer'})`;
+    document.getElementById('feedback-section-1').innerHTML = getSectionFeedback(1, sectionScores[1], 10);
+  }
+
+  if (sectionAnswered[2] === 10) {
+    const summaryCard = document.getElementById('summary-section-2');
+    summaryCard.style.display = 'block';
+    const score = sectionScores[2].toFixed(1);
+    document.getElementById('score-section-2').innerText = `${score} sur 10 (${score >= 8 ? 'Excellent' : score >= 5.5 ? 'Satisfaisant' : 'À renforcer'})`;
+    document.getElementById('feedback-section-2').innerHTML = getSectionFeedback(2, sectionScores[2], 10);
+  }
+
+  if (sectionAnswered[3] === 12) {
+    const summaryCard = document.getElementById('summary-section-3');
+    summaryCard.style.display = 'block';
+    const score = sectionScores[3].toFixed(1);
+    document.getElementById('score-section-3').innerText = `${score} sur 12 (${score >= 9 ? 'Excellent' : score >= 6.5 ? 'Satisfaisant' : 'À renforcer'})`;
+    document.getElementById('feedback-section-3').innerHTML = getSectionFeedback(3, sectionScores[3], 12);
+  }
+
+  const totalAnswered = Object.keys(userAnswers).length;
+  if (totalAnswered === 32) {
+    showFinalReport();
+  }
+}
+
+function getSectionFeedback(sectionNum, score, max) {
+  const pct = (score / max) * 100;
+  if (sectionNum === 1) {
+    if (pct >= 80) {
+      return "🌟 <strong>Excellente maîtrise du lexique A1 :</strong> Le vocabulaire fondamental (famille, maison, heures, vêtements, fournitures) est parfaitement acquis et automatisé.";
+    } else if (pct >= 50) {
+      return "👍 <strong>Bonne base lexicale :</strong> Les repères généraux sont compris, mais certains champs thématiques méritent des fiches de révision illustrées.";
+    } else {
+      return "💡 <strong>Recommandation ciblée :</strong> Travailler les listes de vocabulaire thématique par le biais de flashcards visuelles et de petits jeux d'association.";
+    }
+  } else if (sectionNum === 2) {
+    if (pct >= 80) {
+      return "🌟 <strong>Très bon contrôle syntaxique :</strong> Conjugaison au présent, accords simples et futur proche sont bien en place.";
+    } else if (pct >= 50) {
+      return "👍 <strong>Structures en cours de consolidation :</strong> Attention aux prépositions de lieu devant les pays et villes (à / en) et aux démonstratifs.";
+    } else {
+      return "💡 <strong>Recommandation ciblée :</strong> Reprendre les règles fondamentales : distinction être/avoir, double négation (ne... pas) et accords de genre.";
+    }
+  } else {
+    if (pct >= 80) {
+      return "🌟 <strong>Compréhension fine remarquable :</strong> L'élève sait déjouer les pièges, repérer les connecteurs logiques et extraire les détails du texte.";
+    } else if (pct >= 50) {
+      return "👍 <strong>Compréhension globale satisfaisante :</strong> Le sens général est perçu, mais l'attention aux détails chronologiques et aux restrictions doit être renforcée.";
+    } else {
+      return "💡 <strong>Recommandation ciblée :</strong> S'entraîner à lire des mini-histoires en soulignant systématiquement les mots de liaison.";
+    }
+  }
+}
+
+function showFinalReport() {
+  const finalReport = document.getElementById('final-report');
+  finalReport.style.display = 'block';
+
+  const totalScore = (sectionScores[1] + sectionScores[2] + sectionScores[3]).toFixed(1);
+  const honestBonusTotal = (honestCount * 0.1).toFixed(1);
+
+  document.getElementById('global-final-score').innerText = `${totalScore} / 32`;
+  document.getElementById('final-score-v').innerText = `${sectionScores[1].toFixed(1)} / 10`;
+  document.getElementById('final-score-g').innerText = `${sectionScores[2].toFixed(1)} / 10`;
+  document.getElementById('final-score-r').innerText = `${sectionScores[3].toFixed(1)} / 12`;
+  document.getElementById('final-score-honest').innerText = `+${honestBonusTotal} pt (${honestCount} fois)`;
+
+  const levelBadge = document.getElementById('level-indicator');
+  const recoDiv = document.getElementById('global-recommendation-content');
+
+  let levelText = "";
+  let levelClass = "";
+  let recoHtml = "";
+
+  const pct = (parseFloat(totalScore) / 32) * 100;
+
+  if (pct >= 85) {
+    levelText = "Niveau A1 Validé avec Mention (Prête pour aborder le A2)";
+    levelClass = "level-a1-plus";
+    recoHtml = `
+      <ul>
+        <li><strong>Diagnostic :</strong> Excellentes compétences globales. L'élève comprend avec précision et maîtrise les structures fondamentales.</li>
+        <li><strong>Honnêteté intellectuelle :</strong> ${honestCount > 0 ? `L'élève a su identifier ses doutes (${honestCount} fois) plutôt que de répondre au hasard, ce qui reflète une bonne métacognition.` : `Score direct obtenu avec une grande assurance.`}</li>
+        <li><strong>Prochaines étapes :</strong> Passer au passé composé et introduire des dialogues de niveau A2.</li>
+      </ul>
+    `;
+  } else if (pct >= 65) {
+    levelText = "Niveau A1 Validé (Socle acquis)";
+    levelClass = "level-a1-valid";
+    recoHtml = `
+      <ul>
+        <li><strong>Diagnostic :</strong> Le socle du niveau A1 est bien compris. Les erreurs restantes proviennent principalement d'hésitations lexicales ou grammaticales ciblées.</li>
+        <li><strong>Valorisation :</strong> ${honestCount} point(s) d'honnêteté enregistré(s) permettant d'identifier précisément les notions à revoir sans fausser le bilan.</li>
+        <li><strong>Prochaines étapes :</strong> Exercices ciblés sur les prépositions et la spontanéité orale.</li>
+      </ul>
+    `;
+  } else if (pct >= 45) {
+    levelText = "Niveau A1 en cours d'acquisition (Nécessite renforcement)";
+    levelClass = "level-a1-encours";
+    recoHtml = `
+      <ul>
+        <li><strong>Diagnostic :</strong> Connaissances en cours de stabilisation. Certaines notions grammaticales nécessitent un travail de révision systématique.</li>
+        <li><strong>Prochaines étapes :</strong> Fiches d'exercices visuelles sur le présent des verbes clés et apprentissage guidé du vocabulaire.</li>
+      </ul>
+    `;
+  } else {
+    levelText = "Niveau Débutant / Pré-A1 (Bases à reconstruire)";
+    levelClass = "level-a1-debut";
+    recoHtml = `
+      <ul>
+        <li><strong>Diagnostic :</strong> L'élève a besoin d'un accompagnement pas à pas pour acquérir les réflexes de base.</li>
+        <li><strong>Prochaines étapes :</strong> Reprendre les repères essentiels (alphabet, formules de base, présent simple).</li>
+      </ul>
+    `;
+  }
+
+  levelBadge.innerText = levelText;
+  levelBadge.className = `level-badge ${levelClass}`;
+  recoDiv.innerHTML = recoHtml;
+
+  finalReport.scrollIntoView({ behavior: 'smooth' });
+}
+
+function restartTest() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  initTest();
+}
+
+window.onload = initTest;
+</script>
+
+</body>
+</html>
