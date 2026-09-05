@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IELTS Collocations Masterclass: Eco-Corporate Detective</title>
+<style>
+  :root {
+    --primary: #10b981;
+    --primary-dark: #047857;
+    --accent: #f59e0b;
+    --dark: #0f172a;
+    --card-bg: rgba(15, 23, 42, 0.90);
+    --border: rgba(255, 255, 255, 0.16);
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+    --danger: #ef4444;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(rgba(15, 23, 42, 0.25), rgba(15, 23, 42, 0.35)),
+      url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed;
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  #canvas-fireworks {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .game-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    width: 100%;
+    max-width: 780px;
+    border-radius: 20px;
+    padding: 36px 32px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    position: relative;
+    z-index: 10;
+  }
+
+  .progress-wrap {
+    margin-bottom: 24px;
+  }
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .progress-bar-bg {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    transition: width 0.4s ease;
+  }
+
+  h1, h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #fff;
+  }
+  p {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .btn {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.4);
+  }
+  .btn:active {
+    transform: translateY(0);
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 20px -5px rgba(255, 255, 255, 0.1);
+  }
+
+  .speaker-btn {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+  .speaker-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.08);
+  }
+
+  /* Section 1: Multiple Choice */
+  .mc-header {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 18px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .target-definition {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #38bdf8;
+    letter-spacing: 0.01em;
+    line-height: 1.4;
+  }
+  .mc-options {
+    display: grid;
+    gap: 12px;
+  }
+  .mc-option-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    font-size: 1.05rem;
+    color: var(--text);
+    text-align: left;
+    transition: border-color 0.2s, background 0.2s;
+    width: 100%;
+  }
+  .mc-option-btn:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  .mc-option-btn.correct {
+    background: rgba(16, 185, 129, 0.25) !important;
+    border-color: var(--primary) !important;
+    color: #34d399;
+  }
+  .mc-option-btn.wrong {
+    background: rgba(239, 68, 68, 0.2) !important;
+    border-color: var(--danger) !important;
+    color: #f87171;
+  }
+
+  /* Section 2: Detective Story */
+  .story-board {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 24px;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .story-sentence {
+    font-size: 1.08rem;
+    line-height: 1.8;
+    color: #cbd5e1;
+    animation: fadeIn 0.4s ease forwards;
+  }
+  .story-sentence.solved {
+    color: #64748b;
+  }
+  .story-sentence.current {
+    color: #ffffff;
+    font-weight: 500;
+  }
+
+  .drop-zone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 220px;
+    height: 38px;
+    border: 2px dashed #38bdf8;
+    border-radius: 8px;
+    background: rgba(56, 189, 248, 0.08);
+    vertical-align: middle;
+    margin: 0 4px;
+    padding: 0 12px;
+    transition: all 0.2s ease;
+  }
+  .drop-zone.dragover {
+    background: rgba(56, 189, 248, 0.25);
+    border-color: #7dd3fc;
+    transform: scale(1.02);
+  }
+  .drop-zone.matched {
+    border: 2px solid var(--primary);
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    font-weight: 600;
+  }
+  .drop-zone.error {
+    animation: shake 0.4s ease;
+    border-color: var(--danger);
+    background: rgba(239, 68, 68, 0.2);
+  }
+
+  .tokens-pool {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+  }
+  .draggable-token {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #f1f5f9;
+    cursor: grab;
+    user-select: none;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .draggable-token:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+  }
+  .draggable-token:active {
+    cursor: grabbing;
+  }
+
+  .report-box {
+    text-align: center;
+    padding: 24px 0;
+  }
+  .score-badge {
+    display: inline-block;
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 8px;
+  }
+  .eval-badge {
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+  .eval-badge.high { color: #34d399; }
+  .eval-badge.medium { color: var(--accent); }
+  .eval-badge.low { color: var(--danger); }
+
+  .deduction-notice {
+    font-size: 0.95rem;
+    color: #f87171;
+    margin-bottom: 16px;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<canvas id="canvas-fireworks"></canvas>
+
+<div class="game-card">
+  <div id="progress-wrapper" class="progress-wrap hidden">
+    <div class="progress-labels">
+      <span id="stage-title">Section 1</span>
+      <span id="progress-count">0 / 7</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div id="progress-bar" class="progress-bar-fill"></div>
+    </div>
+  </div>
+
+  <div id="screen-instructions">
+    <h1>Case File: Corporate Eco-Audit</h1>
+    <p>Welcome, Investigator. A multinational investment firm claims zero environmental impact, but internal whispers tell another story. Master the essential collocations to decipher their classified documents.</p>
+    <div style="background: rgba(255, 255, 255, 0.05); padding: 18px; border-radius: 12px; margin-bottom: 24px; font-size: 0.95rem; line-height: 1.6;">
+      <strong style="color: #fff;">Protocol & Grading Rules:</strong>
+      <ul style="margin-left: 20px; margin-top: 8px; color: var(--text-muted);">
+        <li><strong>Phase 1:</strong> Read the formal B2 definition and choose the matching collocation from the 4 options. Click the speaker button next to the definition to listen (Speed: 0.8). Scoring is calculated out of 30.</li>
+        <li><strong>Phase 2:</strong> Solve the detective narrative sentence by sentence by dragging collocations into the missing gaps. Draggable items stay available throughout.</li>
+        <li><strong>Penalty Clause:</strong> Each incorrect attempt reduces your net score upon final evaluation!</li>
+      </ul>
+    </div>
+    <div class="button-group">
+      <button class="btn" onclick="startGame()">Start Investigation</button>
+      <button class="btn btn-secondary" onclick="speakInstructions()">🔊 Listen to Instructions</button>
+    </div>
+  </div>
+
+  <div id="screen-mc" class="hidden">
+    <div class="mc-header">
+      <button class="speaker-btn" onclick="playCurrentDefinitionAudio()" title="Listen to definition">🔊</button>
+      <div>
+        <span style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 4px;">Definition</span>
+        <div id="mc-definition-text" class="target-definition">--</div>
+      </div>
+    </div>
+    <div id="mc-options-container" class="mc-options"></div>
+  </div>
+
+  <div id="screen-sec1-result" class="hidden report-box">
+    <h2>Phase 1 Debrief</h2>
+    <div id="sec1-score-display" class="score-badge">0 out of 30</div>
+    <div id="sec1-eval-badge" class="eval-badge">--</div>
+    <p id="sec1-deductions" class="deduction-notice"></p>
+    <p id="sec1-feedback-text">Phase 1 complete. Get ready to investigate the corporate dossier.</p>
+    <button class="btn" onclick="startSection2()">Proceed to Phase 2: The Mystery</button>
+  </div>
+
+  <div id="screen-story" class="hidden">
+    <h2>The Apex Holding Investigation</h2>
+    <p style="font-size: 0.9rem; margin-bottom: 12px;">Drag the appropriate collocation into the active gap to reveal the story sentence by sentence.</p>
+    <div id="story-board" class="story-board"></div>
+    <div id="tokens-pool" class="tokens-pool"></div>
+  </div>
+
+  <div id="screen-final-result" class="hidden report-box">
+    <h2>Investigation Concluded</h2>
+    <div id="final-score-display" class="score-badge">30 out of 30</div>
+    <div id="final-eval-badge" class="eval-badge">--</div>
+    <p id="sec2-deductions" class="deduction-notice"></p>
+    <p id="final-feedback-text">Outstanding work. You successfully penetrated the financial double-speak and pieced together the evidence using sound collocations.</p>
+    <button class="btn" onclick="restartGame()">Replay Investigation</button>
+  </div>
+</div>
+
+<script>
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playSuccessSound() {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const now = audioCtx.currentTime;
+  const osc1 = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+
+  osc1.type = 'sine';
+  osc2.type = 'sine';
+
+  osc1.frequency.setValueAtTime(523.25, now);
+  osc1.frequency.setValueAtTime(659.25, now + 0.12);
+  osc2.frequency.setValueAtTime(783.99, now + 0.12);
+
+  gainNode.gain.setValueAtTime(0.2, now);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+  osc1.connect(gainNode);
+  osc2.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  osc1.start(now);
+  osc2.start(now + 0.12);
+  osc1.stop(now + 0.45);
+  osc2.stop(now + 0.45);
+}
+
+function playFailureSound() {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(180, now);
+  osc.frequency.linearRampToValueAtTime(80, now + 0.35);
+
+  gainNode.gain.setValueAtTime(0.18, now);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+  osc.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  osc.start(now);
+  osc.stop(now + 0.35);
+}
+
+// Target Data: Sophisticated B2 definitions under 6 words
+const collocationsData = [
+  {
+    collocation: "Breach of fiduciary responsibility",
+    definition: "Betraying essential legal obligations to investors."
+  },
+  {
+    collocation: "Maximize profits",
+    definition: "Generating optimal financial commercial returns."
+  },
+  {
+    collocation: "Government regulation",
+    definition: "Enforcing statutory legal industry controls."
+  },
+  {
+    collocation: "Poor track record",
+    definition: "Documented history of substandard performance."
+  },
+  {
+    collocation: "Exert powerful pressure",
+    definition: "Applying strong influence demanding compliance."
+  },
+  {
+    collocation: "Supply chain",
+    definition: "Integrated network distributing manufactured commodities."
+  },
+  {
+    collocation: "Sound environmental practices",
+    definition: "Sustainable methods minimizing ecological damage."
+  }
+];
+
+const storySentences = [
+  {
+    id: 1,
+    hasGap: false,
+    text: "Detective Vance stepped into the high-rise office of Apex Holdings at midnight to inspect their sealed records."
+  },
+  {
+    id: 2,
+    hasGap: true,
+    expected: "maximize profits",
+    before: "Leaked memos proved the directors were willing to ignore toxic dumping simply to ",
+    after: " before quarterly balance sheets closed."
+  },
+  {
+    id: 3,
+    hasGap: true,
+    expected: "poor track record",
+    before: "Internal audits revealed the firm already had a ",
+    after: " of concealing refinery spills across several continents."
+  },
+  {
+    id: 4,
+    hasGap: true,
+    expected: "supply chain",
+    before: "Vance traced the illicit waste across every stage of their complex ",
+    after: ", starting from regional refiners down to transport contractors."
+  },
+  {
+    id: 5,
+    hasGap: true,
+    expected: "government regulation",
+    before: "Historically, weak ",
+    after: " allowed them to dodge penalties in territories without strict ecological oversight."
+  },
+  {
+    id: 6,
+    hasGap: true,
+    expected: "exert powerful pressure",
+    before: "However, community boycotts and legal coalitions began to ",
+    after: " on major retail banks that financed their operations."
+  },
+  {
+    id: 7,
+    hasGap: true,
+    expected: "breach of fiduciary responsibility",
+    before: "Terrified institutional shareholders threatened to sue the executive committee for ",
+    after: " once share values tanked."
+  },
+  {
+    id: 8,
+    hasGap: true,
+    expected: "sound environmental practices",
+    before: "Faced with financial collapse, the CEO had no option but to adopt ",
+    after: " and clean up every unmanaged dumping site."
+  },
+  {
+    id: 9,
+    hasGap: false,
+    text: "Vance filed his report with the federal magistrate: the market, when held accountable, leaves greed nowhere to hide."
+  }
+];
+
+let currentSec1Index = 0;
+let sec1Correct = 0;
+let sec1Mistakes = 0;
+
+let currentStoryStep = 0;
+let sec2Mistakes = 0;
+let selectedMaleVoice = null;
+
+function setupVoice() {
+  if ('speechSynthesis' in window) {
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      const preferred = voices.find(v => 
+        (v.lang.startsWith("en")) && 
+        (v.name.includes("David") || v.name.includes("Male") || v.name.includes("Daniel") || v.name.includes("George") || v.name.includes("Guy"))
+      );
+      selectedMaleVoice = preferred || voices.find(v => v.lang.startsWith("en")) || voices[0];
+    };
+    loadVoices();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }
+}
+setupVoice();
+
+function playCurrentDefinitionAudio() {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const phrase = collocationsData[currentSec1Index].definition;
+  const utter = new SpeechSynthesisUtterance(phrase);
+  utter.rate = 0.8;
+  if (selectedMaleVoice) utter.voice = selectedMaleVoice;
+  window.speechSynthesis.speak(utter);
+}
+
+function speakInstructions() {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const text = "Welcome to the Corporate Eco-Audit. In phase 1, examine the formal definition and identify the corresponding collocation. You can press the speaker button next to the definition to listen at speed 0.8. Your score is graded out of 30. In phase 2, drag the collocations to solve the detective story. Incorrect answers reduce your score. Work accurately.";
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 0.8;
+  if (selectedMaleVoice) utter.voice = selectedMaleVoice;
+  window.speechSynthesis.speak(utter);
+}
+
+function showScreen(id) {
+  ['screen-instructions', 'screen-mc', 'screen-sec1-result', 'screen-story', 'screen-final-result'].forEach(s => {
+    document.getElementById(s).classList.add('hidden');
+  });
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function updateProgress(sectionLabel, current, total) {
+  document.getElementById('progress-wrapper').classList.remove('hidden');
+  document.getElementById('stage-title').innerText = sectionLabel;
+  document.getElementById('progress-count').innerText = `${current} / ${total}`;
+  const pct = Math.round((current / total) * 100);
+  document.getElementById('progress-bar').style.width = `${pct}%`;
+}
+
+function startGame() {
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  currentSec1Index = 0;
+  sec1Correct = 0;
+  sec1Mistakes = 0;
+  showScreen('screen-mc');
+  renderMCQuestion();
+}
+
+function renderMCQuestion() {
+  updateProgress('Section 1: Definition Matching', currentSec1Index + 1, collocationsData.length);
+  const currentItem = collocationsData[currentSec1Index];
+  document.getElementById('mc-definition-text').innerText = currentItem.definition;
+
+  const container = document.getElementById('mc-options-container');
+  container.innerHTML = '';
+
+  const distractors = collocationsData
+    .filter(item => item.collocation !== currentItem.collocation)
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 3)
+    .map(item => item.collocation);
+
+  const options = [...distractors, currentItem.collocation].sort(() => Math.random() - 0.5);
+
+  options.forEach(colloc => {
+    const btn = document.createElement('button');
+    btn.className = 'mc-option-btn';
+    btn.innerText = colloc;
+    btn.onclick = () => checkMCAnswer(btn, colloc === currentItem.collocation, currentItem.collocation);
+    container.appendChild(btn);
+  });
+}
+
+function checkMCAnswer(clickedBtn, isCorrect, correctCollocation) {
+  const allBtns = document.querySelectorAll('.mc-option-btn');
+  allBtns.forEach(btn => btn.onclick = null);
+
+  if (isCorrect) {
+    sec1Correct++;
+    clickedBtn.classList.add('correct');
+    playSuccessSound();
+    launchFireworks();
+  } else {
+    sec1Mistakes++;
+    clickedBtn.classList.add('wrong');
+    playFailureSound();
+    allBtns.forEach(btn => {
+      if (btn.innerText === correctCollocation) {
+        btn.classList.add('correct');
+      }
+    });
+  }
+
+  setTimeout(() => {
+    currentSec1Index++;
+    if (currentSec1Index < collocationsData.length) {
+      renderMCQuestion();
+    } else {
+      finishSection1();
+    }
+  }, 1300);
+}
+
+function finishSection1() {
+  showScreen('screen-sec1-result');
+  
+  const rawScore = (sec1Correct / collocationsData.length) * 30;
+  const penalty = sec1Mistakes * 3;
+  const finalSec1Score = Math.max(0, Math.round(rawScore - penalty));
+
+  document.getElementById('sec1-score-display').innerText = `${finalSec1Score} out of 30`;
+  
+  const evalBadge = document.getElementById('sec1-eval-badge');
+  const feedback = document.getElementById('sec1-feedback-text');
+
+  if (finalSec1Score >= 25) {
+    evalBadge.innerText = "Well Done!";
+    evalBadge.className = "eval-badge high";
+    feedback.innerText = "Outstanding precision. You have mastered these academic collocations and their formal definitions.";
+  } else if (finalSec1Score >= 16) {
+    evalBadge.innerText = "Good Effort!";
+    evalBadge.className = "eval-badge medium";
+    feedback.innerText = "Solid lexical foundation. Keep refining subtle differences between corporate terms.";
+  } else {
+    evalBadge.innerText = "Work Harder!";
+    evalBadge.className = "eval-badge low";
+    feedback.innerText = "Excessive inaccuracies recorded. Revisit the advanced definitions and review before taking assessments.";
+  }
+
+  document.getElementById('sec1-deductions').innerText = 
+    sec1Mistakes > 0 ? `Unsuccessful attempts: ${sec1Mistakes} (-${penalty} pts penalty applied)` : `Flawless run! Zero incorrect attempts.`;
+}
+
+function startSection2() {
+  currentStoryStep = 0;
+  sec2Mistakes = 0;
+  showScreen('screen-story');
+  document.getElementById('story-board').innerHTML = '';
+  renderTokensPool();
+  advanceStory();
+}
+
+function renderTokensPool() {
+  const pool = document.getElementById('tokens-pool');
+  pool.innerHTML = '';
+  collocationsData.forEach(item => {
+    const token = document.createElement('div');
+    token.className = 'draggable-token';
+    token.draggable = true;
+    token.innerText = item.collocation;
+    token.dataset.value = item.collocation.toLowerCase();
+    token.ondragstart = (e) => {
+      e.dataTransfer.setData('text/plain', e.target.dataset.value);
+    };
+    pool.appendChild(token);
+  });
+}
+
+function advanceStory() {
+  updateProgress('Section 2: Detective Story', currentStoryStep, storySentences.length);
+
+  if (currentStoryStep >= storySentences.length) {
+    setTimeout(finishSection2, 1000);
+    return;
+  }
+
+  const s = storySentences[currentStoryStep];
+  const board = document.getElementById('story-board');
+
+  const sentenceDiv = document.createElement('div');
+  sentenceDiv.className = 'story-sentence current';
+  sentenceDiv.id = `sentence-step-${currentStoryStep}`;
+
+  if (!s.hasGap) {
+    sentenceDiv.innerText = s.text;
+    board.appendChild(sentenceDiv);
+    currentStoryStep++;
+    setTimeout(advanceStory, 900);
+  } else {
+    sentenceDiv.innerHTML = `${s.before}<span class="drop-zone" id="active-dropzone">Drop collocation here</span>${s.after}`;
+    board.appendChild(sentenceDiv);
+    bindDropZone(s.expected.toLowerCase());
+  }
+}
+
+function bindDropZone(expectedValue) {
+  const dz = document.getElementById('active-dropzone');
+  dz.ondragover = (e) => {
+    e.preventDefault();
+    dz.classList.add('dragover');
+  };
+  dz.ondragleave = () => {
+    dz.classList.remove('dragover');
+  };
+  dz.ondrop = (e) => {
+    e.preventDefault();
+    dz.classList.remove('dragover');
+    const droppedValue = e.dataTransfer.getData('text/plain');
+
+    if (droppedValue === expectedValue) {
+      dz.classList.add('matched');
+      dz.innerText = droppedValue;
+      playSuccessSound();
+      launchFireworks();
+      
+      const parentSentence = dz.closest('.story-sentence');
+      parentSentence.classList.remove('current');
+      parentSentence.classList.add('solved');
+      dz.removeAttribute('id');
+
+      currentStoryStep++;
+      setTimeout(advanceStory, 1100);
+    } else {
+      sec2Mistakes++;
+      playFailureSound();
+      dz.classList.add('error');
+      setTimeout(() => dz.classList.remove('error'), 600);
+    }
+  };
+}
+
+function finishSection2() {
+  showScreen('screen-final-result');
+  document.getElementById('stage-title').innerText = "Audit Completed";
+  document.getElementById('progress-bar').style.width = '100%';
+  document.getElementById('progress-count').innerText = "Done";
+
+  const penalty = sec2Mistakes * 3;
+  const finalSec2Score = Math.max(0, 30 - penalty);
+
+  document.getElementById('final-score-display').innerText = `${finalSec2Score} out of 30`;
+  
+  const evalBadge = document.getElementById('final-eval-badge');
+  const feedback = document.getElementById('final-feedback-text');
+
+  if (finalSec2Score >= 25) {
+    evalBadge.innerText = "Well Done!";
+    evalBadge.className = "eval-badge high";
+    feedback.innerText = "Superb investigative deduction. You applied every collocation in authentic context without faltering.";
+  } else if (finalSec2Score >= 16) {
+    evalBadge.innerText = "Good Effort!";
+    evalBadge.className = "eval-badge medium";
+    feedback.innerText = "The case was solved, though multiple errors slightly disrupted your analytical trail.";
+  } else {
+    evalBadge.innerText = "Work Harder!";
+    evalBadge.className = "eval-badge low";
+    feedback.innerText = "Substantial mistakes occurred. Re-read the passage context to see how these collocations connect syntactically.";
+  }
+
+  document.getElementById('sec2-deductions').innerText = 
+    sec2Mistakes > 0 ? `Unsuccessful drag attempts: ${sec2Mistakes} (-${penalty} pts penalty applied)` : `Flawless investigation! No deductions applied.`;
+
+  playSuccessSound();
+  launchFireworks();
+}
+
+function restartGame() {
+  showScreen('screen-instructions');
+  document.getElementById('progress-wrapper').classList.add('hidden');
+}
+
+const canvas = document.getElementById('canvas-fireworks');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+class Particle {
+  constructor(x, y, color) {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 6 + 2;
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed;
+    this.alpha = 1;
+    this.decay = Math.random() * 0.02 + 0.015;
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.vy += 0.08;
+    this.alpha -= this.decay;
+  }
+  draw(ctx) {
+    ctx.save();
+    ctx.globalAlpha = this.alpha;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function launchFireworks() {
+  const colors = ['#10b981', '#38bdf8', '#f59e0b', '#ec4899', '#ffffff'];
+  const originX = window.innerWidth * 0.5 + (Math.random() - 0.5) * (window.innerWidth * 0.4);
+  const originY = window.innerHeight * 0.4 + (Math.random() - 0.5) * (window.innerHeight * 0.2);
+  for (let i = 0; i < 55; i++) {
+    particles.push(new Particle(originX, originY, colors[Math.floor(Math.random() * colors.length)]));
+  }
+}
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].update();
+    particles[i].draw(ctx);
+    if (particles[i].alpha <= 0) {
+      particles.splice(i, 1);
+    }
+  }
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+</script>
+</body>
+</html>
