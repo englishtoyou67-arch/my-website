@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breaking Bad: The Lexical Metamorphosis</title>
+<style>
+  :root {
+    --bb-green: #1f6032;
+    --bb-dark-green: #0a1f13;
+    --bb-gold: #f4c430;
+    --bb-blue: #00d2ff;
+    --bb-panel: rgba(14, 24, 18, 0.94);
+    --red: #b33939;
+    --blue: #227093;
+    --yellow: #cd6133;
+    --purple: #574b90;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  /* Authentic high-resolution Unsplash background: Chemistry laboratory glassware & dramatic lighting */
+  body {
+    background-color: #0b120e;
+    background-image: 
+      linear-gradient(rgba(8, 20, 14, 0.82), rgba(30, 15, 10, 0.88)),
+      url('https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 14px;
+    overflow-x: hidden;
+  }
+
+  .game-container {
+    width: 100%;
+    max-width: 940px;
+    background: var(--bb-panel);
+    border: 2px solid var(--bb-green);
+    border-radius: 14px;
+    box-shadow: 0 0 45px rgba(0, 0, 0, 0.95), 0 0 20px rgba(31, 96, 50, 0.4);
+    padding: 26px;
+    position: relative;
+    backdrop-filter: blur(8px);
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .bb-logo {
+    display: inline-block;
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #fff;
+    text-transform: uppercase;
+  }
+
+  .element-symbol {
+    display: inline-block;
+    background: var(--bb-green);
+    border: 2px solid #fff;
+    padding: 2px 8px;
+    margin-right: 2px;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+    color: #fff;
+  }
+
+  /* Instruction Screen */
+  #instructionScreen {
+    display: block;
+    text-align: center;
+  }
+
+  .instruction-card {
+    background: rgba(10, 18, 14, 0.85);
+    border: 1px solid var(--bb-green);
+    border-left: 6px solid var(--bb-gold);
+    border-radius: 10px;
+    padding: 24px;
+    margin: 20px 0;
+    text-align: left;
+    line-height: 1.7;
+  }
+
+  .instruction-card h3 {
+    color: var(--bb-gold);
+    font-size: 1.25rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .instruction-card ul {
+    margin-left: 24px;
+    margin-bottom: 16px;
+  }
+
+  .instruction-card li {
+    margin-bottom: 8px;
+  }
+
+  .instruction-card strong {
+    color: #fff;
+  }
+
+  .start-btn {
+    background: var(--bb-green);
+    border: 2px solid #4ade80;
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: bold;
+    padding: 14px 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(31, 96, 50, 0.5);
+    transition: transform 0.15s, background 0.2s;
+  }
+
+  .start-btn:hover {
+    background: #2a8345;
+    transform: translateY(-2px);
+  }
+
+  /* 12-Stage Classroom Track */
+  .classroom-track {
+    background: linear-gradient(90deg, #10261b 0%, #30160d 100%);
+    border: 2px solid #3d5647;
+    border-radius: 12px;
+    padding: 26px 12px 14px 12px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .stage-markers {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+  }
+
+  .stage-node {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #141c18;
+    border: 2px solid #3d5647;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+
+  .stage-node.current {
+    border-color: var(--bb-gold);
+    box-shadow: 0 0 12px var(--bb-gold);
+    color: #fff;
+  }
+
+  .stage-node.pass {
+    background: var(--bb-green);
+    border-color: #4ade80;
+    color: #fff;
+  }
+
+  .stage-node.fail {
+    background: #c0392b;
+    border-color: #ff7675;
+    color: #fff;
+  }
+
+  /* Male Teacher Avatar */
+  .teacher-runner {
+    position: absolute;
+    top: -28px;
+    left: 0%;
+    transform: translateX(-50%);
+    width: 54px;
+    height: 54px;
+    background: radial-gradient(circle, #222f28 0%, #0c120f 100%);
+    border: 2px solid var(--bb-gold);
+    border-radius: 50%;
+    box-shadow: 0 0 16px rgba(244, 196, 48, 0.8), inset 0 0 6px rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: left 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  .teacher-runner svg {
+    width: 44px;
+    height: 44px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+  }
+
+  .timer-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,0.55);
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    border: 1px solid #2d4536;
+  }
+
+  .timer-display {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--bb-gold);
+    font-family: monospace;
+  }
+
+  .def-card {
+    background: rgba(14, 24, 19, 0.92);
+    border: 1px solid var(--bb-green);
+    border-left: 6px solid var(--bb-gold);
+    border-radius: 8px;
+    padding: 18px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .def-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .def-title {
+    font-size: 0.95rem;
+    color: #a3b899;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+  }
+
+  .listen-btn {
+    background: var(--bb-green);
+    color: #fff;
+    border: 1px solid #4ade80;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+  }
+
+  .listen-btn:hover {
+    background: #2a8345;
+  }
+
+  .definition-text {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 1.4;
+  }
+
+  .choices-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  @media(max-width: 650px) {
+    .choices-grid { grid-template-columns: 1fr; }
+  }
+
+  .choice-card {
+    border: none;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transition: transform 0.15s, filter 0.2s;
+  }
+
+  .choice-card:hover:not(.disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.15);
+  }
+
+  .choice-card.disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+
+  .choice-speaker-btn {
+    background: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-left: 10px;
+    transition: background 0.2s;
+  }
+
+  .choice-speaker-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  .box-0 { background: var(--red); }
+  .box-1 { background: var(--blue); }
+  .box-2 { background: var(--yellow); }
+  .box-3 { background: var(--purple); }
+
+  /* Section 2: Summary Cloze */
+  .cloze-section {
+    display: none;
+  }
+
+  .story-sentence-card {
+    background: #0b1410;
+    border: 2px solid #234731;
+    border-radius: 8px;
+    padding: 22px;
+    margin-bottom: 20px;
+    font-size: 1.25rem;
+    line-height: 1.8;
+  }
+
+  .cloze-definition-label {
+    color: var(--bb-gold);
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+    font-size: 1.05rem;
+  }
+
+  .word-bank-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .chip {
+    background: #1c2b23;
+    border: 1px solid var(--bb-green);
+    color: #e0e0e0;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .chip:hover {
+    background: var(--bb-green);
+    color: #fff;
+  }
+
+  .typing-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .typing-input {
+    flex: 1;
+    padding: 12px 16px;
+    background: #08100c;
+    border: 2px solid #334d3f;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1.1rem;
+  }
+
+  .typing-input:focus {
+    outline: none;
+    border-color: var(--bb-blue);
+  }
+
+  .submit-cloze-btn {
+    background: var(--bb-green);
+    color: #fff;
+    border: none;
+    padding: 0 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .submit-cloze-btn:hover {
+    background: #2a8345;
+  }
+
+  .cloze-feedback {
+    display: none;
+    padding: 14px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+
+  .fire-burst {
+    position: fixed;
+    pointer-events: none;
+    font-size: 3rem;
+    animation: fireRise 0.8s ease-out forwards;
+    z-index: 9999;
+  }
+
+  @keyframes fireRise {
+    0% { transform: translateY(0) scale(0.6); opacity: 1; filter: drop-shadow(0 0 12px orange); }
+    50% { transform: translateY(-45px) scale(1.4); opacity: 1; filter: drop-shadow(0 0 24px red); }
+    100% { transform: translateY(-90px) scale(1); opacity: 0; }
+  }
+
+  .results-panel {
+    display: none;
+    text-align: center;
+    padding: 30px 10px;
+  }
+
+  .score-badge {
+    font-size: 4.2rem;
+    font-weight: 900;
+    color: var(--bb-gold);
+    margin-bottom: 15px;
+    font-family: monospace;
+  }
+
+  .report-text {
+    font-size: 1.2rem;
+    margin-bottom: 25px;
+    line-height: 1.6;
+    max-width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .restart-btn {
+    background: var(--bb-green);
+    border: 2px solid #4ade80;
+    color: white;
+    padding: 12px 32px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="game-container">
+  <div class="header">
+    <div class="bb-logo">
+      <span class="element-symbol">Br</span>eaking 
+      <span class="element-symbol">Ba</span>d
+    </div>
+    <p style="color: var(--bb-gold); font-size: 0.95rem; margin-top: 4px; letter-spacing: 1px;">
+      EPISODE 6: THE LEXICAL VAULT
+    </p>
+  </div>
+
+  <!-- INSTRUCTION PAGE -->
+  <div id="instructionScreen">
+    <div class="instruction-card">
+      <h3>📋 Lab Briefing & Rules</h3>
+      <p>Welcome to Walter White's Advanced Chemistry & Vocabulary Lab. Complete both sections to test your command of C1-level collocations from Season 1, Episode 6:</p>
+      
+      <h4 style="color: var(--bb-blue); margin: 12px 0 6px 0;">Section 1: The 12-Stage Definition Arena</h4>
+      <ul>
+        <li>A male teacher moves through a <strong>12-stage progress bar</strong> across the classroom.</li>
+        <li>You have <strong>30 seconds</strong> per question.</li>
+        <li>Hear the definition read aloud at <strong>0.8x speed</strong>, or use the speaker icon on any of the 4 colored option cards to hear them spoken.</li>
+        <li>Each correct answer triggers a <strong>burst of fire</strong> and a victory sound; incorrect answers produce a failure buzzer.</li>
+      </ul>
+
+      <h4 style="color: var(--bb-blue); margin: 12px 0 6px 0;">Section 2: The Episode Summary Reconstruction</h4>
+      <ul>
+        <li>You will reconstruct the story sentence by sentence.</li>
+        <li>Sentences show the target meaning in brackets <strong>[definition]</strong>.</li>
+        <li>Choose from <strong>6 base collocations</strong> in the word bank and type the correct answer into the box.</li>
+        <li><strong>Grammar Alert:</strong> Adapt the base form if required by the sentence (e.g., convert singular to plural or base verbs to past tense).</li>
+      </ul>
+    </div>
+    <button class="start-btn" onclick="startAdventure()">ENTER THE LAB 🧪</button>
+  </div>
+
+  <!-- SECTION 1: 12-Stage Track & Multiple Choice -->
+  <div id="section1" style="display: none;">
+    <div class="classroom-track">
+      <div class="teacher-runner" id="teacherMarker" title="Mr. White - High School Teacher">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 58C10 46 20 40 32 40C44 40 54 46 54 58" fill="#1b4332" stroke="#2d6a4f" stroke-width="1.8"/>
+          <path d="M26 40L32 48L38 40" fill="#f8f9fa"/>
+          <path d="M30 46L32 58L34 46Z" fill="#c0392b"/>
+          <rect x="28" y="36" width="8" height="6" fill="#e0ac69"/>
+          <circle cx="32" cy="24" r="13" fill="#e0ac69"/>
+          <path d="M20 22C20 14 24 12 32 12C40 12 44 14 44 22C41 18 36 17 32 17C28 17 23 18 20 22Z" fill="#7f4f24"/>
+          <rect x="22" y="20" width="8" height="6" rx="1.5" stroke="#2b2b2b" stroke-width="1.6" fill="rgba(255,255,255,0.4)"/>
+          <rect x="34" y="20" width="8" height="6" rx="1.5" stroke="#2b2b2b" stroke-width="1.6" fill="rgba(255,255,255,0.4)"/>
+          <line x1="30" y1="23" x2="34" y2="23" stroke="#2b2b2b" stroke-width="1.6"/>
+          <path d="M23 18L29 19" stroke="#5a3d28" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M35 19L41 18" stroke="#5a3d28" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="26" cy="23" r="1.2" fill="#1b1b1b"/>
+          <circle cx="38" cy="23" r="1.2" fill="#1b1b1b"/>
+          <path d="M27 30C29 28.8 31 29 32 29.5C33 29 35 28.8 37 30C36 31.8 28 31.8 27 30Z" fill="#6e472a"/>
+          <line x1="29" y1="33" x2="35" y2="33" stroke="#a26c4b" stroke-width="1.2"/>
+          <path d="M46 56L51 46H47V42H53V46L58 56C59 58 57 59 55 59H49C47 59 45 58 46 56Z" fill="#00d2ff" stroke="#ffffff" stroke-width="1.2" opacity="0.9"/>
+        </svg>
+      </div>
+
+      <div class="stage-markers" id="stageMarkers">
+        <div class="stage-node current" id="stage-0">1</div>
+        <div class="stage-node" id="stage-1">2</div>
+        <div class="stage-node" id="stage-2">3</div>
+        <div class="stage-node" id="stage-3">4</div>
+        <div class="stage-node" id="stage-4">5</div>
+        <div class="stage-node" id="stage-5">6</div>
+        <div class="stage-node" id="stage-6">7</div>
+        <div class="stage-node" id="stage-7">8</div>
+        <div class="stage-node" id="stage-8">9</div>
+        <div class="stage-node" id="stage-9">10</div>
+        <div class="stage-node" id="stage-10">11</div>
+        <div class="stage-node" id="stage-11">12</div>
+      </div>
+    </div>
+
+    <div class="timer-box">
+      <span>Stage <span id="qIdxDisplay">1</span> of 12</span>
+      <div class="timer-display">⏳ 00:<span id="secDisplay">30</span></div>
+    </div>
+
+    <div class="def-card">
+      <div class="def-header">
+        <span class="def-title">Lexical Vault Definition</span>
+        <button class="listen-btn" onclick="readDefinition()">🔊 Listen (0.8x)</button>
+      </div>
+      <div class="definition-text" id="defContent">...</div>
+    </div>
+
+    <div class="choices-grid">
+      <div class="choice-card box-0" id="card-0" onclick="handleChoice(0)">
+        <span id="text-0"></span>
+        <button class="choice-speaker-btn" title="Listen" onclick="speakChoice(event, 0)">🔊</button>
+      </div>
+      <div class="choice-card box-1" id="card-1" onclick="handleChoice(1)">
+        <span id="text-1"></span>
+        <button class="choice-speaker-btn" title="Listen" onclick="speakChoice(event, 1)">🔊</button>
+      </div>
+      <div class="choice-card box-2" id="card-2" onclick="handleChoice(2)">
+        <span id="text-2"></span>
+        <button class="choice-speaker-btn" title="Listen" onclick="speakChoice(event, 2)">🔊</button>
+      </div>
+      <div class="choice-card box-3" id="card-3" onclick="handleChoice(3)">
+        <span id="text-3"></span>
+        <button class="choice-speaker-btn" title="Listen" onclick="speakChoice(event, 3)">🔊</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: Sentence Cloze with Collocations -->
+  <div id="section2" class="cloze-section">
+    <div style="background: #08100c; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between;">
+      <span style="color: var(--bb-gold); font-weight: bold;">SECTION 2: SUMMARY SENTENCE RECONSTRUCTION</span>
+      <span>Sentence <span id="clozeIdxDisplay">1</span> of 8</span>
+    </div>
+
+    <div class="story-sentence-card">
+      <div id="sentenceDisplay">...</div>
+      <span class="cloze-definition-label" id="sentenceTargetDef"></span>
+    </div>
+
+    <p style="font-size: 0.9rem; color: #a3b899; margin-bottom: 8px;">
+      Word Bank (Base Collocations): Select a collocation and adapt its grammatical form to fit the sentence syntax:
+    </p>
+    <div class="word-bank-chips" id="chipsPool"></div>
+
+    <div class="typing-area">
+      <input type="text" class="typing-input" id="clozeInput" placeholder="Type the transformed collocation here..." autocomplete="off" />
+      <button class="submit-cloze-btn" onclick="checkClozeAnswer()">Check Answer</button>
+    </div>
+
+    <div class="cloze-feedback" id="clozeFeedback"></div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="resultsScreen" class="results-panel">
+    <h2 style="color: #fff; font-size: 2rem; margin-bottom: 10px;">OPERATION COMPLETE</h2>
+    <div class="score-badge" id="totalScoreDisplay">0%</div>
+    <div class="report-text" id="reportText"></div>
+    <button class="restart-btn" onclick="restartEntireGame()">PLAY AGAIN</button>
+  </div>
+</div>
+
+<script>
+  const mcqPool = [
+    {
+      def: "To set clear rules and limits.",
+      answer: "Establish strict parameters",
+      distractors: ["Mitigate violent confrontation", "Fulfill financial obligations", "Initiate a volatile reaction"]
+    },
+    {
+      def: "To make a fight less serious or stop it entirely.",
+      answer: "Mitigate violent confrontation",
+      distractors: ["Conceal an underlying vulnerability", "Exhibit psychological resilience", "Generate substantial revenue"]
+    },
+    {
+      def: "To hide a secret weakness.",
+      answer: "Conceal an underlying vulnerability",
+      distractors: ["Demonstrate calculated deception", "Establish strict parameters", "Undergo rapid transformation"]
+    },
+    {
+      def: "To start a sudden and dangerous change.",
+      answer: "Initiate a volatile reaction",
+      distractors: ["Fulfill financial obligations", "Mitigate violent confrontation", "Exhibit psychological resilience"]
+    },
+    {
+      def: "To show you are mentally strong.",
+      answer: "Exhibit psychological resilience",
+      distractors: ["Demonstrate calculated deception", "Conceal an underlying vulnerability", "Generate substantial revenue"]
+    },
+    {
+      def: "To lie in a very smart and planned way.",
+      answer: "Demonstrate calculated deception",
+      distractors: ["Establish strict parameters", "Undergo rapid transformation", "Initiate a volatile reaction"]
+    },
+    {
+      def: "To pay what you owe on time.",
+      answer: "Fulfill financial obligations",
+      distractors: ["Generate substantial revenue", "Mitigate violent confrontation", "Conceal an underlying vulnerability"]
+    },
+    {
+      def: "To change very quickly.",
+      answer: "Undergo rapid transformation",
+      distractors: ["Exhibit psychological resilience", "Demonstrate calculated deception", "Establish strict parameters"]
+    },
+    {
+      def: "To make a lot of money.",
+      answer: "Generate substantial revenue",
+      distractors: ["Fulfill financial obligations", "Initiate a volatile reaction", "Undergo rapid transformation"]
+    },
+    {
+      def: "To establish firm boundaries and rules for an enterprise.",
+      answer: "Establish strict parameters",
+      distractors: ["Demonstrate calculated deception", "Conceal an underlying vulnerability", "Exhibit psychological resilience"]
+    },
+    {
+      def: "To present an outward display of mental toughness during conflict.",
+      answer: "Exhibit psychological resilience",
+      distractors: ["Mitigate violent confrontation", "Fulfill financial obligations", "Undergo rapid transformation"]
+    },
+    {
+      def: "To produce a very large amount of business income.",
+      answer: "Generate substantial revenue",
+      distractors: ["Initiate a volatile reaction", "Establish strict parameters", "Conceal an underlying vulnerability"]
+    }
+  ];
+
+  const clozeStoryData = [
+    {
+      sentence: "Walt attempts to [to set clear rules and limits] for his new criminal enterprise with Jesse.",
+      def: "[to set clear rules and limits]",
+      baseBank: ["establish strict parameter", "mitigate violent confrontation", "conceal an underlying vulnerability", "initiate a volatile reaction", "fulfill financial obligation", "generate substantial revenue"],
+      expected: "establish strict parameters",
+      tip: "Change 'parameter' to plural: 'establish strict parameters'."
+    },
+    {
+      sentence: "He insists on being a silent partner and demands that they [to make fights less serious or stop them entirely].",
+      def: "[to make fights less serious or stop them entirely]",
+      baseBank: ["mitigate violent confrontation", "exhibit psychological resilience", "demonstrate calculated deception", "undergo rapid transformation", "establish strict parameter", "initiate a volatile reaction"],
+      expected: "mitigate violent confrontation",
+      tip: "Use the base collocation in the subjunctive clause."
+    },
+    {
+      sentence: "Walt explains to his chemistry class that active elements can [to start a sudden and dangerous change].",
+      def: "[to start a sudden and dangerous change]",
+      baseBank: ["initiate a volatile reaction", "generate substantial revenue", "fulfill financial obligation", "mitigate violent confrontation", "conceal an underlying vulnerability", "undergo rapid transformation"],
+      expected: "initiate a volatile reaction",
+      tip: "Use the bare infinitive after modal 'can'."
+    },
+    {
+      sentence: "When Jesse confronts him, Walt admits he used his cancer diagnosis to [to hide a secret weakness].",
+      def: "[to hide a secret weakness]",
+      baseBank: ["conceal an underlying vulnerability", "establish strict parameter", "exhibit psychological resilience", "demonstrate calculated deception", "fulfill financial obligation", "initiate a volatile reaction"],
+      expected: "conceal an underlying vulnerability",
+      tip: "Infinitive form following 'to'."
+    },
+    {
+      sentence: "During the intense poker match, Walt [to show you are mentally strong] by pushing all his chips into the center.",
+      def: "[to show you are mentally strong]",
+      baseBank: ["exhibit psychological resilience", "demonstrate calculated deception", "undergo rapid transformation", "generate substantial revenue", "mitigate violent confrontation", "conceal an underlying vulnerability"],
+      expected: "exhibited psychological resilience",
+      tip: "Put the verb 'exhibit' into Past Simple: 'exhibited'."
+    },
+    {
+      sentence: "By bluffing Hank without blinking, Walt managed to [to lie in a very smart and planned way].",
+      def: "[to lie in a very smart and planned way]",
+      baseBank: ["demonstrate calculated deception", "establish strict parameter", "fulfill financial obligation", "initiate a volatile reaction", "exhibit psychological resilience", "undergo rapid transformation"],
+      expected: "demonstrate calculated deception",
+      tip: "Infinitive form after 'managed to'."
+    },
+    {
+      sentence: "In Tuco's headquarters, Heisenberg demands that the cartel boss [to pay what you owe on time].",
+      def: "[to pay what you owe on time]",
+      baseBank: ["fulfill financial obligation", "generate substantial revenue", "mitigate violent confrontation", "conceal an underlying vulnerability", "initiate a volatile reaction", "establish strict parameter"],
+      expected: "fulfill financial obligations",
+      tip: "Change 'obligation' to plural: 'fulfill financial obligations'."
+    },
+    {
+      sentence: "Walt proved to Jesse that he was willing to [to change very quickly] to protect his family.",
+      def: "[to change very quickly]",
+      baseBank: ["undergo rapid transformation", "exhibit psychological resilience", "demonstrate calculated deception", "generate substantial revenue", "mitigate violent confrontation", "fulfill financial obligation"],
+      expected: "undergo rapid transformation",
+      tip: "Infinitive form following 'willing to'."
+    }
+  ];
+
+  let s1Index = 0;
+  let s1Score = 0;
+  let classroomStage = 0;
+  let timerInterval = null;
+  let timeLeft = 30;
+
+  let s2Index = 0;
+  let s2Score = 0;
+
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    return audioCtx;
+  }
+
+  function startAdventure() {
+    getAudioCtx();
+    document.getElementById('instructionScreen').style.display = 'none';
+    document.getElementById('section1').style.display = 'block';
+    loadMCQ();
+  }
+
+  function playSuccessSound() {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(523.25, now);
+    osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.15);
+    osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.3);
+
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.45);
+  }
+
+  function playFailureSound() {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(170, now);
+    osc.frequency.linearRampToValueAtTime(80, now + 0.35);
+
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.35);
+  }
+
+  function getMaleVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    return voices.find(v => 
+      v.lang.startsWith("en") && 
+      (v.name.includes("David") || v.name.includes("Guy") || v.name.includes("Male") || v.name.includes("George") || v.name.includes("Natural"))
+    ) || voices.find(v => v.lang.startsWith("en") && !v.name.includes("Female") && !v.name.includes("Zira"));
+  }
+
+  function readDefinition() {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+
+    const q = mcqPool[s1Index];
+    const utterance = new SpeechSynthesisUtterance(q.def);
+    utterance.rate = 0.8;
+    utterance.pitch = 0.9;
+    const male = getMaleVoice();
+    if (male) utterance.voice = male;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function speakChoice(event, cardIdx) {
+    event.stopPropagation();
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+
+    const text = document.getElementById(`text-${cardIdx}`).textContent;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.8;
+    utterance.pitch = 0.9;
+    const male = getMaleVoice();
+    if (male) utterance.voice = male;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function spawnFire() {
+    for (let i = 0; i < 6; i++) {
+      const el = document.createElement('div');
+      el.className = 'fire-burst';
+      el.textContent = ['🔥', '⚡', '💥'][Math.floor(Math.random() * 3)];
+      el.style.left = (window.innerWidth / 2 + (Math.random() * 240 - 120)) + 'px';
+      el.style.top = (window.innerHeight / 2 + (Math.random() * 140 - 70)) + 'px';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 800);
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    timeLeft = 30;
+    document.getElementById('secDisplay').textContent = "30";
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      document.getElementById('secDisplay').textContent = timeLeft < 10 ? "0" + timeLeft : timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        handleChoice(-1);
+      }
+    }, 1000);
+  }
+
+  function loadMCQ() {
+    if (s1Index >= mcqPool.length) {
+      clearInterval(timerInterval);
+      loadSection2();
+      return;
+    }
+
+    document.getElementById('qIdxDisplay').textContent = (s1Index + 1);
+    const q = mcqPool[s1Index];
+    document.getElementById('defContent').textContent = `"${q.def}"`;
+
+    const options = [q.answer, ...q.distractors].sort(() => Math.random() - 0.5);
+
+    for (let i = 0; i < 4; i++) {
+      const card = document.getElementById(`card-${i}`);
+      const txt = document.getElementById(`text-${i}`);
+      txt.textContent = options[i];
+      card.dataset.correct = (options[i] === q.answer);
+      card.classList.remove('disabled');
+      card.style.filter = "none";
+    }
+
+    resetTimer();
+    readDefinition();
+  }
+
+  function handleChoice(chosenIdx) {
+    clearInterval(timerInterval);
+    const isCorrect = (chosenIdx !== -1) && (document.getElementById(`card-${chosenIdx}`).dataset.correct === "true");
+
+    for (let i = 0; i < 4; i++) {
+      document.getElementById(`card-${i}`).classList.add('disabled');
+    }
+
+    const stageNode = document.getElementById(`stage-${classroomStage}`);
+    if (isCorrect) {
+      s1Score++;
+      playSuccessSound();
+      spawnFire();
+      if (stageNode) {
+        stageNode.className = "stage-node pass";
+        stageNode.textContent = "✔";
+      }
+    } else {
+      playFailureSound();
+      if (stageNode) {
+        stageNode.className = "stage-node fail";
+        stageNode.textContent = "✖";
+      }
+    }
+
+    classroomStage = Math.min(11, classroomStage + 1);
+    const nextNode = document.getElementById(`stage-${classroomStage}`);
+    if (nextNode && !nextNode.classList.contains('pass') && !nextNode.classList.contains('fail')) {
+      nextNode.classList.add('current');
+    }
+    const percent = (classroomStage / 11) * 96;
+    document.getElementById('teacherMarker').style.left = `${percent}%`;
+
+    s1Index++;
+    setTimeout(loadMCQ, 1300);
+  }
+
+  function loadSection2() {
+    document.getElementById('section1').style.display = 'none';
+    document.getElementById('section2').style.display = 'block';
+    loadClozeSentence();
+  }
+
+  function loadClozeSentence() {
+    if (s2Index >= clozeStoryData.length) {
+      showFinalResults();
+      return;
+    }
+
+    document.getElementById('clozeIdxDisplay').textContent = (s2Index + 1);
+    const current = clozeStoryData[s2Index];
+    document.getElementById('sentenceDisplay').textContent = current.sentence;
+    document.getElementById('sentenceTargetDef').textContent = `Target Definition: ${current.def}`;
+
+    const poolDiv = document.getElementById('chipsPool');
+    poolDiv.innerHTML = '';
+    const shuffled = [...current.baseBank].sort(() => Math.random() - 0.5);
+
+    shuffled.forEach(collocation => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.textContent = collocation;
+      chip.onclick = () => {
+        document.getElementById('clozeInput').value = collocation;
+        document.getElementById('clozeInput').focus();
+      };
+      poolDiv.appendChild(chip);
+    });
+
+    const input = document.getElementById('clozeInput');
+    input.value = '';
+    input.focus();
+    const fb = document.getElementById('clozeFeedback');
+    fb.style.display = 'none';
+  }
+
+  function checkClozeAnswer() {
+    const userVal = document.getElementById('clozeInput').value.trim().toLowerCase();
+    const current = clozeStoryData[s2Index];
+    const fb = document.getElementById('clozeFeedback');
+    fb.style.display = 'block';
+
+    if (userVal === current.expected.toLowerCase()) {
+      s2Score++;
+      playSuccessSound();
+      spawnFire();
+      fb.style.background = "#14532d";
+      fb.style.color = "#86efac";
+      fb.textContent = `Correct! "${current.expected}" fits both the definition and sentence syntax perfectly.`;
+      setTimeout(() => {
+        s2Index++;
+        loadClozeSentence();
+      }, 1500);
+    } else {
+      playFailureSound();
+      fb.style.background = "#7f1d1d";
+      fb.style.color = "#fca5a5";
+      fb.textContent = `Incorrect form. Expected: "${current.expected}". Clue: ${current.tip}`;
+      setTimeout(() => {
+        s2Index++;
+        loadClozeSentence();
+      }, 2300);
+    }
+  }
+
+  document.getElementById('clozeInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') checkClozeAnswer();
+  });
+
+  function showFinalResults() {
+    document.getElementById('section2').style.display = 'none';
+    const res = document.getElementById('resultsScreen');
+    res.style.display = 'block';
+
+    const totalAchieved = s1Score + s2Score;
+    const maxScore = mcqPool.length + clozeStoryData.length;
+    const percent = Math.round((totalAchieved / maxScore) * 100);
+
+    document.getElementById('totalScoreDisplay').textContent = `${percent}%`;
+
+    let advice = "";
+    if (percent >= 90) {
+      advice = `<strong>99.1% Chemical Purity:</strong> Masterful command of the Lexical Vault. You demonstrated calculated deception, mitigated violent confrontation, and applied every collocation across all 12 stages with flawless morphological accuracy.`;
+    } else if (percent >= 70) {
+      advice = `<strong>Competent Chemist:</strong> Good overall accuracy. You recognized the full collocations, but watch out for inflections (e.g., past tense vs. infinitives or singular vs. plural parameters). Review the base collocations before your next batch.`;
+    } else {
+      advice = `<strong>Volatile Reaction Detected:</strong> You lost control of the parameters under pressure! Revisit the Lexical Vault chart to memorize the exact 9 core collocations and practice adapting them to sentence syntax.`;
+    }
+
+    document.getElementById('reportText').innerHTML = `
+      You scored <strong>${s1Score} / 12</strong> in the Definition Multiple Choice and <strong>${s2Score} / 8</strong> in the Summary Reconstruction.<br><br>
+      ${advice}
+    `;
+  }
+
+  function restartEntireGame() {
+    s1Index = 0;
+    s1Score = 0;
+    classroomStage = 0;
+    s2Index = 0;
+    s2Score = 0;
+
+    for (let i = 0; i < 12; i++) {
+      const node = document.getElementById(`stage-${i}`);
+      node.className = (i === 0) ? "stage-node current" : "stage-node";
+      node.textContent = (i + 1);
+    }
+    document.getElementById('teacherMarker').style.left = "0%";
+
+    document.getElementById('resultsScreen').style.display = 'none';
+    document.getElementById('instructionScreen').style.display = 'block';
+  }
+
+  if ('speechSynthesis' in window) {
+    speechSynthesis.onvoiceschanged = () => {};
+  }
+</script>
+</body>
+</html>
