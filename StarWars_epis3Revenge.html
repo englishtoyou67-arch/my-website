@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Star Wars: Revenge of the Sith - Vocabulary Vault</title>
+<style>
+  :root {
+    --sw-yellow: #ffe81f;
+    --sw-blue: #00d2ff;
+    --sw-red: #e11d48;
+    --sw-green: #10b981;
+    --panel-bg: rgba(10, 15, 29, 0.94);
+    --border-color: #1e293b;
+    --box-red: #be123c;
+    --box-blue: #1d4ed8;
+    --box-amber: #b45309;
+    --box-purple: #7e22ce;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  body {
+    background-color: #030712;
+    background-image: 
+      radial-gradient(circle at 50% 20%, rgba(0, 210, 255, 0.12) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(225, 29, 72, 0.15) 0%, transparent 40%),
+      linear-gradient(rgba(3, 7, 18, 0.85), rgba(3, 7, 18, 0.95)),
+      url('https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #f8fafc;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 14px;
+    overflow-x: hidden;
+  }
+
+  .game-container {
+    width: 100%;
+    max-width: 940px;
+    background: var(--panel-bg);
+    border: 2px solid #334155;
+    border-radius: 14px;
+    box-shadow: 0 0 45px rgba(0, 0, 0, 0.95), 0 0 20px rgba(0, 210, 255, 0.2);
+    padding: 26px;
+    position: relative;
+    backdrop-filter: blur(8px);
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .sw-logo {
+    display: inline-block;
+    font-size: 2.1rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: var(--sw-yellow);
+    text-transform: uppercase;
+    text-shadow: 0 0 12px rgba(255, 232, 31, 0.6);
+  }
+
+  .sub-logo {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    margin-top: 4px;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+  }
+
+  /* 12-Stage Progress Track */
+  .progress-track {
+    background: linear-gradient(90deg, #0f172a 0%, #1e1b4b 50%, #450a0a 100%);
+    border: 2px solid #334155;
+    border-radius: 12px;
+    padding: 26px 12px 14px 12px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .stage-markers {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+  }
+
+  .stage-node {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #090d16;
+    border: 2px solid #334155;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+
+  .stage-node.current {
+    border-color: var(--sw-yellow);
+    box-shadow: 0 0 12px var(--sw-yellow);
+    color: #fff;
+  }
+
+  .stage-node.pass {
+    background: var(--sw-green);
+    border-color: #6ee7b7;
+    color: #fff;
+  }
+
+  .stage-node.fail {
+    background: var(--sw-red);
+    border-color: #fca5a5;
+    color: #fff;
+  }
+
+  /* Flying Spaceship Avatar */
+  .runner-avatar {
+    position: absolute;
+    top: -26px;
+    left: 0%;
+    transform: translateX(-50%);
+    width: 54px;
+    height: 54px;
+    background: radial-gradient(circle, #0f172a 0%, #020617 100%);
+    border: 2px solid var(--sw-blue);
+    border-radius: 50%;
+    box-shadow: 0 0 16px rgba(0, 210, 255, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: left 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  .runner-avatar svg {
+    width: 44px;
+    height: 44px;
+    filter: drop-shadow(0 0 8px rgba(0, 210, 255, 0.9));
+  }
+
+  .timer-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.55);
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    border: 1px solid #1e293b;
+  }
+
+  .timer-display {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--sw-yellow);
+    font-family: monospace;
+  }
+
+  .def-card {
+    background: rgba(15, 23, 42, 0.92);
+    border: 1px solid #334155;
+    border-left: 6px solid var(--sw-yellow);
+    border-radius: 8px;
+    padding: 18px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .def-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .def-title {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+  }
+
+  .listen-btn {
+    background: #0284c7;
+    color: #fff;
+    border: 1px solid #38bdf8;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+  }
+
+  .listen-btn:hover {
+    background: #0369a1;
+  }
+
+  .definition-text {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 1.4;
+  }
+
+  .correction-banner {
+    display: none;
+    background: rgba(225, 29, 72, 0.95);
+    border: 2px solid #fda4af;
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin-bottom: 18px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 1.05rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+
+  .choices-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  @media(max-width: 650px) {
+    .choices-grid { grid-template-columns: 1fr; }
+  }
+
+  .choice-card {
+    border: 3px solid transparent;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transition: transform 0.15s, filter 0.2s, border-color 0.2s;
+  }
+
+  .choice-card:hover:not(.disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.15);
+  }
+
+  .choice-card.disabled {
+    cursor: not-allowed;
+    opacity: 0.75;
+  }
+
+  .choice-card.correct-answer-highlight {
+    border-color: #34d399 !important;
+    box-shadow: 0 0 15px #34d399;
+    opacity: 1 !important;
+  }
+
+  .choice-speaker-btn {
+    background: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-left: 10px;
+    transition: background 0.2s;
+  }
+
+  .choice-speaker-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  .box-0 { background: var(--box-red); }
+  .box-1 { background: var(--box-blue); }
+  .box-2 { background: var(--box-amber); }
+  .box-3 { background: var(--box-purple); }
+
+  /* Section 2: Summary Cloze */
+  .cloze-section {
+    display: none;
+  }
+
+  .story-sentence-card {
+    background: #090d16;
+    border: 2px solid #1e293b;
+    border-radius: 8px;
+    padding: 22px;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+    line-height: 1.8;
+  }
+
+  .cloze-definition-label {
+    color: var(--sw-yellow);
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+    font-size: 1.05rem;
+  }
+
+  .word-bank-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .chip {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #e2e8f0;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .chip:hover {
+    background: #334155;
+    color: #fff;
+  }
+
+  .typing-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .typing-input {
+    flex: 1;
+    padding: 12px 16px;
+    background: #020617;
+    border: 2px solid #334155;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1.1rem;
+  }
+
+  .typing-input:focus {
+    outline: none;
+    border-color: var(--sw-blue);
+  }
+
+  .submit-cloze-btn {
+    background: #0284c7;
+    color: #fff;
+    border: none;
+    padding: 0 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .submit-cloze-btn:hover {
+    background: #0369a1;
+  }
+
+  .cloze-feedback {
+    display: none;
+    padding: 14px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+
+  .fire-burst {
+    position: fixed;
+    pointer-events: none;
+    font-size: 3rem;
+    animation: fireRise 0.8s ease-out forwards;
+    z-index: 9999;
+  }
+
+  @keyframes fireRise {
+    0% { transform: translateY(0) scale(0.6); opacity: 1; filter: drop-shadow(0 0 12px orange); }
+    50% { transform: translateY(-45px) scale(1.4); opacity: 1; filter: drop-shadow(0 0 24px red); }
+    100% { transform: translateY(-90px) scale(1); opacity: 0; }
+  }
+
+  .results-panel {
+    display: none;
+    text-align: center;
+    padding: 30px 10px;
+  }
+
+  .score-badge {
+    font-size: 4.2rem;
+    font-weight: 900;
+    color: var(--sw-yellow);
+    margin-bottom: 15px;
+    font-family: monospace;
+  }
+
+  .report-text {
+    font-size: 1.2rem;
+    margin-bottom: 25px;
+    line-height: 1.6;
+    max-width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .restart-btn {
+    background: #0284c7;
+    border: 2px solid #38bdf8;
+    color: white;
+    padding: 12px 32px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="game-container">
+  <div class="header">
+    <div class="sw-logo">STAR WARS</div>
+    <div class="sub-logo">EPISODE III: REVENGE OF THE SITH — THE LEXICAL VAULT</div>
+  </div>
+
+  <!-- SECTION 1: 12 MCQs with 12-Stage Spaceship Flight -->
+  <div id="section1">
+    <div class="progress-track">
+      <div class="runner-avatar" id="teacherMarker" title="Jedi Starfighter in Flight">
+        <!-- SVG Spaceship (Jedi Starfighter with Ion Thrusters) -->
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Ion Thruster Exhaust Plume -->
+          <polygon points="12,32 4,26 6,32 4,38" fill="#00d2ff"/>
+          <polygon points="12,32 7,29 8,32 7,35" fill="#ffffff"/>
+          <!-- Starfighter Wings -->
+          <polygon points="12,18 42,28 12,32" fill="#be123c" stroke="#f43f5e" stroke-width="1.2"/>
+          <polygon points="12,46 42,36 12,32" fill="#be123c" stroke="#f43f5e" stroke-width="1.2"/>
+          <!-- Wing Cannons -->
+          <line x1="16" y1="18" x2="38" y2="18" stroke="#94a3b8" stroke-width="2"/>
+          <line x1="16" y1="46" x2="38" y2="46" stroke="#94a3b8" stroke-width="2"/>
+          <!-- Main Fuselage -->
+          <polygon points="10,32 58,32 42,27 18,28" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2"/>
+          <polygon points="10,32 58,32 42,37 18,36" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.2"/>
+          <!-- Cockpit Bubble -->
+          <ellipse cx="32" cy="32" rx="7" ry="4" fill="#00d2ff" stroke="#38bdf8" stroke-width="1.2"/>
+          <!-- Astromech Droid Dome -->
+          <circle cx="23" cy="32" r="2.5" fill="#3b82f6"/>
+        </svg>
+      </div>
+
+      <!-- 12 Progress Bar Sections -->
+      <div class="stage-markers" id="stageMarkers">
+        <div class="stage-node current" id="stage-0">1</div>
+        <div class="stage-node" id="stage-1">2</div>
+        <div class="stage-node" id="stage-2">3</div>
+        <div class="stage-node" id="stage-3">4</div>
+        <div class="stage-node" id="stage-4">5</div>
+        <div class="stage-node" id="stage-5">6</div>
+        <div class="stage-node" id="stage-6">7</div>
+        <div class="stage-node" id="stage-7">8</div>
+        <div class="stage-node" id="stage-8">9</div>
+        <div class="stage-node" id="stage-9">10</div>
+        <div class="stage-node" id="stage-10">11</div>
+        <div class="stage-node" id="stage-11">12</div>
+      </div>
+    </div>
+
+    <div class="timer-box">
+      <span>Sector <span id="qIdxDisplay">1</span> of 12</span>
+      <div class="timer-display">⏳ 00:<span id="secDisplay">30</span></div>
+    </div>
+
+    <div class="def-card">
+      <div class="def-header">
+        <span class="def-title">Lexical Vault Definition</span>
+        <button class="listen-btn" onclick="readDefinition()">🔊 Listen (0.8x)</button>
+      </div>
+      <div class="definition-text" id="defContent">...</div>
+    </div>
+
+    <div class="correction-banner" id="correctionBanner"></div>
+
+    <div class="choices-grid">
+      <div class="choice-card box-0" id="card-0" onclick="handleChoice(0)">
+        <span id="text-0"></span>
+        <button class="choice-speaker-btn" title="Listen" onclick="speakChoice(event, 0)">🔊</button>
+      </div>
+      <div class="choice-card box-1" id="card-1" onclick="handleChoice(1)">
+        <span id="text-1"></span>
+        <button class="choice-speaker-btn" title="Listen" onclick="speakChoice(event, 1)">🔊</button>
+      </div>
+      <div class="choice-card box-2" id="card-2" onclick="handleChoice(2)">
+        <span id="text-2"></span>
+        <button class="choice-speaker-btn" title="Listen" onclick="speakChoice(event, 2)">🔊</button>
+      </div>
+      <div class="choice-card box-3" id="card-3" onclick="handleChoice(3)">
+        <span id="text-3"></span>
+        <button class="choice-speaker-btn" title="Listen" onclick="speakChoice(event, 3)">🔊</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: Revenge of the Sith Summary Reconstruction -->
+  <div id="section2" class="cloze-section">
+    <div style="background: #090d16; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between;">
+      <span style="color: var(--sw-yellow); font-weight: bold;">SECTION 2: REVENGE OF THE SITH SUMMARY RECONSTRUCTION</span>
+      <span>Sentence <span id="clozeIdxDisplay">1</span> of 12</span>
+    </div>
+
+    <div class="story-sentence-card">
+      <div id="sentenceDisplay">...</div>
+      <span class="cloze-definition-label" id="sentenceTargetDef"></span>
+    </div>
+
+    <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 8px;">
+      Word Bank (6 Prompts): Click a prompt and transform its grammatical form to fit the sentence syntax:
+    </p>
+    <div class="word-bank-chips" id="chipsPool"></div>
+
+    <div class="typing-area">
+      <input type="text" class="typing-input" id="clozeInput" placeholder="Type the transformed collocation here..." autocomplete="off" />
+      <button class="submit-cloze-btn" onclick="checkClozeAnswer()">Check Answer</button>
+    </div>
+
+    <div class="cloze-feedback" id="clozeFeedback"></div>
+  </div>
+
+  <!-- FINAL RESULTS SCREEN -->
+  <div id="resultsScreen" class="results-panel">
+    <h2 style="color: #fff; font-size: 2rem; margin-bottom: 10px;">HYPERSPACE JUMP COMPLETE</h2>
+    <div class="score-badge" id="totalScoreDisplay">0%</div>
+    <div class="report-text" id="reportText"></div>
+    <button class="restart-btn" onclick="restartEntireGame()">LAUNCH AGAIN</button>
+  </div>
+</div>
+
+<script>
+  // Exact 12 collocations and definitions from the Lexical Vault screenshot
+  const rawMasterPool = [
+    { answer: "Engage in battle", def: "To enter into a fight or conflict with an enemy." },
+    { answer: "Create a diversion", def: "To do something that draws attention away from your true plan or location." },
+    { answer: "Develop strong attachments", def: "To form deep emotional bonds or dependencies on other people." },
+    { answer: "Reach a compromise", def: "To come to an agreement where both sides make concessions." },
+    { answer: "Resume diplomacy", def: "To restart peaceful negotiations between opposing political groups." },
+    { answer: "Pledge service", def: "To formally promise your loyalty and work to a leader or cause." },
+    { answer: "Emergency powers", def: "Special, temporary authority given to a leader during a crisis." },
+    { answer: "Strike down", def: "To kill or severely defeat someone in combat." },
+    { answer: "Thunderous applause", def: "Extremely loud and enthusiastic clapping from a large crowd." },
+    { answer: "Abandon the dark side", def: "To leave behind an evil path or toxic ideology." },
+    { answer: "Burned alive", def: "To suffer severe fire injuries while still living." },
+    { answer: "Retreat into exile", def: "To hide away in a distant place to escape persecution or danger." }
+  ];
+
+  // Section 2: Movie summary of Star Wars: Episode III – Revenge of the Sith
+  const rawClozeStoryData = [
+    {
+      sentence: "Over Coruscant, Jedi Knights Anakin Skywalker and Obi-Wan Kenobi [to enter into a fight or conflict with an enemy] against Separatist droid cruisers to rescue the captive Chancellor.",
+      def: "[to enter into a fight or conflict with an enemy]",
+      baseBank: ["engage in battle", "create a diversion", "strike down", "reach a compromise", "pledge service", "resume diplomacy"],
+      expected: "engage in battle",
+      tip: "Use present tense base collocation: 'engage in battle'."
+    },
+    {
+      sentence: "To draw General Grievous out of hiding on Utapau, the Jedi Council orders Obi-Wan to [to do something that draws attention away from your true plan or location].",
+      def: "[to do something that draws attention away from your true plan or location]",
+      baseBank: ["create a diversion", "engage in battle", "develop strong attachment", "retreat into exile", "pledge service", "abandon the dark side"],
+      expected: "create a diversion",
+      tip: "Infinitive form after 'orders Obi-Wan to'."
+    },
+    {
+      sentence: "Yoda solemnly warns Anakin not to [to form deep emotional bonds or dependencies on other people], as the fear of loss leads straight to the dark side.",
+      def: "[to form deep emotional bonds or dependencies on other people]",
+      baseBank: ["develop strong attachment", "reach a compromise", "resume diplomacy", "emergency power", "strike down", "thunderous applause"],
+      expected: "develop strong attachments",
+      tip: "Change 'attachment' to plural: 'develop strong attachments'."
+    },
+    {
+      sentence: "As political tension mounts, the Jedi and the Senate find it impossible to [to come to an agreement where both sides make concessions] over executive oversight.",
+      def: "[to come to an agreement where both sides make concessions]",
+      baseBank: ["reach a compromise", "resume diplomacy", "create a diversion", "pledge service", "strike down", "retreat into exile"],
+      expected: "reach a compromise",
+      tip: "Infinitive form following 'impossible to'."
+    },
+    {
+      sentence: "With separatist leaders fracturing across the galaxy, the Republic refuses to [to restart peaceful negotiations between opposing political groups] with Count Dooku's allies.",
+      def: "[to restart peaceful negotiations between opposing political groups]",
+      baseBank: ["resume diplomacy", "reach a compromise", "engage in battle", "abandon the dark side", "burned alive", "emergency power"],
+      expected: "resume diplomacy",
+      tip: "Infinitive form following 'refuses to'."
+    },
+    {
+      sentence: "Consumed by panic over Padmé's impending death, Anakin kneels before Darth Sidious to [to formally promise your loyalty and work to a leader or cause] as Darth Vader.",
+      def: "[to formally promise your loyalty and work to a leader or cause]",
+      baseBank: ["pledge service", "strike down", "create a diversion", "develop strong attachment", "reach a compromise", "retreat into exile"],
+      expected: "pledge service",
+      tip: "Infinitive form after 'kneels before Darth Sidious to'."
+    },
+    {
+      sentence: "The Senate willingly grants Chancellor Palpatine sweeping [special, temporary authority given to a leader during a crisis] to crush the separatist rebellion.",
+      def: "[special, temporary authority given to a leader during a crisis]",
+      baseBank: ["emergency power", "thunderous applause", "burned alive", "strike down", "abandon the dark side", "engage in battle"],
+      expected: "emergency powers",
+      tip: "Change 'power' to plural: 'emergency powers'."
+    },
+    {
+      sentence: "Dispatched to Mustafar under Sith orders, Vader mercilessly [to kill or severely defeat someone in combat] the remaining Separatist leaders.",
+      def: "[to kill or severely defeat someone in combat]",
+      baseBank: ["strike down", "pledge service", "engage in battle", "create a diversion", "burned alive", "resume diplomacy"],
+      expected: "strikes down",
+      tip: "Third-person singular present: 'strikes down'."
+    },
+    {
+      sentence: "Padmé grimly remarks that liberty dies to [extremely loud and enthusiastic clapping from a large crowd] as Palpatine declares the first Galactic Empire.",
+      def: "[extremely loud and enthusiastic clapping from a large crowd]",
+      baseBank: ["thunderous applause", "emergency power", "develop strong attachment", "reach a compromise", "retreat into exile", "abandon the dark side"],
+      expected: "thunderous applause",
+      tip: "Exact noun collocation: 'thunderous applause'."
+    },
+    {
+      sentence: "On the fiery volcanic slopes, Obi-Wan desperately pleads with his fallen brother to [to leave behind an evil path or toxic ideology].",
+      def: "[to leave behind an evil path or toxic ideology]",
+      baseBank: ["abandon the dark side", "retreat into exile", "reach a compromise", "resume diplomacy", "strike down", "create a diversion"],
+      expected: "abandon the dark side",
+      tip: "Infinitive form following 'pleads with his fallen brother to'."
+    },
+    {
+      sentence: "Defeated and severed by Obi-Wan's lightsaber, Anakin slides into the volcanic ash and is nearly [to suffer severe fire injuries while still living].",
+      def: "[to suffer severe fire injuries while still living]",
+      baseBank: ["burned alive", "strike down", "engage in battle", "pledge service", "emergency power", "thunderous applause"],
+      expected: "burned alive",
+      tip: "Passive participle form: 'burned alive'."
+    },
+    {
+      sentence: "Following the fall of the Jedi Order, Master Yoda and Obi-Wan Kenobi are forced to [to hide away in a distant place to escape persecution or danger] across remote worlds.",
+      def: "[to hide away in a distant place to escape persecution or danger]",
+      baseBank: ["retreat into exile", "abandon the dark side", "reach a compromise", "develop strong attachment", "resume diplomacy", "create a diversion"],
+      expected: "retreat into exile",
+      tip: "Infinitive form following 'forced to'."
+    }
+  ];
+
+  let activeMcqPool = [];
+  let activeClozeData = [];
+
+  let s1Index = 0;
+  let s1Score = 0;
+  let classroomStage = 0; // 0 to 11 (12 stages)
+  let timerInterval = null;
+  let timeLeft = 30;
+
+  let s2Index = 0;
+  let s2Score = 0;
+
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    return audioCtx;
+  }
+
+  function playSuccessSound() {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(523.25, now);
+    osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.15);
+    osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.3);
+
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.45);
+  }
+
+  function playFailureSound() {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(170, now);
+    osc.frequency.linearRampToValueAtTime(80, now + 0.35);
+
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.35);
+  }
+
+  function getMaleVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    return voices.find(v => 
+      v.lang.startsWith("en") && 
+      (v.name.includes("David") || v.name.includes("Guy") || v.name.includes("Male") || v.name.includes("George") || v.name.includes("Natural"))
+    ) || voices.find(v => v.lang.startsWith("en") && !v.name.includes("Female") && !v.name.includes("Zira"));
+  }
+
+  function readDefinition() {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+
+    const q = activeMcqPool[s1Index];
+    const utterance = new SpeechSynthesisUtterance(q.def);
+    utterance.rate = 0.8;
+    utterance.pitch = 0.9;
+    const male = getMaleVoice();
+    if (male) utterance.voice = male;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function speakChoice(event, cardIdx) {
+    event.stopPropagation();
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+
+    const text = document.getElementById(`text-${cardIdx}`).textContent;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.8;
+    utterance.pitch = 0.9;
+    const male = getMaleVoice();
+    if (male) utterance.voice = male;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function spawnFire() {
+    for (let i = 0; i < 6; i++) {
+      const el = document.createElement('div');
+      el.className = 'fire-burst';
+      el.textContent = ['🔥', '⚡', '💥'][Math.floor(Math.random() * 3)];
+      el.style.left = (window.innerWidth / 2 + (Math.random() * 240 - 120)) + 'px';
+      el.style.top = (window.innerHeight / 2 + (Math.random() * 140 - 70)) + 'px';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 800);
+    }
+  }
+
+  function shuffleArray(arr) {
+    const shuffled = [...arr];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
+
+  function buildDynamicMcqPool() {
+    const shuffledItems = shuffleArray(rawMasterPool);
+    const uniqueAnswers = Array.from(new Set(rawMasterPool.map(x => x.answer)));
+
+    return shuffledItems.map(item => {
+      const distractors = shuffleArray(uniqueAnswers.filter(a => a !== item.answer)).slice(0, 3);
+      return {
+        def: item.def,
+        answer: item.answer,
+        distractors: distractors
+      };
+    });
+  }
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    timeLeft = 30;
+    document.getElementById('secDisplay').textContent = "30";
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      document.getElementById('secDisplay').textContent = timeLeft < 10 ? "0" + timeLeft : timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        handleChoice(-1);
+      }
+    }, 1000);
+  }
+
+  function loadMCQ() {
+    if (s1Index >= activeMcqPool.length) {
+      clearInterval(timerInterval);
+      loadSection2();
+      return;
+    }
+
+    document.getElementById('correctionBanner').style.display = 'none';
+    document.getElementById('qIdxDisplay').textContent = (s1Index + 1);
+    const q = activeMcqPool[s1Index];
+    document.getElementById('defContent').textContent = `"${q.def}"`;
+
+    const options = shuffleArray([q.answer, ...q.distractors]);
+
+    for (let i = 0; i < 4; i++) {
+      const card = document.getElementById(`card-${i}`);
+      const txt = document.getElementById(`text-${i}`);
+      txt.textContent = options[i];
+      card.dataset.correct = (options[i] === q.answer);
+      card.classList.remove('disabled', 'correct-answer-highlight');
+      card.style.filter = "none";
+    }
+
+    resetTimer();
+    readDefinition();
+  }
+
+  function handleChoice(chosenIdx) {
+    clearInterval(timerInterval);
+    const q = activeMcqPool[s1Index];
+    const isCorrect = (chosenIdx !== -1) && (document.getElementById(`card-${chosenIdx}`).dataset.correct === "true");
+
+    for (let i = 0; i < 4; i++) {
+      const card = document.getElementById(`card-${i}`);
+      card.classList.add('disabled');
+      if (card.dataset.correct === "true") {
+        card.classList.add('correct-answer-highlight');
+      }
+    }
+
+    const stageNode = document.getElementById(`stage-${classroomStage}`);
+    const banner = document.getElementById('correctionBanner');
+
+    if (isCorrect) {
+      s1Score++;
+      playSuccessSound();
+      spawnFire();
+      if (stageNode) {
+        stageNode.className = "stage-node pass";
+        stageNode.textContent = "✔";
+      }
+      s1Index++;
+      setTimeout(loadMCQ, 1200);
+    } else {
+      playFailureSound();
+      if (stageNode) {
+        stageNode.className = "stage-node fail";
+        stageNode.textContent = "✖";
+      }
+      banner.textContent = `❌ Incorrect! The correct collocation was: "${q.answer}"`;
+      banner.style.display = 'block';
+      s1Index++;
+      setTimeout(loadMCQ, 2800);
+    }
+
+    // Advance spaceship across 12 stages (0% to 96%)
+    classroomStage = Math.min(11, classroomStage + 1);
+    const nextNode = document.getElementById(`stage-${classroomStage}`);
+    if (nextNode && !nextNode.classList.contains('pass') && !nextNode.classList.contains('fail')) {
+      nextNode.classList.add('current');
+    }
+    const percent = (classroomStage / 11) * 96;
+    document.getElementById('teacherMarker').style.left = `${percent}%`;
+  }
+
+  function loadSection2() {
+    document.getElementById('section1').style.display = 'none';
+    document.getElementById('section2').style.display = 'block';
+    loadClozeSentence();
+  }
+
+  function loadClozeSentence() {
+    if (s2Index >= activeClozeData.length) {
+      showFinalResults();
+      return;
+    }
+
+    document.getElementById('clozeIdxDisplay').textContent = (s2Index + 1);
+    const current = activeClozeData[s2Index];
+    document.getElementById('sentenceDisplay').textContent = current.sentence;
+    document.getElementById('sentenceTargetDef').textContent = `Target Definition: ${current.def}`;
+
+    const poolDiv = document.getElementById('chipsPool');
+    poolDiv.innerHTML = '';
+    const shuffledChips = shuffleArray(current.baseBank);
+
+    shuffledChips.forEach(collocation => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.textContent = collocation;
+      chip.onclick = () => {
+        document.getElementById('clozeInput').value = collocation;
+        document.getElementById('clozeInput').focus();
+      };
+      poolDiv.appendChild(chip);
+    });
+
+    const input = document.getElementById('clozeInput');
+    input.value = '';
+    input.focus();
+    const fb = document.getElementById('clozeFeedback');
+    fb.style.display = 'none';
+  }
+
+  function checkClozeAnswer() {
+    const userVal = document.getElementById('clozeInput').value.trim().toLowerCase();
+    const current = activeClozeData[s2Index];
+    const fb = document.getElementById('clozeFeedback');
+    fb.style.display = 'block';
+
+    if (userVal === current.expected.toLowerCase()) {
+      s2Score++;
+      playSuccessSound();
+      spawnFire();
+      fb.style.background = "#065f46";
+      fb.style.color = "#a7f3d0";
+      fb.textContent = `Correct! "${current.expected}" fits both the definition and sentence syntax perfectly.`;
+      setTimeout(() => {
+        s2Index++;
+        loadClozeSentence();
+      }, 1500);
+    } else {
+      playFailureSound();
+      fb.style.background = "#881337";
+      fb.style.color = "#fecdd3";
+      fb.textContent = `Incorrect form. Expected: "${current.expected}". Clue: ${current.tip}`;
+      setTimeout(() => {
+        s2Index++;
+        loadClozeSentence();
+      }, 2300);
+    }
+  }
+
+  document.getElementById('clozeInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') checkClozeAnswer();
+  });
+
+  function showFinalResults() {
+    document.getElementById('section2').style.display = 'none';
+    const res = document.getElementById('resultsScreen');
+    res.style.display = 'block';
+
+    const totalAchieved = s1Score + s2Score;
+    const maxScore = activeMcqPool.length + activeClozeData.length; // 12 + 12 = 24
+    const percent = Math.round((totalAchieved / maxScore) * 100);
+
+    document.getElementById('totalScoreDisplay').textContent = `${percent}%`;
+
+    let advice = "";
+    if (percent >= 90) {
+      advice = `<strong>Jedi Grand Master:</strong> Outstanding flight! Your ship completed all 12 hyperspace jumps flawlessly, outmaneuvering the dark side and mastering every key galactic collocation.`;
+    } else if (percent >= 70) {
+      advice = `<strong>Jedi Knight:</strong> Commendable navigation. You safely piloted your starfighter through the 12 sectors, but suffered minor deflector shield hits on grammatical forms. Re-run the simulation to achieve 100%.`;
+    } else {
+      advice = `<strong>Padawan Pilot:</strong> Your starfighter was shot down under pressure! Study the Lexical Vault flight plan, review your grammatical forms, and launch the hyperspace jump again.`;
+    }
+
+    document.getElementById('reportText').innerHTML = `
+      You scored <strong>${s1Score} / 12</strong> in Section 1 (Multiple Choice) and <strong>${s2Score} / 12</strong> in Section 2 (Summary Reconstruction).<br><br>
+      ${advice}
+    `;
+  }
+
+  function restartEntireGame() {
+    s1Index = 0;
+    s1Score = 0;
+    classroomStage = 0;
+    s2Index = 0;
+    s2Score = 0;
+
+    for (let i = 0; i < 12; i++) {
+      const node = document.getElementById(`stage-${i}`);
+      node.className = (i === 0) ? "stage-node current" : "stage-node";
+      node.textContent = (i + 1);
+    }
+    document.getElementById('teacherMarker').style.left = "0%";
+    document.getElementById('correctionBanner').style.display = "none";
+
+    activeMcqPool = buildDynamicMcqPool();
+    activeClozeData = shuffleArray(rawClozeStoryData);
+
+    document.getElementById('resultsScreen').style.display = 'none';
+    document.getElementById('section1').style.display = 'block';
+    loadMCQ();
+  }
+
+  if ('speechSynthesis' in window) {
+    speechSynthesis.onvoiceschanged = () => {};
+  }
+
+  window.onload = () => {
+    activeMcqPool = buildDynamicMcqPool();
+    activeClozeData = shuffleArray(rawClozeStoryData);
+    loadMCQ();
+  };
+</script>
+</body>
+</html>
