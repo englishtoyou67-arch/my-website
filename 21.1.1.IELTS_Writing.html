@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Industrial Evolution: Global Trends & Collocations</title>
+<style>
+  :root {
+    --bg-dark: #0f172a;
+    --panel-bg: rgba(30, 41, 59, 0.94);
+    --border-metal: #475569;
+    --hazard-yellow: #f59e0b;
+    --cyan-steam: #06b6d4;
+    --box-red: #dc2626;
+    --box-blue: #2563eb;
+    --box-amber: #d97706;
+    --box-purple: #9333ea;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  body {
+    background-color: var(--bg-dark);
+    background-image: 
+      radial-gradient(circle at 20% 30%, rgba(6, 182, 212, 0.1) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(245, 158, 11, 0.12) 0%, transparent 40%),
+      linear-gradient(rgba(15, 23, 42, 0.88), rgba(15, 23, 42, 0.95)),
+      url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #f1f5f9;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 14px;
+    overflow-x: hidden;
+  }
+
+  .game-container {
+    width: 100%;
+    max-width: 960px;
+    background: var(--panel-bg);
+    border: 2px solid var(--border-metal);
+    border-radius: 14px;
+    box-shadow: 0 0 45px rgba(0, 0, 0, 0.9), 0 0 20px rgba(6, 182, 212, 0.2);
+    padding: 26px;
+    position: relative;
+    backdrop-filter: blur(8px);
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-metal);
+    padding-bottom: 14px;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--hazard-yellow);
+    text-transform: uppercase;
+  }
+
+  .sub-header {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .nav-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 10px;
+    background: #0f172a;
+    border: 1px solid var(--border-metal);
+    color: #cbd5e1;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn.active {
+    background: var(--cyan-steam);
+    color: #0f172a;
+    border-color: #38bdf8;
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.4);
+  }
+
+  /* Progress Bar Track */
+  .conveyor-track {
+    background: linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%);
+    border: 2px solid var(--border-metal);
+    border-radius: 12px;
+    padding: 26px 14px 14px 14px;
+    margin-bottom: 22px;
+    position: relative;
+  }
+
+  .stage-markers {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+  }
+
+  .stage-node {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #0f172a;
+    border: 2px solid var(--border-metal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+
+  .stage-node.current {
+    border-color: var(--hazard-yellow);
+    box-shadow: 0 0 12px var(--hazard-yellow);
+    color: #fff;
+  }
+
+  .stage-node.pass {
+    background: #10b981;
+    border-color: #6ee7b7;
+    color: #fff;
+  }
+
+  .stage-node.fail {
+    background: #ef4444;
+    border-color: #fca5a5;
+    color: #fff;
+  }
+
+  /* Worker Avatar */
+  .worker-runner {
+    position: absolute;
+    top: -26px;
+    left: 0%;
+    transform: translateX(-50%);
+    width: 52px;
+    height: 52px;
+    background: radial-gradient(circle, #334155 0%, #0f172a 100%);
+    border: 2px solid var(--hazard-yellow);
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: left 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  .worker-runner svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Section 1 Reading & Opaque Container */
+  .reading-container {
+    position: relative;
+    background: #0f172a;
+    border: 1px solid var(--border-metal);
+    border-left: 6px solid var(--cyan-steam);
+    border-radius: 10px;
+    padding: 22px;
+    margin-bottom: 18px;
+    min-height: 280px;
+    overflow: hidden;
+  }
+
+  .era-title {
+    color: var(--hazard-yellow);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .reading-text-body {
+    line-height: 1.8;
+    font-size: 1.05rem;
+    transition: opacity 0.35s ease, filter 0.35s ease;
+  }
+
+  .reading-text-body.obscured {
+    opacity: 0.06;
+    filter: blur(8px);
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .highlight-word {
+    background: rgba(6, 182, 212, 0.2);
+    color: #38bdf8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    border: 1px solid rgba(6, 182, 212, 0.3);
+  }
+
+  .audio-action-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .action-btn {
+    background: #0284c7;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .action-btn:hover { background: #0369a1; }
+  .action-btn:active { transform: scale(0.98); }
+
+  .question-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    padding: 26px 22px;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(4px);
+    border-radius: 10px;
+    flex-direction: column;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-in;
+    z-index: 10;
+  }
+
+  .question-overlay.active {
+    display: flex;
+  }
+
+  .question-heading-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .question-text {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.5;
+  }
+
+  .answer-drawer {
+    display: none;
+    margin-top: 14px;
+    background: #08101e;
+    border-left: 4px solid #10b981;
+    padding: 14px;
+    border-radius: 6px;
+    color: #6ee7b7;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .nav-btn-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 14px;
+  }
+
+  /* Section 2 HUD with Chest */
+  .hud-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0f172a;
+    padding: 12px 18px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border-metal);
+  }
+
+  .chest-vault-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .chest-vault {
+    width: 52px;
+    height: 44px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .chest-vault svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6));
+  }
+
+  .chest-vault.chest-bounce {
+    animation: chestHop 0.4s ease-out;
+  }
+
+  @keyframes chestHop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.35) rotate(-6deg); filter: drop-shadow(0 0 16px #facc15); }
+    100% { transform: scale(1); }
+  }
+
+  .vault-tally {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #facc15;
+    letter-spacing: 0.5px;
+  }
+
+  .timer-pill {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--hazard-yellow);
+    font-family: monospace;
+  }
+
+  .def-box {
+    background: #0f172a;
+    border: 1px solid var(--border-metal);
+    border-left: 6px solid var(--hazard-yellow);
+    border-radius: 8px;
+    padding: 18px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .def-label {
+    font-size: 0.85rem;
+    color: var(--hazard-yellow);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .def-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .choices-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  @media(max-width: 650px) {
+    .choices-grid { grid-template-columns: 1fr; }
+  }
+
+  .choice-card {
+    border: 3px solid transparent;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transition: transform 0.15s, filter 0.2s, border-color 0.2s;
+  }
+
+  .choice-card:hover:not(.disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.15);
+  }
+
+  .choice-card.disabled {
+    cursor: not-allowed;
+    opacity: 0.75;
+  }
+
+  .choice-card.correct-highlight {
+    border-color: #34d399 !important;
+    box-shadow: 0 0 15px #34d399;
+    opacity: 1 !important;
+  }
+
+  .speaker-round-btn {
+    background: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-left: 10px;
+    transition: background 0.2s;
+  }
+
+  .speaker-round-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  .box-0 { background: var(--box-red); }
+  .box-1 { background: var(--box-blue); }
+  .box-2 { background: var(--box-amber); }
+  .box-3 { background: var(--box-purple); }
+
+  .wrong-notice {
+    display: none;
+    background: rgba(220, 38, 38, 0.95);
+    border: 2px solid #fca5a5;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  /* Flying Coin Animation */
+  .flying-coin {
+    position: fixed;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fef08a 0%, #facc15 60%, #ca8a04 100%);
+    box-shadow: 0 0 15px rgba(250, 204, 21, 0.9);
+    border: 2px solid #fef9c3;
+    pointer-events: none;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 0.9rem;
+    color: #854d0e;
+    transition: all 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hazard-buzz {
+    animation: shake 0.3s linear;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  /* Results Screen */
+  .results-panel {
+    display: none;
+    text-align: center;
+    padding: 30px 10px;
+  }
+
+  .score-badge {
+    font-size: 3.8rem;
+    font-weight: 900;
+    color: var(--hazard-yellow);
+    margin-bottom: 10px;
+    font-family: monospace;
+  }
+
+  .coins-summary-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #0f172a;
+    border: 2px solid #facc15;
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #fde047;
+    margin-bottom: 20px;
+    box-shadow: 0 0 18px rgba(250, 204, 21, 0.35);
+  }
+
+  .report-text {
+    font-size: 1.15rem;
+    margin-bottom: 25px;
+    line-height: 1.6;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+</style>
+</head>
+<body>
+
+<div class="game-container" id="mainContainer">
+  <div class="header">
+    <h1>Industrial Evolution: Global Trends</h1>
+    <div class="sub-header">CHRONOLOGICAL OVERVIEW & LEXICAL COLLOCATION ARENA</div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" id="tab1Btn" onclick="switchSection(1)">Part 1: Chronological Overview (4 Checkpoints)</button>
+    <button class="tab-btn" id="tab2Btn" onclick="switchSection(2)">Part 2: Multiple-Choice Collocations (9 Checkpoints)</button>
+  </div>
+
+  <!-- SECTION 1: Chronological Overview -->
+  <div id="section1">
+    <div class="conveyor-track">
+      <div class="worker-runner" id="worker1">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="24" r="13" fill="#fcd34d"/>
+          <path d="M18 20 C18 10 24 8 32 8 C40 8 46 10 46 20 Z" fill="#f59e0b"/>
+          <rect x="16" y="19" width="32" height="4" rx="2" fill="#d97706"/>
+          <rect x="22" y="19" width="8" height="5" rx="1.5" fill="#0284c7" stroke="#0f172a" stroke-width="1.2"/>
+          <rect x="34" y="19" width="8" height="5" rx="1.5" fill="#0284c7" stroke="#0f172a" stroke-width="1.2"/>
+          <path d="M12 56 C12 42 20 38 32 38 C44 38 52 42 52 56" fill="#ea580c"/>
+          <path d="M26 38 L32 46 L38 38" fill="#cbd5e1"/>
+          <line x1="20" y1="44" x2="26" y2="56" stroke="#fef08a" stroke-width="2.5"/>
+          <line x1="44" y1="44" x2="38" y2="56" stroke="#fef08a" stroke-width="2.5"/>
+        </svg>
+      </div>
+
+      <div class="stage-markers">
+        <div class="stage-node current" id="s1-node-0">1</div>
+        <div class="stage-node" id="s1-node-1">2</div>
+        <div class="stage-node" id="s1-node-2">3</div>
+        <div class="stage-node" id="s1-node-3">4</div>
+      </div>
+    </div>
+
+    <div class="reading-container">
+      <div class="era-title" id="eraTitle">Era Title</div>
+      
+      <div class="reading-text-body" id="readingTextBody">
+        Era paragraph text...
+      </div>
+
+      <div class="audio-action-row" id="readingControlsRow">
+        <button class="action-btn" onclick="readEraText()">🔊 Listen to Era Text (0.8x)</button>
+        <button class="action-btn" style="background: var(--hazard-yellow); color:#0f172a;" onclick="showPostReadingQuestion()">
+          📝 Post-Reading Question
+        </button>
+      </div>
+
+      <!-- Question Overlay -->
+      <div class="question-overlay" id="questionOverlay">
+        <div class="question-heading-row">
+          <span style="color: var(--hazard-yellow); font-size: 0.95rem; font-weight: 800; text-transform: uppercase;">
+            ⚠️ Memory Recall Check
+          </span>
+          <button class="action-btn" onclick="readPostQuestion()">
+            🔊 Listen to Question (0.8x)
+          </button>
+        </div>
+
+        <div class="question-text" id="postQuestionDisplay">
+          Question content...
+        </div>
+
+        <div style="margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="action-btn" style="background:#059669;" onclick="toggleAnswer()">
+            👁️ Reveal Answer
+          </button>
+          <button class="action-btn" style="background:#475569;" onclick="hidePostReadingQuestion()">
+            📖 Back to Text
+          </button>
+        </div>
+
+        <div class="answer-drawer" id="answerDrawer">
+          Answer content...
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-btn-row">
+      <button class="action-btn" id="prevEraBtn" onclick="navigateEra(-1)">◀ Previous Era</button>
+      <button class="action-btn" id="nextEraBtn" onclick="navigateEra(1)">Next Era ▶</button>
+    </div>
+  </div>
+
+  <!-- SECTION 2: 9 Multiple-Choice Collocations -->
+  <div id="section2" style="display: none;">
+    <div class="conveyor-track">
+      <div class="worker-runner" id="worker2">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="24" r="13" fill="#fcd34d"/>
+          <path d="M18 20 C18 10 24 8 32 8 C40 8 46 10 46 20 Z" fill="#f59e0b"/>
+          <rect x="16" y="19" width="32" height="4" rx="2" fill="#d97706"/>
+          <rect x="22" y="19" width="8" height="5" rx="1.5" fill="#0284c7" stroke="#0f172a" stroke-width="1.2"/>
+          <rect x="34" y="19" width="8" height="5" rx="1.5" fill="#0284c7" stroke="#0f172a" stroke-width="1.2"/>
+          <path d="M12 56 C12 42 20 38 32 38 C44 38 52 42 52 56" fill="#ea580c"/>
+          <path d="M26 38 L32 46 L38 38" fill="#cbd5e1"/>
+          <line x1="20" y1="44" x2="26" y2="56" stroke="#fef08a" stroke-width="2.5"/>
+          <line x1="44" y1="44" x2="38" y2="56" stroke="#fef08a" stroke-width="2.5"/>
+        </svg>
+      </div>
+
+      <div class="stage-markers">
+        <div class="stage-node current" id="s2-node-0">1</div>
+        <div class="stage-node" id="s2-node-1">2</div>
+        <div class="stage-node" id="s2-node-2">3</div>
+        <div class="stage-node" id="s2-node-3">4</div>
+        <div class="stage-node" id="s2-node-4">5</div>
+        <div class="stage-node" id="s2-node-5">6</div>
+        <div class="stage-node" id="s2-node-6">7</div>
+        <div class="stage-node" id="s2-node-7">8</div>
+        <div class="stage-node" id="s2-node-8">9</div>
+      </div>
+    </div>
+
+    <!-- HUD with Chest -->
+    <div class="hud-row">
+      <div class="chest-vault-container">
+        <div class="chest-vault" id="chestVault">
+          <svg viewBox="0 0 64 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="6" y="22" width="52" height="28" rx="4" fill="#78350f" stroke="#b45309" stroke-width="2"/>
+            <rect x="14" y="22" width="6" height="28" fill="#475569"/>
+            <rect x="44" y="22" width="6" height="28" fill="#475569"/>
+            <path d="M4 22 C4 10 20 6 32 6 C44 6 60 10 60 22 Z" fill="#92400e" stroke="#d97706" stroke-width="2"/>
+            <path d="M14 9 C14 9 20 6 32 6 C44 6 50 9 50 9" stroke="#cbd5e1" stroke-width="2.5" fill="none"/>
+            <rect x="27" y="20" width="10" height="12" rx="2" fill="#facc15" stroke="#ca8a04" stroke-width="1.5"/>
+            <circle cx="32" cy="25" r="2" fill="#78350f"/>
+            <line x1="32" y1="27" x2="32" y2="30" stroke="#78350f" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="vault-tally">Chest Vault: <span id="coinsDisplay">0</span> 🪙</div>
+      </div>
+
+      <div>Checkpoint <span id="s2QIdx">1</span> of 9</div>
+      <div class="timer-pill">⏳ 00:<span id="timerDisplay">20</span></div>
+    </div>
+
+    <!-- Definition Prompt Box (No Numbers) -->
+    <div class="def-box">
+      <div>
+        <div class="def-label">Definition</div>
+        <div class="def-text" id="promptDefText">Definition text...</div>
+      </div>
+      <button class="action-btn" onclick="readDefPrompt()">🔊 Listen (0.8x)</button>
+    </div>
+
+    <div class="wrong-notice" id="wrongNotice"></div>
+
+    <div class="choices-grid">
+      <div class="choice-card box-0" id="card-0" onclick="chooseAnswer(0)">
+        <span id="text-0">Choice 1</span>
+        <button class="speaker-round-btn" onclick="speakChoiceText(event, 0)">🔊</button>
+      </div>
+      <div class="choice-card box-1" id="card-1" onclick="chooseAnswer(1)">
+        <span id="text-1">Choice 2</span>
+        <button class="speaker-round-btn" onclick="speakChoiceText(event, 1)">🔊</button>
+      </div>
+      <div class="choice-card box-2" id="card-2" onclick="chooseAnswer(2)">
+        <span id="text-2">Choice 3</span>
+        <button class="speaker-round-btn" onclick="speakChoiceText(event, 2)">🔊</button>
+      </div>
+      <div class="choice-card box-3" id="card-3" onclick="chooseAnswer(3)">
+        <span id="text-3">Choice 4</span>
+        <button class="speaker-round-btn" onclick="speakChoiceText(event, 3)">🔊</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="resultsScreen" class="results-panel">
+    <h2 style="color: #fff; font-size: 2rem; margin-bottom: 6px;">SHIFT EVALUATION COMPLETE</h2>
+    <div class="score-badge" id="finalScoreDisplay">0%</div>
+
+    <div>
+      <div class="coins-summary-badge" id="coinsFinalBadge">
+        <span>🪙 Chest Vault Stash:</span>
+        <span id="finalCoinsCount">0</span> Coins Earned
+      </div>
+    </div>
+
+    <div class="report-text" id="finalReportText"></div>
+    <button class="action-btn" style="padding: 12px 30px; font-size: 1.1rem;" onclick="restartAll()">RESTART INDUSTRIAL SHIFT</button>
+  </div>
+</div>
+
+<script>
+  /* Data from Screenshot 1 & 2 */
+  const part1Data = [
+    {
+      title: "1950s–1960s: Post-War Industrial Dominance",
+      html: `In the initial decades following World War II, national economies underwent significant <span class="highlight-word">structural changes</span> as war industries transitioned into commercial manufacturing. Factory floors absorbed a massive <span class="highlight-word">workforce expansion</span>, pulling millions of manual laborers into urban production lines. During this era, manufacturing and heavy industry functioned as the undisputed <span class="highlight-word">economic drivers</span> across developed nations.`,
+      plainText: "In the initial decades following World War II, national economies underwent significant structural changes as war industries transitioned into commercial manufacturing. Factory floors absorbed a massive workforce expansion, pulling millions of manual laborers into urban production lines. During this era, manufacturing and heavy industry functioned as the undisputed economic drivers across developed nations.",
+      question: "What primary role did heavy industry and factory floors play in post-war national economies?",
+      answer: "Answer: They acted as primary economic drivers and absorbed massive workforce expansion into urban manufacturing."
+    },
+    {
+      title: "1970s–1980s: Automation and the Rise of Services",
+      html: `By the mid-1970s, technological advancement and early mechanization began reducing the need for manual factory workers. Consequently, developed economies relied heavily on tertiary <span class="highlight-word">job creation</span> to absorb entering generations, causing sectors like retail, banking, and administration to climb steadily. Meanwhile, agricultural industries followed a clear <span class="highlight-word">downward trajectory</span>, with mechanized farming and land consolidation sharply reducing rural agrarian labor.`,
+      plainText: "By the mid-1970s, technological advancement and early mechanization began reducing the need for manual factory workers. Consequently, developed economies relied heavily on tertiary job creation to absorb entering generations, causing sectors like retail, banking, and administration to climb steadily. Meanwhile, agricultural industries followed a clear downward trajectory, with mechanized farming and land consolidation sharply reducing rural agrarian labor.",
+      question: "Why did tertiary fields need to expand so rapidly during this period, and what happened to agrarian employment?",
+      answer: "Answer: Tertiary sectors expanded to absorb displaced workers as automation rose, while agrarian employment followed a steep downward trajectory."
+    },
+    {
+      title: "1990s–2000s: The Healthcare Boom and Skill Gaps",
+      html: `With aging populations and rapid investment in medical technology, healthcare experienced a <span class="highlight-word">steep rise</span> in labor demand, overtaking older primary industries in total personnel. This period also exposed a notable <span class="highlight-word">widening gap</span> between low-skilled manual workers displaced by technology and specialized knowledge workers required for technical and diagnostic fields.`,
+      plainText: "With aging populations and rapid investment in medical technology, healthcare experienced a steep rise in labor demand, overtaking older primary industries in total personnel. This period also exposed a notable widening gap between low-skilled manual workers displaced by technology and specialized knowledge workers required for technical and diagnostic fields.",
+      question: "Between which two specific categories of workers did a major skill gap emerge during the turn of the millennium?",
+      answer: "Answer: Between displaced low-skilled manual workers and specialized technical/knowledge workers."
+    },
+    {
+      title: "2010s–2020: The Service-Based Modern Economy",
+      html: `By 2020, modern healthcare, logistics, and retail concluded a phase of <span class="highlight-word">prolonged growth</span>, establishing the modern service-dominated job market. Despite systemic disruptions and ongoing industrial downsizing, continuous economic diversification enabled major economies to preserve a relatively balanced <span class="highlight-word">employment rate</span> overall.`,
+      plainText: "By 2020, modern healthcare, logistics, and retail concluded a phase of prolonged growth, establishing the modern service-dominated job market. Despite systemic disruptions and ongoing industrial downsizing, continuous economic diversification enabled major economies to preserve a relatively balanced employment rate overall.",
+      question: "How did major economies manage to keep overall employment balanced despite continuous factory cutbacks?",
+      answer: "Answer: By continuously diversifying their economies across expanding service sectors like healthcare, retail, and logistics."
+    }
+  ];
+
+  /* Data from Screenshot 3, 4, 5 (Numbers removed from all definitions) */
+  const masterPart2 = [
+    {
+      def: "Fundamental shifts in an economic system",
+      correct: "structural changes",
+      distractors: ["downward trajectory", "prolonged growth", "economic drivers"]
+    },
+    {
+      def: "Growth in the total number of workers",
+      correct: "workforce expansion",
+      distractors: ["economic drivers", "widening gap", "job creation"]
+    },
+    {
+      def: "Factors that generate economic momentum",
+      correct: "economic drivers",
+      distractors: ["job creation", "employment rate", "prolonged growth"]
+    },
+    {
+      def: "Generating new positions for workers",
+      correct: "job creation",
+      distractors: ["steep rise", "downward trajectory", "structural changes"]
+    },
+    {
+      def: "Continuous trend going down",
+      correct: "downward trajectory",
+      distractors: ["structural changes", "job creation", "steep rise"]
+    },
+    {
+      def: "Fast and sharp upward increase",
+      correct: "steep rise",
+      distractors: ["workforce expansion", "structural changes", "prolonged growth"]
+    },
+    {
+      def: "An increasing difference between things",
+      correct: "widening gap",
+      distractors: ["steep rise", "workforce expansion", "employment rate"]
+    },
+    {
+      def: "Continuous expansion over long time",
+      correct: "prolonged growth",
+      distractors: ["widening gap", "employment rate", "downward trajectory"]
+    },
+    {
+      def: "Percentage of working people employed",
+      correct: "employment rate",
+      distractors: ["economic drivers", "prolonged growth", "workforce expansion"]
+    }
+  ];
+
+  let currentEraIdx = 0;
+  let s2Index = 0;
+  let s2Score = 0;
+  let coins = 0;
+  let timerInterval = null;
+  let timeLeft = 20;
+  let currentShuffledMCQ = [];
+
+  /* Web Audio API Sound Generation */
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    return audioCtx;
+  }
+
+  function playSuccessSound() {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(523.25, now);
+    osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.12);
+    osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.25);
+
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.45);
+  }
+
+  function playFailureSound() {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(160, now);
+    osc.frequency.linearRampToValueAtTime(75, now + 0.35);
+
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.35);
+  }
+
+  /* Male Speech Synthesis (Speed: 0.8) */
+  function getMaleVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    return voices.find(v => 
+      v.lang.startsWith("en") && 
+      (v.name.includes("David") || v.name.includes("Guy") || v.name.includes("Male") || v.name.includes("George") || v.name.includes("Natural"))
+    ) || voices.find(v => v.lang.startsWith("en") && !v.name.includes("Female") && !v.name.includes("Zira"));
+  }
+
+  function speakText(text) {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.8;
+    utterance.pitch = 0.9;
+    const male = getMaleVoice();
+    if (male) utterance.voice = male;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  /* Section 1 Logic */
+  function renderEra() {
+    hidePostReadingQuestion();
+    const era = part1Data[currentEraIdx];
+    document.getElementById('eraTitle').textContent = era.title;
+    document.getElementById('readingTextBody').innerHTML = era.html;
+    document.getElementById('postQuestionDisplay').textContent = era.question;
+    document.getElementById('answerDrawer').textContent = era.answer;
+    document.getElementById('answerDrawer').style.display = 'none';
+
+    for (let i = 0; i < 4; i++) {
+      const node = document.getElementById(`s1-node-${i}`);
+      node.className = (i === currentEraIdx) ? "stage-node current" : "stage-node";
+    }
+    const percent = (currentEraIdx / 3) * 94;
+    document.getElementById('worker1').style.left = `${percent}%`;
+
+    document.getElementById('prevEraBtn').disabled = (currentEraIdx === 0);
+    document.getElementById('nextEraBtn').disabled = (currentEraIdx === 3);
+  }
+
+  function navigateEra(delta) {
+    window.speechSynthesis.cancel();
+    currentEraIdx = Math.min(3, Math.max(0, currentEraIdx + delta));
+    renderEra();
+  }
+
+  function readEraText() {
+    speakText(part1Data[currentEraIdx].plainText);
+  }
+
+  function showPostReadingQuestion() {
+    window.speechSynthesis.cancel();
+    document.getElementById('readingTextBody').classList.add('obscured');
+    document.getElementById('readingControlsRow').style.visibility = 'hidden';
+    document.getElementById('questionOverlay').classList.add('active');
+    document.getElementById('answerDrawer').style.display = 'none';
+    readPostQuestion();
+  }
+
+  function hidePostReadingQuestion() {
+    window.speechSynthesis.cancel();
+    document.getElementById('readingTextBody').classList.remove('obscured');
+    document.getElementById('readingControlsRow').style.visibility = 'visible';
+    document.getElementById('questionOverlay').classList.remove('active');
+  }
+
+  function readPostQuestion() {
+    speakText(part1Data[currentEraIdx].question);
+  }
+
+  function toggleAnswer() {
+    const d = document.getElementById('answerDrawer');
+    d.style.display = (d.style.display === 'block') ? 'none' : 'block';
+  }
+
+  /* Section Switching */
+  function switchSection(secNum) {
+    window.speechSynthesis.cancel();
+    clearInterval(timerInterval);
+
+    if (secNum === 1) {
+      document.getElementById('tab1Btn').classList.add('active');
+      document.getElementById('tab2Btn').classList.remove('active');
+      document.getElementById('section1').style.display = 'block';
+      document.getElementById('section2').style.display = 'none';
+      document.getElementById('resultsScreen').style.display = 'none';
+      renderEra();
+    } else {
+      document.getElementById('tab2Btn').classList.add('active');
+      document.getElementById('tab1Btn').classList.remove('active');
+      document.getElementById('section1').style.display = 'none';
+      document.getElementById('section2').style.display = 'block';
+      document.getElementById('resultsScreen').style.display = 'none';
+      loadMCQuestion();
+    }
+  }
+
+  /* Section 2 Multi-Choice */
+  function shuffleArray(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function collectCoinInChest(originCardIndex) {
+    const card = document.getElementById(`card-${originCardIndex}`) || document.getElementById('mainContainer');
+    const cardRect = card.getBoundingClientRect();
+    const chest = document.getElementById('chestVault');
+    const chestRect = chest.getBoundingClientRect();
+
+    const coin = document.createElement('div');
+    coin.className = 'flying-coin';
+    coin.textContent = '$';
+
+    const startX = cardRect.left + (cardRect.width / 2) - 18;
+    const startY = cardRect.top + (cardRect.height / 2) - 18;
+    coin.style.left = `${startX}px`;
+    coin.style.top = `${startY}px`;
+    document.body.appendChild(coin);
+
+    const targetX = chestRect.left + (chestRect.width / 2) - 18;
+    const targetY = chestRect.top + (chestRect.height / 2) - 18;
+
+    requestAnimationFrame(() => {
+      coin.style.left = `${targetX}px`;
+      coin.style.top = `${targetY}px`;
+      coin.style.transform = 'scale(0.8) rotate(360deg)';
+      coin.style.opacity = '0.9';
+    });
+
+    setTimeout(() => {
+      coin.remove();
+      chest.classList.add('chest-bounce');
+      coins += 1;
+      document.getElementById('coinsDisplay').textContent = coins;
+      setTimeout(() => chest.classList.remove('chest-bounce'), 400);
+    }, 850);
+  }
+
+  function start20SecTimer() {
+    clearInterval(timerInterval);
+    timeLeft = 20;
+    document.getElementById('timerDisplay').textContent = "20";
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      document.getElementById('timerDisplay').textContent = timeLeft < 10 ? "0" + timeLeft : timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        chooseAnswer(-1);
+      }
+    }, 1000);
+  }
+
+  function loadMCQuestion() {
+    if (s2Index >= currentShuffledMCQ.length) {
+      clearInterval(timerInterval);
+      showResults();
+      return;
+    }
+
+    document.getElementById('wrongNotice').style.display = 'none';
+    document.getElementById('s2QIdx').textContent = (s2Index + 1);
+
+    const q = currentShuffledMCQ[s2Index];
+    document.getElementById('promptDefText').textContent = q.def;
+
+    const allOptions = shuffleArray([q.correct, ...q.distractors]);
+
+    for (let i = 0; i < 4; i++) {
+      const card = document.getElementById(`card-${i}`);
+      const txt = document.getElementById(`text-${i}`);
+      txt.textContent = allOptions[i];
+      card.dataset.correct = (allOptions[i] === q.correct);
+      card.dataset.word = allOptions[i];
+      card.classList.remove('disabled', 'correct-highlight');
+    }
+
+    for (let i = 0; i < 9; i++) {
+      const node = document.getElementById(`s2-node-${i}`);
+      if (!node.classList.contains('pass') && !node.classList.contains('fail')) {
+        node.className = (i === s2Index) ? "stage-node current" : "stage-node";
+      }
+    }
+    const percent = (s2Index / 8) * 94;
+    document.getElementById('worker2').style.left = `${percent}%`;
+
+    start20SecTimer();
+    readDefPrompt();
+  }
+
+  /* Read the definition without any numbers */
+  function readDefPrompt() {
+    const q = currentShuffledMCQ[s2Index];
+    speakText(`Definition: ${q.def}`);
+  }
+
+  function speakChoiceText(event, idx) {
+    event.stopPropagation();
+    const word = document.getElementById(`text-${idx}`).textContent;
+    speakText(word);
+  }
+
+  function chooseAnswer(chosenIdx) {
+    clearInterval(timerInterval);
+    const q = currentShuffledMCQ[s2Index];
+    const isCorrect = (chosenIdx !== -1) && (document.getElementById(`card-${chosenIdx}`).dataset.correct === "true");
+
+    for (let i = 0; i < 4; i++) {
+      const card = document.getElementById(`card-${i}`);
+      card.classList.add('disabled');
+      if (card.dataset.correct === "true") {
+        card.classList.add('correct-highlight');
+      }
+    }
+
+    const stageNode = document.getElementById(`s2-node-${s2Index}`);
+    const wrongNotice = document.getElementById('wrongNotice');
+
+    if (isCorrect) {
+      s2Score++;
+      playSuccessSound();
+      collectCoinInChest(chosenIdx);
+
+      if (stageNode) {
+        stageNode.className = "stage-node pass";
+        stageNode.textContent = "✔";
+      }
+      s2Index++;
+      setTimeout(loadMCQuestion, 1400);
+    } else {
+      playFailureSound();
+      document.getElementById('mainContainer').classList.add('hazard-buzz');
+      setTimeout(() => document.getElementById('mainContainer').classList.remove('hazard-buzz'), 350);
+
+      if (stageNode) {
+        stageNode.className = "stage-node fail";
+        stageNode.textContent = "✖";
+      }
+      wrongNotice.textContent = `⚠️ Incorrect or Timed Out! Correct Answer: "${q.correct}"`;
+      wrongNotice.style.display = 'block';
+
+      s2Index++;
+      setTimeout(loadMCQuestion, 2600);
+    }
+  }
+
+  function showResults() {
+    document.getElementById('section2').style.display = 'none';
+    const res = document.getElementById('resultsScreen');
+    res.style.display = 'block';
+
+    const percent = Math.round((s2Score / 9) * 100);
+    document.getElementById('finalScoreDisplay').textContent = `${percent}%`;
+    document.getElementById('finalCoinsCount').textContent = coins;
+
+    let advice = "";
+    if (percent >= 85) {
+      advice = `<strong>Chief Plant Director:</strong> Exceptional accuracy! You secured <strong>${coins} out of 9 Coins</strong> in the chest vault for correct definitions and demonstrated complete command of macroeconomic collocations.`;
+    } else if (percent >= 60) {
+      advice = `<strong>Senior Production Supervisor:</strong> Commendable shift work. You banked <strong>${coins} Coins</strong> in the chest vault, but lost a few coins on fast-paced definitions. Review your downward trajectory and structural changes terminology.`;
+    } else {
+      advice = `<strong>Floor Apprentice:</strong> Factory output below standards! You only banked <strong>${coins} Coins</strong>. Revisit the post-war readings in Part 1 to learn the collocations before taking another shift.`;
+    }
+
+    document.getElementById('finalReportText').innerHTML = `
+      You completed the Lexical Arena with <strong>${s2Score} / 9</strong> correct answers.<br>
+      Total earnings: <strong>${coins} Coins</strong> deposited into your chest vault for verified definitions.<br><br>
+      ${advice}
+    `;
+  }
+
+  function restartAll() {
+    currentEraIdx = 0;
+    s2Index = 0;
+    s2Score = 0;
+    coins = 0;
+    document.getElementById('coinsDisplay').textContent = "0";
+
+    for (let i = 0; i < 9; i++) {
+      const node = document.getElementById(`s2-node-${i}`);
+      node.className = (i === 0) ? "stage-node current" : "stage-node";
+      node.textContent = (i + 1);
+    }
+
+    currentShuffledMCQ = shuffleArray(masterPart2);
+    renderEra();
+    switchSection(1);
+  }
+
+  if ('speechSynthesis' in window) {
+    speechSynthesis.onvoiceschanged = () => {};
+  }
+
+  window.onload = () => {
+    currentShuffledMCQ = shuffleArray(masterPart2);
+    renderEra();
+  };
+</script>
+</body>
+</html>
