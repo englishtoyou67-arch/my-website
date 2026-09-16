@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The King Penguin: Socratic Vocabulary & Human-Animal Analogies</title>
+<style>
+  :root {
+    --bg: #0b132b;
+    --card: #1c2541;
+    --accent: #48cae4;
+    --accent-hover: #0096c7;
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --border: #3a506b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+  body { background: var(--bg); color: var(--text); line-height: 1.6; padding: 24px 16px; }
+  .container { max-width: 900px; margin: 0 auto; position: relative; }
+
+  header { text-align: center; margin-bottom: 24px; }
+  h1 { font-size: 1.85rem; color: var(--accent); margin-bottom: 6px; }
+  p.subtitle { color: var(--text-muted); font-size: 0.95rem; }
+
+  #confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* Audio Bar */
+  .audio-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .btn {
+    background: var(--accent);
+    color: #0b132b;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 0.9rem;
+  }
+  .btn:hover { background: var(--accent-hover); color: #fff; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { background: var(--border); }
+
+  /* Passage */
+  .reading-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 28px;
+    font-size: 1.05rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .hl-word {
+    color: #38bdf8;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(56, 189, 248, 0.15);
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+    margin: 26px 0 16px;
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .phase-badge {
+    background: #0284c7;
+    color: #fff;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  /* Progress Counter */
+  .progress-tracker {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.92rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Cards */
+  .quiz-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 18px;
+    transition: 0.3s;
+  }
+  .quiz-card.card-success {
+    border-color: var(--success);
+    background: rgba(16, 185, 129, 0.05);
+  }
+
+  .word-target {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .choices-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media(max-width: 650px) { .choices-grid { grid-template-columns: 1fr; } }
+  
+  .opt-btn {
+    border: 2px solid transparent;
+    padding: 13px 15px;
+    border-radius: 8px;
+    color: #fff;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: transform 0.15s, opacity 0.2s;
+  }
+  .opt-btn:hover { transform: translateY(-2px); filter: brightness(1.15); }
+  
+  .col-0 { background: #1d4ed8; }
+  .col-1 { background: #047857; }
+  .col-2 { background: #b45309; }
+  .col-3 { background: #6d28d9; }
+
+  .feedback-box {
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    display: none;
+  }
+  .fb-correct { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--success); color: #a7f3d0; display: block; }
+  .fb-wrong { background: rgba(239, 68, 68, 0.2); border: 1px solid var(--danger); color: #fca5a5; display: block; }
+
+  /* Phase 1 Summary */
+  #phase1-summary {
+    background: #0f1e40;
+    border: 2px solid var(--accent);
+    border-radius: 14px;
+    padding: 26px;
+    margin: 32px 0;
+    display: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .score-badge {
+    font-size: 2.3rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .rank-badge {
+    background: rgba(72, 202, 228, 0.15);
+    border: 1px solid var(--accent);
+    color: #e0f2fe;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .eval-section {
+    margin-bottom: 14px;
+    font-size: 0.96rem;
+    line-height: 1.65;
+    color: #cbd5e1;
+  }
+  .eval-section strong { color: #f8fafc; }
+
+  /* Phase 2: Open Response Prompts */
+  .q-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 24px;
+  }
+  .prompt-badge {
+    color: #facc15;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .q-title {
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin: 8px 0 14px;
+    color: #f1f5f9;
+  }
+  textarea {
+    width: 100%;
+    height: 125px;
+    background: #090d16;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: #f8fafc;
+    padding: 12px;
+    font-size: 0.95rem;
+    resize: vertical;
+    outline: none;
+  }
+  textarea:focus { border-color: var(--accent); }
+  .word-counter {
+    text-align: right;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .audit-panel {
+    background: #090e1a;
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 18px;
+    margin-top: 16px;
+    display: none;
+  }
+  .audit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin: 14px 0;
+  }
+  .audit-card {
+    background: var(--card);
+    padding: 12px;
+    border-radius: 6px;
+    border-left: 3px solid var(--accent);
+  }
+  .audit-card h5 { font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .audit-card p { font-size: 0.86rem; color: #e2e8f0; }
+  .model-answer {
+    background: rgba(56, 189, 248, 0.08);
+    border-left: 3px solid var(--success);
+    padding: 14px 16px;
+    border-radius: 6px;
+    margin-top: 14px;
+    font-size: 0.93rem;
+    color: #cbd5e1;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<div class="container">
+  <header>
+    <h1>The King Penguin: Challenges to Reproduction</h1>
+    <p class="subtitle">Socratic Lexical Inquiry & Cross-Species Social Analogies</p>
+  </header>
+
+  <!-- Audio Reader Bar -->
+  <div class="audio-panel">
+    <div>
+      <strong>Audio Narrator:</strong> <span id="tts-status" style="color:var(--text-muted);">Ready to read</span>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <button class="btn" id="playBtn">Play / Listen</button>
+      <button class="btn btn-outline" id="stopBtn">Stop</button>
+      <button class="btn btn-outline" id="restartBtn">Restart Game</button>
+    </div>
+  </div>
+
+  <!-- Primary Reading Text -->
+  <div class="reading-card" id="passageText">
+    <p style="margin-bottom:14px;">
+      Many islands in the Antarctic such as the Possession Islands have huge <span class="hl-word">colonies</span> of king penguins. These birds come to the islands to <span class="hl-word">reproduce</span>. Although scientists believe the worldwide population is increasing and king penguins are not in danger of <span class="hl-word">extinction</span>, individual birds often have to <span class="hl-word">struggle</span> to stay alive.
+    </p>
+    <p style="margin-bottom:14px;">
+      Weather is one <span class="hl-word">challenge</span> that the birds face. This far south, cold temperatures make it hard to keep eggs warm. Female birds share this <span class="hl-word">responsibility</span> with their mate. Perhaps surprisingly, climate change can also <span class="hl-word">threaten</span> the birds. After eggs hatch, parents feed their chicks. Warmer oceans mean less food nearby. As a result, chicks are left unprotected for longer periods while their parents hunt.
+    </p>
+    <p>
+      Another <span class="hl-word">factor</span> is space. Some colonies have 100,000 or more birds, each of which must find and defend a <span class="hl-word">territory</span> of less than three feet (one meter) across. <span class="hl-word">Predators</span> are another challenge. Adults must protect young penguins from seals and other sea mammals, and sometimes even from other birds.
+    </p>
+  </div>
+
+  <!-- PHASE 1: VOCABULARY MCQ -->
+  <div class="section-title">
+    <span class="phase-badge">Phase 1</span>
+    <span>Socratic Contextual Vocabulary (Randomized Positions)</span>
+  </div>
+
+  <div class="progress-tracker">
+    <span>Questions Solved: <span id="solved-count">0</span> / 10</span>
+    <span>First-Attempt Accuracy: <span id="accuracy-rate">100%</span></span>
+  </div>
+
+  <div id="quizContainer"></div>
+
+  <!-- Phase 1 Total Evaluation & Recommendations Dashboard -->
+  <div id="phase1-summary">
+    <div class="summary-header">
+      <div>
+        <div class="score-badge" id="score-text">0 / 10</div>
+        <div style="font-size:0.85rem; color:var(--text-muted);">First-Attempt Score</div>
+      </div>
+      <div class="rank-badge" id="score-rank">Evaluation in Progress</div>
+    </div>
+    
+    <div class="eval-section" id="score-summary-text"></div>
+    <div class="eval-section" id="score-recommendations" style="background: rgba(0,0,0,0.25); padding: 14px; border-radius: 8px; border-left: 3px solid var(--accent);"></div>
+    
+    <div style="text-align: right; margin-top: 14px;">
+      <button class="btn" id="toPhase2Btn">Proceed to Phase 2 Analogies &darr;</button>
+    </div>
+  </div>
+
+  <!-- PHASE 2: HUMAN-ANIMAL SOCIAL ANALOGIES -->
+  <div class="section-title" style="margin-top: 42px;" id="phase2-anchor">
+    <span class="phase-badge" style="background:#7c3aed;">Phase 2</span>
+    <span>Cross-Species Analogies: Nature & Human Society (80–90 Words)</span>
+  </div>
+
+  <!-- Analogy 1 -->
+  <div class="q-box">
+    <div class="prompt-badge">Analogy 1 • High Density, Micro-Territories & Urban Friction</div>
+    <div class="q-title">
+      King penguins must defend a tiny territory of less than one meter within a colony of 100,000 birds. How does this spatial pressure mirror the psychological friction, boundary defenses, and stress experienced by human beings living in hyper-dense mega-cities or crowded apartment buildings?
+    </div>
+    <textarea id="ans-0" placeholder="Write your comparative reflection here (80-90 words)..."></textarea>
+    <div class="word-counter" id="wc-0">0 / 80-90 words</div>
+    <button class="btn eval-writing-btn" data-qidx="0" style="margin-top:12px;">Audit & Evaluate Response</button>
+    <div class="audit-panel" id="audit-0"></div>
+  </div>
+
+  <!-- Analogy 2 -->
+  <div class="q-box">
+    <div class="prompt-badge">Analogy 2 • The Distance Dilemma: Foraging vs. Protection</div>
+    <div class="q-title">
+      Because ocean food is moving farther away, penguin parents must leave chicks unattended for days to hunt. In modern human societies, how does this dynamic mirror the painful trade-off working parents face between long hours away earning a living and being present to nurture and protect their children?
+    </div>
+    <textarea id="ans-1" placeholder="Write your comparative reflection here (80-90 words)..."></textarea>
+    <div class="word-counter" id="wc-1">0 / 80-90 words</div>
+    <button class="btn eval-writing-btn" data-qidx="1" style="margin-top:12px;">Audit & Evaluate Response</button>
+    <div class="audit-panel" id="audit-1"></div>
+  </div>
+
+  <!-- Analogy 3 -->
+  <div class="q-box">
+    <div class="prompt-badge">Analogy 3 • Macro Statistics vs. Micro Struggles</div>
+    <div class="q-title">
+      The text highlights a stark paradox: king penguins as a worldwide species are thriving and growing, yet individual birds face an exhausting daily struggle against cold and predators. How does this mirror human societies where macroeconomic indicators (GDP, national wealth) look prosperous, yet individual citizens battle daily inflation and precarious conditions?
+    </div>
+    <textarea id="ans-2" placeholder="Write your comparative reflection here (80-90 words)..."></textarea>
+    <div class="word-counter" id="wc-2">0 / 80-90 words</div>
+    <button class="btn eval-writing-btn" data-qidx="2" style="margin-top:12px;">Audit & Evaluate Response</button>
+    <div class="audit-panel" id="audit-2"></div>
+  </div>
+
+</div>
+
+<script>
+// --- VOCABULARY DATA (10 WORDS) ---
+const vocabData = [
+  {
+    word: "1. Colonies",
+    choices: [
+      { text: "Dense, structured gatherings of animals living and nesting together", correct: true, hint: "Notice the massive scale: 100,000 birds sharing one geographic island space." },
+      { text: "Temporary shelters built by scientists to protect birds", correct: false, hint: "Look closely: is this an artificial structure or the natural gathering of the organisms?" },
+      { text: "Isolated pairs of breeding birds living miles apart", correct: false, hint: "Consider paragraph 3: 100,000 birds side-by-side points to high density, not isolation." },
+      { text: "Hostile groups of predators attacking native animals", correct: false, hint: "Who makes up the colony in the text—the king penguins or their enemies?" }
+    ]
+  },
+  {
+    word: "2. Reproduce",
+    choices: [
+      { text: "To produce offspring and pass traits to the next generation", correct: true, hint: "Exact. The passage connects this immediately with keeping eggs warm and feeding chicks." },
+      { text: "To travel to warmer climates solely to search for fish", correct: false, hint: "They come to land to lay eggs and hatch chicks. What biological life goal is that?" },
+      { text: "To defend a boundary against encroaching seals", correct: false, hint: "Territory defense is only a protective step. What is the ultimate reproductive goal?" },
+      { text: "To replace adult feathers with thicker winter plumage", correct: false, hint: "The prefix 'Re-' implies creating again. Does this refer to feathers or offspring?" }
+    ]
+  },
+  {
+    word: "3. Extinction",
+    choices: [
+      { text: "The total, irreversible dying out of an entire biological species", correct: true, hint: "Accurate. Even though individual birds struggle, the worldwide population keeps them off this brink." },
+      { text: "A temporary reduction in hatching rates during cold years", correct: false, hint: "Extinction is absolute and permanent across the planet, not a temporary seasonal dip." },
+      { text: "The seasonal migration of birds away from coastal winds", correct: false, hint: "Does extinction describe animal flight or the complete end of an evolutionary line?" },
+      { text: "The localized loss of food in nearby ocean currents", correct: false, hint: "Food scarcity is an environmental cause; extinction is the final global result." }
+    ]
+  },
+  {
+    word: "4. Struggle",
+    choices: [
+      { text: "To exert strenuous physical effort against relentless hardship", correct: true, hint: "Spot on. It captures daily energetic strain against extreme cold, hunger, and danger." },
+      { text: "To smoothly adapt to environmental ocean changes", correct: false, hint: "Struggle carries heavy friction. Does it suggest smooth adaptation?" },
+      { text: "To peacefully share limited nesting space with neighbors", correct: false, hint: "Why would peaceful harmony be framed as having to 'struggle to stay alive'?" },
+      { text: "To hunt cooperatively with neighboring mated pairs", correct: false, hint: "Consider the context: scarce food and predators. Is this easy teamwork or survival strain?" }
+    ]
+  },
+  {
+    word: "5. Challenge",
+    choices: [
+      { text: "A demanding obstacle or trial that tests endurance", correct: true, hint: "Precisely. Low temperatures, spatial crowding, and seals are selective hurdles." },
+      { text: "A natural advantage that guarantees reproductive success", correct: false, hint: "If freezing weather is a challenge, does it offer an advantage or severe resistance?" },
+      { text: "An aggressive display meant to intimidate other males", correct: false, hint: "Weather doesn't have emotions; it acts as an environmental obstacle to conquer." },
+      { text: "A routine biological habit requiring minimal effort", correct: false, hint: "Notice the close link with 'struggle' in the passage—it implies difficulty." }
+    ]
+  },
+  {
+    word: "6. Responsibility",
+    choices: [
+      { text: "A vital shared duty or biological obligation to care for young", correct: true, hint: "Spot on. Keeping the egg warm requires alternating shifts between both parents." },
+      { text: "A formal territorial right enforced by the colony", correct: false, hint: "Animals don't hold civil rights; they share essential instinctive parenting duties." },
+      { text: "An optional chore completed only when weather permits", correct: false, hint: "If warming the egg were optional, what would happen in sub-zero Antarctic air?" },
+      { text: "The aggressive instinct to drive away neighboring birds", correct: false, hint: "The text pairs this directly with female birds sharing incubation with their mate." }
+    ]
+  },
+  {
+    word: "7. Threaten",
+    choices: [
+      { text: "To create severe peril or endanger survival and well-being", correct: true, hint: "Accurate. Warmer oceans push fish farther away, leaving chicks defenseless." },
+      { text: "To offer unexpected ecological food benefits to chicks", correct: false, hint: "Why does the author state 'Surprisingly...'? Would a benefit be framed as a threat?" },
+      { text: "To issue loud warning calls across nesting boundaries", correct: false, hint: "The subject here is climate change. Can temperature trends utter vocal cries?" },
+      { text: "To blend into surrounding snow to hide from predators", correct: false, hint: "Does climate change help animals blend in, or put their survival in jeopardy?" }
+    ]
+  },
+  {
+    word: "8. Factor",
+    choices: [
+      { text: "A contributing element or condition that shapes an outcome", correct: true, hint: "Exact. Space, alongside cold and predators, directly governs chick survival." },
+      { text: "The primary marine mammal that attacks young penguins", correct: false, hint: "Space is referred to as a factor. Can a physical measurement be a predator?" },
+      { text: "A physical boundary strictly restricted to one square meter", correct: false, hint: "The boundary is the territory itself; 'factor' describes its influence as a variable." },
+      { text: "A sudden seasonal migration toward open waters", correct: false, hint: "In academic analysis, a factor is a contributing condition or key variable." }
+    ]
+  },
+  {
+    word: "9. Territory",
+    choices: [
+      { text: "A clearly defined physical area defended against rivals", correct: true, hint: "Spot on. For king penguins, this is their fiercely guarded three-foot circle." },
+      { text: "The entire oceanic migration corridor across the Antarctic", correct: false, hint: "Open water is not guarded at less than three feet across by single pairs." },
+      { text: "The total geographic range inhabited by a species", correct: false, hint: "That is a global biome or habitat. Territory refers to a fiercely defended micro-plot." },
+      { text: "An abandoned site exposed to freezing ocean gusts", correct: false, hint: "If a bird actively defends this zone, can it be an abandoned plot?" }
+    ]
+  },
+  {
+    word: "10. Predators",
+    choices: [
+      { text: "Carnivorous animals that hunt, kill, and consume others", correct: true, hint: "Correct. Seals and opportunistic skuas actively prey upon vulnerable chicks." },
+      { text: "Parents that fail to share chick incubation duties", correct: false, hint: "Does an exhausted parent constitute an attacking predator that hunts prey?" },
+      { text: "Microscopic organisms that help decompose shoreline ice", correct: false, hint: "The text cites seals and large sea mammals—hardly microscopic life." },
+      { text: "Neighboring birds that share fish during lean months", correct: false, hint: "Do predatory animals share resources peacefully with their targets?" }
+    ]
+  }
+];
+
+// --- APP STATE ---
+let userAttempts = Array(vocabData.length).fill(0);
+let solvedCards = Array(vocabData.length).fill(false);
+let firstAttemptWins = 0;
+
+// --- AUDIO SYNTH (SAFE WRAPPER) ---
+function playTone(freq1, freq2, duration) {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq1, ctx.currentTime);
+    if (freq2) osc.frequency.exponentialRampToValueAtTime(freq2, ctx.currentTime + duration * 0.5);
+
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch(e) {}
+}
+
+// --- CONFETTI EFFECT ---
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function launchConfetti() {
+  for (let i = 0; i < 35; i++) {
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+      r: Math.random() * 5 + 3,
+      dx: (Math.random() - 0.5) * 10,
+      dy: (Math.random() - 0.5) * 10 - 3,
+      color: ['#48cae4', '#10b981', '#f59e0b', '#7c3aed', '#fff'][Math.floor(Math.random() * 5)],
+      life: 50
+    });
+  }
+}
+
+function updateConfetti() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = p.color;
+    ctx.fill();
+    p.x += p.dx;
+    p.y += p.dy;
+    p.dy += 0.2;
+    p.life--;
+  });
+  particles = particles.filter(p => p.life > 0);
+  requestAnimationFrame(updateConfetti);
+}
+updateConfetti();
+
+// --- SHUFFLE FUNCTION ---
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// --- RENDER QUIZ CARDS ---
+function buildQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  userAttempts = Array(vocabData.length).fill(0);
+  solvedCards = Array(vocabData.length).fill(false);
+  firstAttemptWins = 0;
+  updateProgressUI();
+
+  vocabData.forEach((item, qIdx) => {
+    const card = document.createElement('div');
+    card.className = 'quiz-card';
+    card.id = 'qcard-' + qIdx;
+
+    const title = document.createElement('div');
+    title.className = 'word-target';
+    title.textContent = item.word;
+    card.appendChild(title);
+
+    const grid = document.createElement('div');
+    grid.className = 'choices-grid';
+
+    // Shuffle choices
+    const shuffled = shuffle(item.choices);
+
+    shuffled.forEach((choice, cIdx) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn col-' + (cIdx % 4);
+      btn.textContent = choice.text;
+      
+      btn.addEventListener('click', () => {
+        handleSelection(qIdx, choice, btn, card);
+      });
+
+      grid.appendChild(btn);
+    });
+
+    card.appendChild(grid);
+
+    const fb = document.createElement('div');
+    fb.className = 'feedback-box';
+    fb.id = 'fb-' + qIdx;
+    card.appendChild(fb);
+
+    container.appendChild(card);
+  });
+
+  document.getElementById('phase1-summary').style.display = 'none';
+}
+
+function handleSelection(qIdx, choice, btn, card) {
+  const fb = document.getElementById('fb-' + qIdx);
+  userAttempts[qIdx]++;
+
+  if (choice.correct) {
+    playTone(523.25, 783.99, 0.4);
+    launchConfetti();
+    card.classList.add('card-success');
+
+    if (userAttempts[qIdx] === 1) {
+      firstAttemptWins++;
+    }
+
+    fb.className = 'feedback-box fb-correct';
+    fb.innerHTML = '<strong>Accurate!</strong> ' + choice.hint;
+
+    // Lock options
+    card.querySelectorAll('.opt-btn').forEach(b => {
+      b.style.opacity = '0.4';
+      b.style.pointerEvents = 'none';
+    });
+    btn.style.opacity = '1';
+    btn.style.boxShadow = '0 0 12px var(--success)';
+
+    solvedCards[qIdx] = true;
+    updateProgressUI();
+
+    // Check if finished
+    const totalSolved = solvedCards.filter(Boolean).length;
+    if (totalSolved === vocabData.length) {
+      setTimeout(showPhase1Evaluation, 400);
+    }
+  } else {
+    playTone(320, 240, 0.25);
+    fb.className = 'feedback-box fb-wrong';
+    fb.innerHTML = '<strong>Reflect & Refine:</strong> ' + choice.hint;
+    btn.style.opacity = '0.35';
+    btn.style.transform = 'scale(0.97)';
+  }
+}
+
+function updateProgressUI() {
+  const solved = solvedCards.filter(Boolean).length;
+  document.getElementById('solved-count').textContent = solved;
+  const attemptedSoFar = userAttempts.filter(n => n > 0).length;
+  const rate = attemptedSoFar > 0 ? Math.round((firstAttemptWins / attemptedSoFar) * 100) : 100;
+  document.getElementById('accuracy-rate').textContent = rate + '%';
+}
+
+function showPhase1Evaluation() {
+  const summaryBox = document.getElementById('phase1-summary');
+  const scoreText = document.getElementById('score-text');
+  const scoreRank = document.getElementById('score-rank');
+  const summaryText = document.getElementById('score-summary-text');
+  const recText = document.getElementById('score-recommendations');
+
+  summaryBox.style.display = 'block';
+  scoreText.textContent = firstAttemptWins + ' / 10 (' + (firstAttemptWins * 10) + '%)';
+
+  if (firstAttemptWins >= 8) {
+    scoreRank.textContent = "Distinguished Lexicographer • C1+ Band";
+    scoreRank.style.borderColor = "var(--success)";
+    scoreRank.style.color = "#86efac";
+    summaryText.innerHTML = "<strong>Diagnostic Appraisal:</strong> Outstanding inductive comprehension! You deduced nuanced academic concepts on your very first selection without getting sidetracked by distractors.";
+    recText.innerHTML = "<strong>Recommendation for Phase 2:</strong> Synthesize target terms like <em>spatial territory</em>, <em>vital responsibility</em>, and <em>environmental factors</em> directly into your comparative answers below.";
+  } else if (firstAttemptWins >= 5) {
+    scoreRank.textContent = "Proficient Deductive Thinker • B2 Band";
+    scoreRank.style.borderColor = "var(--warning)";
+    scoreRank.style.color = "#fde047";
+    summaryText.innerHTML = "<strong>Diagnostic Appraisal:</strong> Solid analytical foundation. While certain subtle traps caused hesitation, your self-monitoring and inductive correction were quick and effective.";
+    recText.innerHTML = "<strong>Recommendation for Phase 2:</strong> Maintain clear distinction between micro-level daily realities and macro-level demographic metrics.";
+  } else {
+    scoreRank.textContent = "Developing Conceptual Explorer • B1 Band";
+    scoreRank.style.borderColor = "var(--accent)";
+    scoreRank.style.color = "#7dd3fc";
+    summaryText.innerHTML = "<strong>Diagnostic Appraisal:</strong> Good perseverance across challenging academic vocabulary. You worked through each feedback clue until every concept was securely grasped.";
+    recText.innerHTML = "<strong>Recommendation for Phase 2:</strong> Use simple, clear comparative sentences (e.g., <em>'This directly resembles human life because...'</em>) to anchor your thoughts.";
+  }
+
+  summaryBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// --- AUDIO NARRATOR CONTROLS ---
+const playBtn = document.getElementById('playBtn');
+const stopBtn = document.getElementById('stopBtn');
+const restartBtn = document.getElementById('restartBtn');
+const toPhase2Btn = document.getElementById('toPhase2Btn');
+const ttsStatus = document.getElementById('tts-status');
+
+playBtn.addEventListener('click', () => {
+  if (!('speechSynthesis' in window)) {
+    alert("Text-to-speech is not supported in this browser.");
+    return;
+  }
+  if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+    window.speechSynthesis.pause();
+    playBtn.textContent = 'Resume';
+    ttsStatus.textContent = 'Audio paused';
+  } else if (window.speechSynthesis.paused) {
+    window.speechSynthesis.resume();
+    playBtn.textContent = 'Pause';
+    ttsStatus.textContent = 'Playing audio...';
+  } else {
+    window.speechSynthesis.cancel();
+    const text = document.getElementById('passageText').innerText;
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 0.92;
+    u.onend = () => {
+      playBtn.textContent = 'Play / Listen';
+      ttsStatus.textContent = 'Completed';
+    };
+    window.speechSynthesis.speak(u);
+    playBtn.textContent = 'Pause';
+    ttsStatus.textContent = 'Playing audio...';
+  }
+});
+
+stopBtn.addEventListener('click', () => {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    playBtn.textContent = 'Play / Listen';
+    ttsStatus.textContent = 'Stopped';
+  }
+});
+
+restartBtn.addEventListener('click', () => {
+  buildQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+toPhase2Btn.addEventListener('click', () => {
+  document.getElementById('phase2-anchor').scrollIntoView({ behavior: 'smooth' });
+});
+
+// --- PHASE 2 WRITING & BENCHMARK MODELS ---
+const modelAnswers = [
+  "Much like king penguins defending a one-meter circle within an overwhelming colony, residents of modern megacities experience severe spatial compression. Confined to cramped high-rise apartments and crowded transit systems, humans construct invisible psychological boundaries to protect their personal space. When these unspoken micro-territories are violated by ambient noise, overcrowding, or invasive neighbors, interpersonal friction inevitably escalates. Physical confinement strips away natural buffers, triggering chronic stress responses and emotional fatigue. In both wild bird colonies and dense urban landscapes, extreme population density forces individuals into an unremitting daily battle to preserve privacy and emotional equilibrium.",
+
+  "The king penguin’s dilemma vividly mirrors the agonizing conflict confronting dual-career parents in modern economic systems. Just as changing oceanic temperatures compel adult penguins to embark on distant foraging voyages, rising living costs force human parents into grueling work hours and long commutes simply to provide material security. Consequently, offspring are left unattended or placed in institutional care for extended stretches. While the parents' absence is motivated entirely by physical survival and material sustenance, it exposes vulnerable children to emotional isolation and external risks, illustrating the universal biological trade-off between securing resources and offering protective physical presence.",
+
+  "This biological paradox directly parallels contemporary macroeconomic reporting. Governments and media outlets frequently celebrate surging gross domestic product, booming stock indices, or record national employment figures. However, these aggregate statistics systematically mask acute individual distress. Just as an expanding global penguin population fails to ease the freezing temperatures, territorial scuffles, and predatory threats endured by single birds, macroeconomic prosperity rarely insulates ordinary citizens from crushing inflation, precarious housing, and personal burnout. In ecological populations and human civilizations alike, macro-level health metrics frequently obscure the profound vulnerabilities and daily struggles of the individual."
+];
+
+// Attach Word Counters
+[0, 1, 2].forEach(idx => {
+  const ta = document.getElementById('ans-' + idx);
+  const wc = document.getElementById('wc-' + idx);
+  ta.addEventListener('input', () => {
+    const words = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0;
+    wc.textContent = words + ' / 80-90 words';
+    if (words >= 80 && words <= 90) wc.style.color = 'var(--success)';
+    else if (words > 90) wc.style.color = 'var(--warning)';
+    else wc.style.color = 'var(--text-muted)';
+  });
+});
+
+// Evaluate Writing
+document.querySelectorAll('.eval-writing-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const qIdx = parseInt(btn.dataset.qidx, 10);
+    const text = document.getElementById('ans-' + qIdx).value.trim();
+    const words = text ? text.split(/\s+/).length : 0;
+    const panel = document.getElementById('audit-' + qIdx);
+    panel.style.display = 'block';
+
+    const hasHuman = /human|people|society|urban|city|parent|family|work|economic|citizen|apartment/i.test(text);
+    const hasNature = /penguin|bird|colony|space|distance|forag|hunt|predator|climate|chick|territory/i.test(text);
+    const hasLink = /mirror|parallel|just as|similarly|much like|resemble|analogy|reflect/i.test(text);
+
+    let critique = '';
+    if (words < 75) critique += '<li><strong>Volume:</strong> Short response (' + words + ' words). Expand on human social consequences.</li>';
+    else if (words > 95) critique += '<li><strong>Conciseness:</strong> Slightly long (' + words + ' words). Condense compound clauses.</li>';
+
+    if (!hasHuman) critique += '<li><strong>Human Realm:</strong> Ground your reflection explicitly in human social behavior.</li>';
+    if (!hasNature) critique += '<li><strong>Source Grounding:</strong> Connect tighter to the penguin challenges in the text.</li>';
+    if (!hasLink) critique += '<li><strong>Cohesion:</strong> Use comparative markers like <em>"Just as...", "This directly mirrors..."</em>.</li>';
+
+    if (!critique) critique = '<li><strong>Exemplary Synthesis:</strong> Balanced conceptual bridge and rich academic tone!</li>';
+
+    panel.innerHTML = `
+      <h4 style="color:var(--accent); font-size:1rem; margin-bottom:8px;">Comparative Socratic Writing Audit (${words} words)</h4>
+      <div class="audit-grid">
+        <div class="audit-card">
+          <h5>Vocabulary & Collocations</h5>
+          <p>${hasLink ? "Nuanced comparative markers and academic phrasing." : "Needs stronger comparative collocations."}</p>
+        </div>
+        <div class="audit-card">
+          <h5>Grammar & Range</h5>
+          <p>Complex syntactic coordination linking biological constraints to human society.</p>
+        </div>
+        <div class="audit-card">
+          <h5>Cohesion & Coherence</h5>
+          <p>${hasLink ? "Fluid conceptual transitions across domains." : "Transitions feel abrupt; weave the two domains tighter."}</p>
+        </div>
+        <div class="audit-card">
+          <h5>Analytical Depth</h5>
+          <p>${hasHuman && hasNature ? "Insightful synthesis connecting wild adaptation to social realities." : "Analogy needs deeper dual-domain development."}</p>
+        </div>
+      </div>
+      <ul style="font-size:0.88rem; color:#fca5a5; margin-left:18px; margin-bottom:12px;">
+        ${critique}
+      </ul>
+      <div class="model-answer">
+        <strong style="color:var(--success); display:block; margin-bottom:4px;">Exemplary Benchmark Model (100 Words • Advanced Collocations):</strong>
+        ${modelAnswers[qIdx]}
+      </div>
+    `;
+  });
+});
+
+// Initial boot
+buildQuiz();
+</script>
+</body>
+</html>
