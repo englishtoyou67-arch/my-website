@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Rentrée : Vocabulaire, Lecture et Écriture</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --accent: #38bdf8;
+    --accent-hover: #0284c7;
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --border: #334155;
+    --purple: #a855f7;
+    --pink: #ec4899;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+  body { background: var(--bg); color: var(--text); line-height: 1.6; padding: 20px 14px; }
+  .container { max-width: 920px; margin: 0 auto; position: relative; }
+
+  header { text-align: center; margin-bottom: 24px; }
+  h1 { font-size: 1.9rem; color: var(--accent); margin-bottom: 6px; }
+  p.subtitle { color: var(--text-muted); font-size: 1rem; }
+
+  #confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* Audio Bar */
+  .audio-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .btn {
+    background: var(--accent);
+    color: #0f172a;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 0.9rem;
+  }
+  .btn:hover { background: var(--accent-hover); color: #fff; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { background: var(--border); }
+  .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+
+  .section-title {
+    font-size: 1.3rem;
+    margin: 28px 0 16px;
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .phase-badge {
+    background: #0284c7;
+    color: #fff;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  /* Étape 1 : Association et Genre */
+  .instruction-box {
+    background: rgba(56, 189, 248, 0.1);
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 0.92rem;
+  }
+
+  .word-bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 14px;
+    background: var(--card);
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    justify-content: center;
+    min-height: 60px;
+  }
+  .word-chip {
+    background: #334155;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    border: 2px solid transparent;
+    transition: 0.2s;
+  }
+  .word-chip:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .word-chip.selected {
+    background: var(--accent);
+    color: #0f172a;
+    border-color: #fff;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+  }
+  .word-chip.matched { display: none; }
+
+  .vocab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .vocab-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: 0.25s;
+    position: relative;
+    cursor: pointer;
+  }
+  .vocab-card.target-selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+  }
+  .vocab-card.card-matched {
+    border-color: var(--purple);
+    cursor: default;
+  }
+  .vocab-card.card-success {
+    border-color: var(--success);
+    background: rgba(34, 197, 94, 0.08);
+  }
+  .vocab-card.card-shake {
+    animation: shake 0.35s ease-in-out;
+    border-color: var(--danger);
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+
+  .item-icon { font-size: 2.4rem; margin-bottom: 6px; }
+  .drop-slot {
+    width: 100%;
+    min-height: 42px;
+    border: 2px dashed #475569;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .drop-slot.filled {
+    border-style: solid;
+    border-color: var(--purple);
+    background: rgba(168, 85, 247, 0.1);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    gap: 8px;
+  }
+
+  .speaker-icon { cursor: pointer; color: var(--accent); font-size: 1.1rem; }
+  .speaker-icon:hover { transform: scale(1.15); }
+  
+  .article-choice-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    justify-content: center;
+    opacity: 0.3;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .article-choice-row.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .art-btn {
+    padding: 6px 18px;
+    border-radius: 6px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    background: #334155;
+    color: #fff;
+    transition: 0.15s;
+  }
+  .art-btn:hover { background: var(--accent); color: #0f172a; }
+  .art-feedback { font-size: 0.82rem; margin-top: 8px; font-weight: 600; min-height: 20px; }
+
+  /* Étape 2 : Lecture */
+  .reading-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 24px;
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  .word-click {
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: background 0.15s;
+  }
+  .word-click:hover {
+    background: rgba(56, 189, 248, 0.25);
+    color: var(--accent);
+  }
+
+  /* Questions de compréhension */
+  .quiz-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+  .quiz-card.card-success { border-color: var(--success); background: rgba(34, 197, 94, 0.08); }
+  .quiz-card.card-shake { animation: shake 0.35s ease-in-out; border-color: var(--danger); }
+  .q-stem { font-size: 1.05rem; font-weight: 600; color: #f1f5f9; margin-bottom: 12px; }
+  .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media(max-width: 600px) { .choices-grid { grid-template-columns: 1fr; } }
+  
+  .opt-btn {
+    border: 2px solid transparent;
+    padding: 11px 13px;
+    border-radius: 8px;
+    color: #fff;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    transition: 0.15s;
+  }
+  .opt-btn:hover { transform: translateY(-2px); filter: brightness(1.15); }
+  .col-0 { background: #1d4ed8; }
+  .col-1 { background: #047857; }
+  .col-2 { background: #b45309; }
+  .col-3 { background: #6d28d9; }
+
+  .feedback-box {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    display: none;
+  }
+  .fb-correct { background: rgba(34, 197, 94, 0.2); border: 1px solid var(--success); color: #86efac; display: block; }
+  .fb-wrong { background: rgba(239, 68, 68, 0.2); border: 1px solid var(--danger); color: #fca5a5; display: block; }
+
+  .summary-box {
+    background: #0f1e40;
+    border: 2px solid var(--accent);
+    border-radius: 14px;
+    padding: 22px;
+    margin: 24px 0;
+    display: none;
+  }
+  .score-badge { font-size: 2.2rem; font-weight: 800; color: var(--accent); }
+
+  /* Étape 3 : Production Écrite */
+  .q-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 22px;
+  }
+  .prompt-badge { color: #facc15; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
+  .q-title { font-weight: 600; font-size: 1rem; margin: 8px 0 12px; color: #f1f5f9; }
+  textarea {
+    width: 100%;
+    height: 100px;
+    background: #090d16;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: #f8fafc;
+    padding: 12px;
+    font-size: 0.92rem;
+    resize: vertical;
+    outline: none;
+  }
+  textarea:focus { border-color: var(--accent); }
+  .word-counter { text-align: right; font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+  .btn-row { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .audit-panel {
+    background: #090e1a;
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 12px;
+    display: none;
+  }
+  .model-card-direct {
+    background: rgba(56, 189, 248, 0.08);
+    border-left: 4px solid var(--success);
+    padding: 12px 14px;
+    border-radius: 6px;
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<div class="container">
+  <header>
+    <h1>La Rentrée : Notre Vocabulaire</h1>
+    <p class="subtitle">1. Je cours et je vole à l'école • Vocabulaire, Lecture et Écriture</p>
+  </header>
+
+  <!-- Audio Player Bar -->
+  <div class="audio-panel">
+    <div>
+      <strong>Lecteur Audio (Français) :</strong> <span id="tts-status" style="color:var(--text-muted);">Prêt pour la lecture</span>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <button class="btn" id="playBtn">Écouter le texte</button>
+      <button class="btn btn-outline" id="stopBtn">Arrêter</button>
+      <button class="btn btn-outline" id="restartBtn">Recommencer</button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- ÉTAPE 1 : VOCABULAIRE & ASSOCIATION        -->
+  <!-- ========================================== -->
+  <div class="section-title">
+    <span class="phase-badge">Étape 1</span>
+    <span>Genre et Vocabulaire du Cartable (Association & Genre)</span>
+  </div>
+
+  <div class="instruction-box">
+    <strong>Consigne :</strong><br>
+    1. Clique sur un <strong>mot</strong> dans la boîte, puis clique sur l'<strong>icône</strong> de l'objet correspondant pour les relier.<br>
+    2. Une fois le mot relié, écoute avec le bouton 🔊 et choisis son bon article : <strong>LE</strong> ou <strong>LA</strong> !
+  </div>
+
+  <!-- Boîte des étiquettes mélangées -->
+  <div class="word-bank" id="wordBank"></div>
+
+  <!-- Grille des icônes d'objets -->
+  <div class="vocab-grid" id="vocabGrid"></div>
+
+  <!-- ========================================== -->
+  <!-- ÉTAPE 2 : HISTOIRE & COMPRÉHENSION         -->
+  <!-- ========================================== -->
+  <div class="section-title" style="margin-top:36px;">
+    <span class="phase-badge" style="background:#7c3aed;">Étape 2</span>
+    <span>Lecture Interactive : « À L'ÉCOLE »</span>
+  </div>
+
+  <!-- Texte cliquable pour prononciation -->
+  <div class="reading-card" id="passageText">
+    <h3 style="color:var(--accent); margin-bottom:10px; text-align:center;">À L'ÉCOLE</h3>
+    <p style="margin-bottom:10px;">
+      C'est le cours de dessin. La maîtresse donne des feuilles de papier aux élèves. Les enfants dessinent. Aline dessine des fleurs. Sa copine Corinne dessine un vase.
+    </p>
+    <p style="margin-bottom:10px;">
+      — Nicolas, dit la maîtresse, tu ne dessines pas ? Pourquoi ?<br>
+      — Parce que je n'ai pas de crayons.<br>
+      — Mes enfants, Nicolas n'a pas de crayons.
+    </p>
+    <p>
+      Les enfants donnent des crayons à Nicolas. Nicolas dit merci à ses copains. Il dessine une maison jaune au toit vert.<br>
+      — C'est mon école, dit-il. J'aime mon école. J'aime mes copains.
+    </p>
+    <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted); font-style:italic;">
+      💡 Astuce : Clique sur n'importe quel mot du texte pour entendre sa prononciation en français !
+    </div>
+  </div>
+
+  <!-- Questions de compréhension -->
+  <div class="section-title">
+    <span class="phase-badge" style="background:#7c3aed;">Compréhension</span>
+    <span>Réponds aux 6 questions de l'exercice 4</span>
+  </div>
+  <div id="comprehensionContainer"></div>
+
+  <div class="summary-box" id="step2-summary">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <div>
+        <div class="score-badge" id="step2-score">0 / 6</div>
+        <div style="color:var(--text-muted); font-size:0.85rem;">Précision au premier essai</div>
+      </div>
+      <div id="step2-rank" style="font-weight:700; color:#86efac; font-size:1.1rem;">Bravo !</div>
+    </div>
+    <p id="step2-feedback" style="margin-top:10px; color:#cbd5e1; font-size:0.95rem;"></p>
+    <div style="text-align:right; margin-top:12px;">
+      <button class="btn" onclick="document.getElementById('step3-anchor').scrollIntoView({behavior:'smooth'})">Aller à l'Étape 3 (Écriture) &darr;</button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- ÉTAPE 3 : EXPRESSION ÉCRITE GUIDÉE         -->
+  <!-- ========================================== -->
+  <div class="section-title" style="margin-top:40px;" id="step3-anchor">
+    <span class="phase-badge" style="background:#ec4899;">Étape 3</span>
+    <span>Expression Écrite Guidée (Objectif : 30–40 mots)</span>
+  </div>
+
+  <!-- Sujet 1 -->
+  <div class="q-box">
+    <div class="prompt-badge">Sujet 1 • Qu'y a-t-il dans ton cartable ?</div>
+    <div class="q-title">
+      Décris ce que tu as dans ton cartable ou dans ta trousse. Utilise les mots de l'Étape 1 (ex. <em>j'ai un stylo, une règle, des crayons...</em>).
+    </div>
+    <textarea id="ans-0" placeholder="Écris ta réponse ici en français (30-40 mots)..."></textarea>
+    <div class="word-counter" id="wc-0">0 / 30-40 mots</div>
+    <div class="btn-row">
+      <button class="btn eval-btn" data-qidx="0">Vérifier mon texte</button>
+      <button class="btn btn-outline model-btn" data-qidx="0" id="modelBtn-0">Voir un modèle</button>
+    </div>
+    <div class="audit-panel" id="audit-0"></div>
+    <div class="model-card-direct" id="modelCard-0"></div>
+  </div>
+
+  <!-- Sujet 2 -->
+  <div class="q-box">
+    <div class="prompt-badge">Sujet 2 • Mon Dessin pour l'École</div>
+    <div class="q-title">
+      Comme Nicolas, imagine ce que tu dessines en cours de dessin. Quelle couleur choisis-tu ? Pourquoi aimes-tu ton école ?
+    </div>
+    <textarea id="ans-1" placeholder="Écris ta réponse ici en français (30-40 mots)..."></textarea>
+    <div class="word-counter" id="wc-1">0 / 30-40 mots</div>
+    <div class="btn-row">
+      <button class="btn eval-btn" data-qidx="1">Vérifier mon texte</button>
+      <button class="btn btn-outline model-btn" data-qidx="1" id="modelBtn-1">Voir un modèle</button>
+    </div>
+    <div class="audit-panel" id="audit-1"></div>
+    <div class="model-card-direct" id="modelCard-1"></div>
+  </div>
+
+</div>
+
+<script>
+// --- DONNÉES DU VOCABULAIRE (9 OBJETS) ---
+const vocabItems = [
+  { id: 0, name: "règle", gender: "la", icon: "📏" },
+  { id: 1, name: "crayon", gender: "le", icon: "✏️" },
+  { id: 2, name: "livre", gender: "le", icon: "📖" },
+  { id: 3, name: "feutre", gender: "le", icon: "🖊️" },
+  { id: 4, name: "cahier", gender: "le", icon: "📓" },
+  { id: 5, name: "stylo", gender: "le", icon: "🖋️" },
+  { id: 6, name: "trousse", gender: "la", icon: "👝" },
+  { id: 7, name: "cartable", gender: "le", icon: "🎒" },
+  { id: 8, name: "gomme", gender: "la", icon: "🧼" }
+];
+
+// --- DONNÉES DES QUESTIONS (PAGE 2) ---
+const readingQuestions = [
+  {
+    q: "1. Que donne la maîtresse aux élèves au début du cours ?",
+    choices: [
+      { text: "Des feuilles de papier", correct: true, hint: "Exact ! Le texte dit : « La maîtresse donne des feuilles de papier aux élèves. »" },
+      { text: "Des stylos rouges", correct: false, hint: "Regarde la deuxième phrase : que donne-t-elle pour dessiner ?" },
+      { text: "Des livres de lecture", correct: false, hint: "C'est un cours de dessin, pas un cours de lecture." },
+      { text: "Des gommes", correct: false, hint: "Ce sont des feuilles de papier pour dessiner !" }
+    ]
+  },
+  {
+    q: "2. Que dessine Aline ?",
+    choices: [
+      { text: "Aline dessine des fleurs", correct: true, hint: "Bravo ! « Aline dessine des fleurs. »" },
+      { text: "Aline dessine une maison", correct: false, hint: "Attention, c'est Nicolas qui dessine une maison !" },
+      { text: "Aline dessine un vase", correct: false, hint: "Non, c'est sa copine Corinne qui dessine un vase." },
+      { text: "Aline ne dessine rien", correct: false, hint: "Aline dessine de belles fleurs avec ses crayons." }
+    ]
+  },
+  {
+    q: "3. Que dessine sa copine Corinne ?",
+    choices: [
+      { text: "Corinne dessine un vase", correct: true, hint: "Très bien ! Le texte dit : « Sa copine Corinne dessine un vase. »" },
+      { text: "Corinne dessine un cartable", correct: false, hint: "Elle dessine un objet pour mettre les fleurs d'Aline !" },
+      { text: "Corinne dessine des bonbons", correct: false, hint: "Relis la phrase 4 : « Sa copine Corinne dessine un... »" },
+      { text: "Corinne dessine son école", correct: false, hint: "C'est Nicolas qui dessine son école." }
+    ]
+  },
+  {
+    q: "4. Pourquoi Nicolas ne dessine-t-il pas au début ?",
+    choices: [
+      { text: "Parce qu'il n'a pas de crayons", correct: true, hint: "Exactement : « — Pourquoi ? — Parce que je n'ai pas de crayons. »" },
+      { text: "Parce qu'il a sommeil", correct: false, hint: "Non, Nicolas veut dessiner mais il lui manque du matériel !" },
+      { text: "Parce qu'il n'aime pas le dessin", correct: false, hint: "Il aime dessiner, mais sa trousse est vide !" },
+      { text: "Parce que sa règle est cassée", correct: false, hint: "Ce sont les crayons de couleur qui lui manquent." }
+    ]
+  },
+  {
+    q: "5. Que font les enfants pour aider Nicolas ?",
+    choices: [
+      { text: "Ils donnent des crayons à Nicolas", correct: true, hint: "Bravo pour cette belle solidarité : « Les enfants donnent des crayons à Nicolas. »" },
+      { text: "Ils se moquent de Nicolas", correct: false, hint: "Non, ce sont de très bons copains bienveillants !" },
+      { text: "Ils appellent le directeur", correct: false, hint: "Ils partagent simplement leurs crayons avec lui." },
+      { text: "Ils lui donnent un livre", correct: false, hint: "Il a besoin de crayons pour colorier." }
+    ]
+  },
+  {
+    q: "6. Que dessine Nicolas à la fin et que dit-il ?",
+    choices: [
+      { text: "Une maison jaune au toit vert : « C'est mon école »", correct: true, hint: "Parfait ! « Il dessine une maison jaune au toit vert. — C'est mon école, dit-il. »" },
+      { text: "Un chien noir avec un chapeau", correct: false, hint: "Nicolas dessine un bâtiment important avec deux couleurs !" },
+      { text: "Une voiture rouge très rapide", correct: false, hint: "Il dessine son école avec un toit vert." },
+      { text: "Un arbre bleu sans feuilles", correct: false, hint: "La maison est jaune et le toit est vert." }
+    ]
+  }
+];
+
+const writingModels = [
+  "Dans mon cartable bleu, j'ai une trousse, une règle et un cahier. Dans ma trousse, il y a deux stylos, un feutre rouge et une gomme blanche. J'ai aussi de beaux crayons pour dessiner à l'école.",
+  "En cours de dessin, je dessine un grand jardin fleuri avec une jolie maison bleue. Le soleil est jaune et brillant. J'aime mon école parce que mes copains sont gentils et nous dessinons ensemble."
+];
+
+// --- ALGORITHME DE MÉLANGE (FISHER-YATES) ---
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// --- SYNTHÉSE SONORE WEB AUDIO API ---
+function playTone(success) {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    if (success) {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.35);
+    } else {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(280, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(190, ctx.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.25);
+    }
+  } catch(e) {}
+}
+
+// --- CONFETTI ---
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function launchConfetti() {
+  for (let i = 0; i < 35; i++) {
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+      r: Math.random() * 5 + 3,
+      dx: (Math.random() - 0.5) * 10,
+      dy: (Math.random() - 0.5) * 10 - 3,
+      color: ['#38bdf8', '#22c55e', '#f59e0b', '#a855f7', '#ec4899'][Math.floor(Math.random() * 5)],
+      life: 50
+    });
+  }
+}
+function updateConfetti() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = p.color;
+    ctx.fill();
+    p.x += p.dx;
+    p.y += p.dy;
+    p.dy += 0.2;
+    p.life--;
+  });
+  particles = particles.filter(p => p.life > 0);
+  requestAnimationFrame(updateConfetti);
+}
+updateConfetti();
+
+// --- SYNTHÈSE VOCALE (VOIX FRANÇAISE) ---
+function speakFrench(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'fr-FR';
+  u.rate = 0.88;
+  window.speechSynthesis.speak(u);
+}
+
+// --- ÉTAPE 1 : ASSOCIATION ÉTIQUETTES + ICÔNES & GENRE ---
+let selectedWordChip = null;
+let matchedCount = 0;
+
+function buildVocabStep() {
+  const bank = document.getElementById('wordBank');
+  const grid = document.getElementById('vocabGrid');
+  bank.innerHTML = '';
+  grid.innerHTML = '';
+  selectedWordChip = null;
+  matchedCount = 0;
+
+  // 1. Créer la banque de mots mélangés
+  const shuffledWords = shuffle(vocabItems);
+  shuffledWords.forEach(item => {
+    const chip = document.createElement('div');
+    chip.className = 'word-chip';
+    chip.id = `chip-${item.id}`;
+    chip.textContent = item.name;
+    chip.addEventListener('click', () => selectWordChip(item, chip));
+    bank.appendChild(chip);
+  });
+
+  // 2. Créer les cartes d'icônes d'objets (dans un ordre également mélangé)
+  const shuffledIcons = shuffle(vocabItems);
+  shuffledIcons.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+    card.id = `vcard-${item.id}`;
+
+    card.innerHTML = `
+      <div class="item-icon">${item.icon}</div>
+      <div class="drop-slot" id="slot-${item.id}">Clique pour associer le mot</div>
+      <div class="article-choice-row" id="artrow-${item.id}">
+        <button class="art-btn" onclick="checkArticle(${item.id}, 'le', this)">LE</button>
+        <button class="art-btn" onclick="checkArticle(${item.id}, 'la', this)">LA</button>
+      </div>
+      <div class="art-feedback" id="artfb-${item.id}"></div>
+    `;
+
+    card.addEventListener('click', (e) => {
+      // Éviter de déclencher l'association si l'élève clique sur les boutons LE/LA ou le haut-parleur
+      if (e.target.closest('.article-choice-row') || e.target.closest('.speaker-icon')) return;
+      handleCardClick(item, card);
+    });
+
+    grid.appendChild(card);
+  });
+}
+
+function selectWordChip(item, chipElement) {
+  if (chipElement.classList.contains('matched')) return;
+
+  if (selectedWordChip && selectedWordChip.element === chipElement) {
+    chipElement.classList.remove('selected');
+    selectedWordChip = null;
+    return;
+  }
+
+  document.querySelectorAll('.word-chip').forEach(c => c.classList.remove('selected'));
+  chipElement.classList.add('selected');
+  selectedWordChip = { item: item, element: chipElement };
+  speakFrench(item.name);
+}
+
+function handleCardClick(item, cardElement) {
+  if (cardElement.classList.contains('card-matched')) return;
+
+  if (!selectedWordChip) {
+    // Si l'élève clique d'abord sur la carte sans avoir choisi de mot, donner un indice visuel
+    cardElement.classList.add('target-selected');
+    setTimeout(() => cardElement.classList.remove('target-selected'), 500);
+    return;
+  }
+
+  const slot = document.getElementById(`slot-${item.id}`);
+  const artRow = document.getElementById(`artrow-${item.id}`);
+  const fb = document.getElementById(`artfb-${item.id}`);
+
+  if (selectedWordChip.item.id === item.id) {
+    // Association correcte !
+    playTone(true);
+    launchConfetti();
+    cardElement.classList.add('card-matched');
+    selectedWordChip.element.classList.add('matched');
+
+    slot.classList.add('filled');
+    slot.innerHTML = `
+      <span>${item.name}</span>
+      <span class="speaker-icon" title="Écouter" onclick="speakFrench('${item.name}')">🔊</span>
+    `;
+
+    // Activer le choix d'article LE / LA
+    artRow.classList.add('active');
+    fb.style.color = "var(--accent)";
+    fb.innerHTML = `Mot relié ! Maintenant, choisis : <strong>LE</strong> ou <strong>LA</strong> ?`;
+
+    selectedWordChip = null;
+    matchedCount++;
+  } else {
+    // Mauvaise association
+    playTone(false);
+    cardElement.classList.remove('card-shake');
+    void cardElement.offsetWidth;
+    cardElement.classList.add('card-shake');
+
+    fb.style.color = "var(--danger)";
+    fb.innerHTML = `Ce n'est pas le bon objet pour « ${selectedWordChip.item.name} ». Essaie encore !`;
+  }
+}
+
+function checkArticle(itemId, selectedArticle, btn) {
+  const item = vocabItems.find(v => v.id === itemId);
+  const card = document.getElementById(`vcard-${itemId}`);
+  const fb = document.getElementById(`artfb-${itemId}`);
+
+  if (selectedArticle === item.gender) {
+    playTone(true);
+    launchConfetti();
+    card.classList.remove('card-shake');
+    card.classList.add('card-success');
+
+    fb.style.color = "var(--success)";
+    fb.innerHTML = `Bravo ! On dit bien <strong>${item.gender.toUpperCase()} ${item.name}</strong>.`;
+    speakFrench(`${item.gender} ${item.name}`);
+
+    // Mettre à jour l'étiquette avec son article complet
+    const slot = document.getElementById(`slot-${itemId}`);
+    slot.innerHTML = `
+      <span>${item.gender} ${item.name}</span>
+      <span class="speaker-icon" title="Écouter avec l'article" onclick="speakFrench('${item.gender} ${item.name}')">🔊</span>
+    `;
+
+    // Verrouiller les boutons de cette carte
+    card.querySelectorAll('.art-btn').forEach(b => {
+      b.style.pointerEvents = 'none';
+      b.style.opacity = '0.4';
+    });
+    btn.style.opacity = '1';
+    btn.style.background = 'var(--success)';
+  } else {
+    playTone(false);
+    card.classList.remove('card-shake');
+    void card.offsetWidth;
+    card.classList.add('card-shake');
+
+    fb.style.color = "var(--danger)";
+    fb.innerHTML = `Attention ! « ${item.name} » est du genre ${item.gender === 'le' ? 'masculin (LE)' : 'féminin (LA)'}.`;
+  }
+}
+
+// --- ÉTAPE 2 : QUESTIONS DE COMPRÉHENSION (6 QUESTIONS) ---
+let qAttempts = Array(readingQuestions.length).fill(0);
+let qSolved = Array(readingQuestions.length).fill(false);
+let firstAttemptWins = 0;
+
+function buildComprehensionStep() {
+  const container = document.getElementById('comprehensionContainer');
+  container.innerHTML = '';
+  qAttempts = Array(readingQuestions.length).fill(0);
+  qSolved = Array(readingQuestions.length).fill(false);
+  firstAttemptWins = 0;
+
+  readingQuestions.forEach((item, qIdx) => {
+    const card = document.createElement('div');
+    card.className = 'quiz-card';
+    card.id = `rcard-${qIdx}`;
+
+    const stem = document.createElement('div');
+    stem.className = 'q-stem';
+    stem.textContent = item.q;
+    card.appendChild(stem);
+
+    const grid = document.createElement('div');
+    grid.className = 'choices-grid';
+
+    const shuffledChoices = shuffle(item.choices);
+    shuffledChoices.forEach((c, cIdx) => {
+      const btn = document.createElement('button');
+      btn.className = `opt-btn col-${cIdx % 4}`;
+      btn.textContent = c.text;
+      btn.addEventListener('click', () => {
+        handleChoiceClick(qIdx, c, btn, card);
+      });
+      grid.appendChild(btn);
+    });
+
+    card.appendChild(grid);
+
+    const fb = document.createElement('div');
+    fb.className = 'feedback-box';
+    fb.id = `rfb-${qIdx}`;
+    card.appendChild(fb);
+
+    container.appendChild(card);
+  });
+  document.getElementById('step2-summary').style.display = 'none';
+}
+
+function handleChoiceClick(qIdx, choice, btn, card) {
+  const fb = document.getElementById(`rfb-${qIdx}`);
+  qAttempts[qIdx]++;
+
+  if (choice.correct) {
+    playTone(true);
+    launchConfetti();
+    card.classList.remove('card-shake');
+    card.classList.add('card-success');
+
+    if (qAttempts[qIdx] === 1) {
+      firstAttemptWins++;
+    }
+
+    fb.className = 'feedback-box fb-correct';
+    fb.innerHTML = `<strong>Très bien !</strong> ${choice.hint}`;
+
+    card.querySelectorAll('.opt-btn').forEach(b => {
+      b.style.opacity = '0.4';
+      b.style.pointerEvents = 'none';
+    });
+    btn.style.opacity = '1';
+    btn.style.boxShadow = '0 0 10px var(--success)';
+
+    qSolved[qIdx] = true;
+
+    if (qSolved.filter(Boolean).length === readingQuestions.length) {
+      setTimeout(showStep2Summary, 400);
+    }
+  } else {
+    playTone(false);
+    card.classList.remove('card-shake');
+    void card.offsetWidth;
+    card.classList.add('card-shake');
+
+    fb.className = 'feedback-box fb-wrong';
+    fb.innerHTML = `<strong>Indice :</strong> ${choice.hint}`;
+    btn.style.opacity = '0.35';
+    btn.style.transform = 'scale(0.97)';
+  }
+}
+
+function showStep2Summary() {
+  const box = document.getElementById('step2-summary');
+  const scoreText = document.getElementById('step2-score');
+  const rankText = document.getElementById('step2-rank');
+  const fbText = document.getElementById('step2-feedback');
+
+  box.style.display = 'block';
+  scoreText.textContent = `${firstAttemptWins} / 6 (${Math.round((firstAttemptWins / 6) * 100)}%)`;
+
+  if (firstAttemptWins >= 5) {
+    rankText.textContent = "Champion de la lecture ! 🌟";
+    fbText.innerHTML = "<strong>Félicitations !</strong> Tu as parfaitement compris l'histoire de Nicolas, Aline et Corinne dès ta première lecture.";
+  } else if (firstAttemptWins >= 3) {
+    rankText.textContent = "Bon travail ! 👍";
+    fbText.innerHTML = "<strong>Bien joué !</strong> Tu as trouvé toutes les bonnes réponses grâce aux indices. Pense à relire calmement pour le détail des couleurs.";
+  } else {
+    rankText.textContent = "En progression ! 📚";
+    fbText.innerHTML = "<strong>Bravo pour tes efforts !</strong> Réécoute l'histoire avec le lecteur audio ci-dessus pour bien mémoriser les actions des enfants.";
+  }
+
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// --- TEXTE CLIQUABLE MOT PAR MOT ---
+function makeTextClickable() {
+  const pList = document.querySelectorAll('#passageText p');
+  pList.forEach(p => {
+    const words = p.innerText.split(/(\s+|[.,!?:—]+)/);
+    p.innerHTML = words.map(w => {
+      if (w.trim() && !/[.,!?:—]+/.test(w)) {
+        return `<span class="word-click" onclick="speakFrench('${w.replace(/'/g, "\\'")}')">${w}</span>`;
+      }
+      return w;
+    }).join('');
+  });
+}
+
+// --- CONTRÔLES AUDIO GLOBAUX ---
+const playBtn = document.getElementById('playBtn');
+const stopBtn = document.getElementById('stopBtn');
+const restartBtn = document.getElementById('restartBtn');
+const ttsStatus = document.getElementById('tts-status');
+
+playBtn.addEventListener('click', () => {
+  if (!('speechSynthesis' in window)) {
+    alert("La synthèse vocale n'est pas supportée par ce navigateur.");
+    return;
+  }
+  if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+    window.speechSynthesis.pause();
+    playBtn.textContent = 'Reprendre la lecture';
+    ttsStatus.textContent = 'Lecture en pause';
+  } else if (window.speechSynthesis.paused) {
+    window.speechSynthesis.resume();
+    playBtn.textContent = 'Pause';
+    ttsStatus.textContent = 'Lecture en cours...';
+  } else {
+    window.speechSynthesis.cancel();
+    const text = document.getElementById('passageText').innerText;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'fr-FR';
+    u.rate = 0.88;
+    u.onend = () => {
+      playBtn.textContent = 'Écouter le texte';
+      ttsStatus.textContent = 'Lecture terminée';
+    };
+    window.speechSynthesis.speak(u);
+    playBtn.textContent = 'Pause';
+    ttsStatus.textContent = 'Lecture en cours...';
+  }
+});
+
+stopBtn.addEventListener('click', () => {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    playBtn.textContent = 'Écouter le texte';
+    ttsStatus.textContent = 'Arrêté';
+  }
+});
+
+restartBtn.addEventListener('click', () => {
+  buildVocabStep();
+  buildComprehensionStep();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// --- ÉTAPE 3 : ÉVALUATION DE L'ÉCRITURE & MODÈLES ---
+[0, 1].forEach(idx => {
+  const ta = document.getElementById(`ans-${idx}`);
+  const wc = document.getElementById(`wc-${idx}`);
+  ta.addEventListener('input', () => {
+    const text = ta.value.trim();
+    const words = text ? text.split(/\s+/).length : 0;
+    wc.textContent = `${words} / 30-40 mots`;
+    if (words >= 30 && words <= 40) wc.style.color = 'var(--success)';
+    else if (words > 40) wc.style.color = 'var(--warning)';
+    else wc.style.color = 'var(--text-muted)';
+  });
+});
+
+document.querySelectorAll('.model-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const qIdx = parseInt(btn.dataset.qidx, 10);
+    const card = document.getElementById(`modelCard-${qIdx}`);
+    if (card.style.display === 'block') {
+      card.style.display = 'none';
+      btn.textContent = 'Voir un modèle';
+    } else {
+      card.innerHTML = `
+        <strong style="color:var(--success); display:block; margin-bottom:4px;">Exemple de texte (Niveau A1/A2 • 30-40 mots) :</strong>
+        <p style="margin-bottom:6px;">${writingModels[qIdx]}</p>
+        <button class="btn btn-sm" onclick="speakFrench('${writingModels[qIdx].replace(/'/g, "\\'")}')">🔊 Écouter ce modèle</button>
+      `;
+      card.style.display = 'block';
+      btn.textContent = 'Masquer le modèle';
+    }
+  });
+});
+
+document.querySelectorAll('.eval-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const qIdx = parseInt(btn.dataset.qidx, 10);
+    const text = document.getElementById(`ans-${qIdx}`).value.trim();
+    const words = text ? text.split(/\s+/).length : 0;
+    const panel = document.getElementById(`audit-${qIdx}`);
+    panel.style.display = 'block';
+
+    let lengthMsg = "";
+    if (words < 25) {
+      lengthMsg = `Un peu court (${words} mots). Essaie d'ajouter un ou deux détails (couleur, objet).`;
+    } else if (words > 45) {
+      lengthMsg = `Un peu long (${words} mots). Essaie de faire des phrases plus courtes (30-40 mots).`;
+    } else {
+      lengthMsg = `Longueur parfaite (${words} mots) ! Tu as bien respecté la consigne.`;
+    }
+
+    const hasVocab = /cartable|trousse|crayon|stylo|règle|gomme|cahier|livre|feutre|dessin|maison|école|copain/i.test(text);
+
+    panel.innerHTML = `
+      <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:8px;">Conseils du professeur (${words} mots)</h4>
+      <div style="font-size:0.9rem; color:#e2e8f0; line-height:1.5;">
+        <p>📏 <strong>Longueur :</strong> ${lengthMsg}</p>
+        <p style="margin-top:4px;">✏️ <strong>Vocabulaire :</strong> ${hasVocab ? "Très bien, tu as utilisé les mots de la leçon !" : "Essaie d'ajouter plus de mots vus dans l'Étape 1 (cartable, trousse, crayons...)."}</p>
+      </div>
+      <div style="margin-top:10px;">
+        <button class="btn btn-sm" onclick="speakFrench('${text.replace(/'/g, "\\'")}')">🔊 Écouter mon texte</button>
+      </div>
+    `;
+  });
+});
+
+// Initialisation au chargement
+buildVocabStep();
+buildComprehensionStep();
+makeTextClickable();
+</script>
+</body>
+</html>

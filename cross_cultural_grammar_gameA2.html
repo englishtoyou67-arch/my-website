@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cross-Cultural Stories: Present Simple vs. Present Continuous</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              900: '#0c4a6e',
+            },
+            slate: {
+              850: '#151f33',
+              900: '#0f172a',
+              950: '#090d16',
+            }
+          },
+          animation: {
+            'shake': 'shake 0.4s cubic-bezier(.36,.07,.19,.97) both',
+            'pulse-glow': 'pulseGlow 0.6s ease-out',
+          },
+          keyframes: {
+            shake: {
+              '10%, 90%': { transform: 'translateX(-2px)' },
+              '20%, 80%': { transform: 'translateX(3px)' },
+              '30%, 50%, 70%': { transform: 'translateX(-4px)' },
+              '40%, 60%': { transform: 'translateX(4px)' }
+            },
+            pulseGlow: {
+              '0%': { transform: 'scale(1)', boxShadow: '0 0 0 rgba(34, 197, 94, 0.7)' },
+              '50%': { transform: 'scale(1.02)', boxShadow: '0 0 16px rgba(34, 197, 94, 0.9)' },
+              '100%': { transform: 'scale(1)', boxShadow: '0 0 0 rgba(34, 197, 94, 0)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .input-blank {
+      transition: all 0.2s ease-in-out;
+      outline: none;
+    }
+    .input-blank:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.35);
+    }
+    .input-correct {
+      border-color: #22c55e !important;
+      background-color: rgba(34, 197, 94, 0.16) !important;
+      color: #86efac !important;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+    }
+    .input-incorrect {
+      border-color: #ef4444 !important;
+      background-color: rgba(239, 68, 68, 0.16) !important;
+      color: #fca5a5 !important;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+    }
+    canvas#confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8 flex flex-col items-center">
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="max-w-4xl w-full mx-auto space-y-8">
+    <!-- Header -->
+    <header class="text-center space-y-3">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-brand-900/60 border border-brand-500/30 text-brand-400 text-xs font-semibold uppercase tracking-wider">
+        <span>A2 Grammar Practice</span> &bull; <span>Present Simple vs. Present Continuous</span>
+      </div>
+      <h1 class="text-2xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-teal-300 to-indigo-400">
+        Cross-Cultural Grammar Adventure
+      </h1>
+      <p class="text-slate-400 text-sm md:text-base max-w-2xl mx-auto">
+        Complete the three stories by typing the correct form of the verbs in brackets: 
+        <strong>Present Continuous</strong> (actions in progress right now) or <strong>Present Simple</strong> (customs, instantaneous sports actions, and stative verbs).
+      </p>
+    </header>
+
+    <!-- Quick Reference Card -->
+    <div class="bg-slate-850 border border-slate-700/60 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs md:text-sm">
+      <div class="flex items-start gap-3 bg-slate-900/70 p-3 rounded-lg border border-slate-800">
+        <span class="p-1.5 rounded-md bg-emerald-500/20 text-emerald-400 font-bold">1</span>
+        <div>
+          <strong class="text-emerald-400 block mb-0.5">Present Continuous (am / is / are + verb-ing)</strong>
+          <span class="text-slate-300">Ongoing background situations and actions in progress right now (e.g. <em>is visiting, is going, is slurping, is playing, is smiling</em>).</span>
+        </div>
+      </div>
+      <div class="flex items-start gap-3 bg-slate-900/70 p-3 rounded-lg border border-slate-800">
+        <span class="p-1.5 rounded-md bg-sky-500/20 text-sky-400 font-bold">2</span>
+        <div>
+          <strong class="text-sky-400 block mb-0.5">Present Simple (base form / verb + s)</strong>
+          <span class="text-slate-300">Instantaneous actions in sports commentary (<em>makes, scores, gives</em>), habits/rules (<em>do not make</em>), and stative verbs (<em>feels, means, looks, understands</em>).</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sound & Browser Audio Status Notice -->
+    <div id="audio-notice" class="bg-slate-800/80 border border-slate-700 rounded-lg px-4 py-2 flex items-center justify-between text-xs text-slate-300">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Sound Effects: <strong>Active</strong> (Audio chime triggers on checks)</span>
+      </div>
+      <button onclick="testAudio()" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 rounded text-slate-200 text-xs font-medium transition-colors">
+        Test Sound Chime
+      </button>
+    </div>
+
+    <!-- STORY 1 -->
+    <section id="story-1-section" class="bg-slate-850 border border-slate-700/80 rounded-2xl p-5 md:p-7 shadow-xl space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-700/60 pb-4">
+        <div>
+          <span class="text-xs font-bold text-brand-400 uppercase tracking-wider">Story 1 &bull; Japan</span>
+          <h2 class="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+            🍜 The Noisy Noodles
+          </h2>
+        </div>
+        <!-- Audio Controls for Story 1 -->
+        <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-700">
+          <span class="text-xs font-medium text-slate-400">Audio:</span>
+          <button onclick="toggleAudio(1)" id="audio-btn-1" class="text-xs font-semibold px-2.5 py-1 bg-brand-500 hover:bg-brand-600 text-slate-950 rounded-lg transition-colors flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            <span>Play</span>
+          </button>
+          <button onclick="stopAudio()" class="text-xs font-semibold px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors">
+            Stop
+          </button>
+        </div>
+      </div>
+
+      <!-- Story 1 Interactive Text -->
+      <div id="story-1-text" class="text-base md:text-lg leading-loose text-slate-200">
+        Leo 
+        <span class="inline-block my-1">
+          <input type="text" data-story="1" data-id="1" data-answer="is visiting" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-32 md:w-36 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-brand-400 font-medium ml-1">(visit)</span>
+        </span> 
+        Japan. He 
+        <span class="inline-block my-1">
+          <input type="text" data-story="1" data-id="2" data-answer="is going" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-32 md:w-36 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-brand-400 font-medium ml-1">(go)</span>
+        </span> 
+        to a noodle restaurant with his new friend, Kenji. Kenji 
+        <span class="inline-block my-1">
+          <input type="text" data-story="1" data-id="3" data-answer="is eating" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-32 md:w-36 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-brand-400 font-medium ml-1">(eat)</span>
+        </span> 
+        his noodles very loudly. He 
+        <span class="inline-block my-1">
+          <input type="text" data-story="1" data-id="4" data-answer="is slurping" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-32 md:w-36 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-brand-400 font-medium ml-1">(slurp)</span>
+        </span> 
+        them! Leo 
+        <span class="inline-block my-1">
+          <input type="text" data-story="1" data-id="5" data-answer="feels" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-24 md:w-28 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-brand-400 font-medium ml-1">(feel)</span>
+        </span> 
+        shocked. In Leo's country, people 
+        <span class="inline-block my-1">
+          <input type="text" data-story="1" data-id="6" data-answer="do not make|don't make" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-36 md:w-40 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-brand-400 font-medium ml-1">(not make)</span>
+        </span> 
+        noise when they 
+        <span class="inline-block my-1">
+          <input type="text" data-story="1" data-id="7" data-answer="eat" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-20 md:w-24 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-brand-400 font-medium ml-1">(eat)</span>
+        </span>. 
+        But in Japan, slurping 
+        <span class="inline-block my-1">
+          <input type="text" data-story="1" data-id="8" data-answer="means" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-24 md:w-28 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-brand-400 font-medium ml-1">(mean)</span>
+        </span> 
+        the food is delicious. Kenji 
+        <span class="inline-block my-1">
+          <input type="text" data-story="1" data-id="9" data-answer="is showing" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-32 md:w-36 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-brand-400 font-medium ml-1">(show)</span>
+        </span> 
+        that he 
+        <span class="inline-block my-1">
+          <input type="text" data-story="1" data-id="10" data-answer="loves" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-24 md:w-28 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-brand-400 font-medium ml-1">(love)</span>
+        </span> 
+        the food.
+      </div>
+
+      <!-- Feedback box & actions for Story 1 -->
+      <div id="feedback-1" class="hidden p-3.5 rounded-xl text-sm border font-medium"></div>
+
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+        <button onclick="checkStory(1)" class="px-5 py-2.5 bg-gradient-to-r from-sky-500 to-brand-600 hover:from-sky-400 hover:to-brand-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-sky-950/50 transition-all active:scale-95 flex items-center gap-2">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          Check Answers (Story 1)
+        </button>
+        <div class="flex gap-2">
+          <button onclick="toggleAnswers(1)" id="toggle-btn-1" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg transition-colors">
+            Show Answers
+          </button>
+          <button onclick="resetStory(1)" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 text-xs font-semibold rounded-lg transition-colors">
+            Reset
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STORY 2 -->
+    <section id="story-2-section" class="bg-slate-850 border border-slate-700/80 rounded-2xl p-5 md:p-7 shadow-xl space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-700/60 pb-4">
+        <div>
+          <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Story 2 &bull; Greece</span>
+          <h2 class="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+            👍 The Bad Thumbs Up
+          </h2>
+        </div>
+        <!-- Audio Controls for Story 2 -->
+        <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-700">
+          <span class="text-xs font-medium text-slate-400">Audio:</span>
+          <button onclick="toggleAudio(2)" id="audio-btn-2" class="text-xs font-semibold px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg transition-colors flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            <span>Play</span>
+          </button>
+          <button onclick="stopAudio()" class="text-xs font-semibold px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors">
+            Stop
+          </button>
+        </div>
+      </div>
+
+      <!-- Story 2 Interactive Text -->
+      <div id="story-2-text" class="text-base md:text-lg leading-loose text-slate-200">
+        Tom 
+        <span class="inline-block my-1">
+          <input type="text" data-story="2" data-id="11" data-answer="is playing" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-32 md:w-36 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-amber-400 font-medium ml-1">(play)</span>
+        </span> 
+        a football game in Greece. He 
+        <span class="inline-block my-1">
+          <input type="text" data-story="2" data-id="12" data-answer="makes" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-24 md:w-28 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-amber-400 font-medium ml-1">(make)</span>
+        </span> 
+        a great pass to his teammate. His teammate 
+        <span class="inline-block my-1">
+          <input type="text" data-story="2" data-id="13" data-answer="scores" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-24 md:w-28 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-amber-400 font-medium ml-1">(score)</span>
+        </span> 
+        a goal! Tom 
+        <span class="inline-block my-1">
+          <input type="text" data-story="2" data-id="14" data-answer="feels" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-24 md:w-28 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-amber-400 font-medium ml-1">(feel)</span>
+        </span> 
+        very happy and 
+        <span class="inline-block my-1">
+          <input type="text" data-story="2" data-id="15" data-answer="gives" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-24 md:w-28 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-amber-400 font-medium ml-1">(give)</span>
+        </span> 
+        him a "thumbs up" sign. He 
+        <span class="inline-block my-1">
+          <input type="text" data-story="2" data-id="16" data-answer="is saying" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-32 md:w-36 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-amber-400 font-medium ml-1">(say)</span>
+        </span> 
+        "Good job!" with his hand. His teammate 
+        <span class="inline-block my-1">
+          <input type="text" data-story="2" data-id="17" data-answer="looks" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-24 md:w-28 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-amber-400 font-medium ml-1">(look)</span>
+        </span> 
+        angry. Tom 
+        <span class="inline-block my-1">
+          <input type="text" data-story="2" data-id="18" data-answer="does not understand|doesn't understand" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-44 md:w-48 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-amber-400 font-medium ml-1">(not understand)</span>
+        </span>. 
+        In Tom's culture, a "thumbs up" 
+        <span class="inline-block my-1">
+          <input type="text" data-story="2" data-id="19" data-answer="means" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-24 md:w-28 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-amber-400 font-medium ml-1">(mean)</span>
+        </span> 
+        "great." But in Greece, it 
+        <span class="inline-block my-1">
+          <input type="text" data-story="2" data-id="20" data-answer="is" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-20 md:w-24 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-amber-400 font-medium ml-1">(be)</span>
+        </span> 
+        a rude sign!
+      </div>
+
+      <!-- Feedback box & actions for Story 2 -->
+      <div id="feedback-2" class="hidden p-3.5 rounded-xl text-sm border font-medium"></div>
+
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+        <button onclick="checkStory(2)" class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold rounded-xl shadow-lg shadow-amber-950/50 transition-all active:scale-95 flex items-center gap-2">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          Check Answers (Story 2)
+        </button>
+        <div class="flex gap-2">
+          <button onclick="toggleAnswers(2)" id="toggle-btn-2" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg transition-colors">
+            Show Answers
+          </button>
+          <button onclick="resetStory(2)" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 text-xs font-semibold rounded-lg transition-colors">
+            Reset
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STORY 3 -->
+    <section id="story-3-section" class="bg-slate-850 border border-slate-700/80 rounded-2xl p-5 md:p-7 shadow-xl space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-700/60 pb-4">
+        <div>
+          <span class="text-xs font-bold text-teal-400 uppercase tracking-wider">Story 3 &bull; Thailand</span>
+          <h2 class="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+            🙏 Don't Touch the Head
+          </h2>
+        </div>
+        <!-- Audio Controls for Story 3 -->
+        <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-700">
+          <span class="text-xs font-medium text-slate-400">Audio:</span>
+          <button onclick="toggleAudio(3)" id="audio-btn-3" class="text-xs font-semibold px-2.5 py-1 bg-teal-400 hover:bg-teal-300 text-slate-950 rounded-lg transition-colors flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            <span>Play</span>
+          </button>
+          <button onclick="stopAudio()" class="text-xs font-semibold px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors">
+            Stop
+          </button>
+        </div>
+      </div>
+
+      <!-- Story 3 Interactive Text -->
+      <div id="story-3-text" class="text-base md:text-lg leading-loose text-slate-200">
+        Alex 
+        <span class="inline-block my-1">
+          <input type="text" data-story="3" data-id="21" data-answer="is spending" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-32 md:w-36 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-teal-400 font-medium ml-1">(spend)</span>
+        </span> 
+        his holiday in Thailand. He 
+        <span class="inline-block my-1">
+          <input type="text" data-story="3" data-id="22" data-answer="sees" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-24 md:w-28 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-teal-400 font-medium ml-1">(see)</span>
+        </span> 
+        a cute little boy. The boy 
+        <span class="inline-block my-1">
+          <input type="text" data-story="3" data-id="23" data-answer="is playing" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-32 md:w-36 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-teal-400 font-medium ml-1">(play)</span>
+        </span> 
+        with a toy car. Alex 
+        <span class="inline-block my-1">
+          <input type="text" data-story="3" data-id="24" data-answer="is smiling" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-32 md:w-36 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-teal-400 font-medium ml-1">(smile)</span>
+        </span> 
+        and 
+        <span class="inline-block my-1">
+          <input type="text" data-story="3" data-id="25" data-answer="patting|is patting" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-32 md:w-36 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-teal-400 font-medium ml-1">(pat)</span>
+        </span> 
+        the boy on the head. He 
+        <span class="inline-block my-1">
+          <input type="text" data-story="3" data-id="26" data-answer="is trying" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-32 md:w-36 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-teal-400 font-medium ml-1">(try)</span>
+        </span> 
+        to be friendly. The boy's mother 
+        <span class="inline-block my-1">
+          <input type="text" data-story="3" data-id="27" data-answer="looks" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-24 md:w-28 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-teal-400 font-medium ml-1">(look)</span>
+        </span> 
+        very upset. Alex 
+        <span class="inline-block my-1">
+          <input type="text" data-story="3" data-id="28" data-answer="feels" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-24 md:w-28 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-teal-400 font-medium ml-1">(feel)</span>
+        </span> 
+        confused. In Alex's culture, patting a child's head 
+        <span class="inline-block my-1">
+          <input type="text" data-story="3" data-id="29" data-answer="is" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-20 md:w-24 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-teal-400 font-medium ml-1">(be)</span>
+        </span> 
+        a nice thing. But in Thailand, the head 
+        <span class="inline-block my-1">
+          <input type="text" data-story="3" data-id="30" data-answer="is" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-20 md:w-24 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-teal-400 font-medium ml-1">(be)</span>
+        </span> 
+        the most important part of the body. People 
+        <span class="inline-block my-1">
+          <input type="text" data-story="3" data-id="31" data-answer="do not touch|don't touch" class="input-blank bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-sky-300 font-semibold w-36 md:w-40 text-center text-sm md:text-base" placeholder="type here" autocomplete="off" spellcheck="false">
+          <span class="text-xs text-teal-400 font-medium ml-1">(not touch)</span>
+        </span> 
+        someone's head.
+      </div>
+
+      <!-- Feedback box & actions for Story 3 -->
+      <div id="feedback-3" class="hidden p-3.5 rounded-xl text-sm border font-medium"></div>
+
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+        <button onclick="checkStory(3)" class="px-5 py-2.5 bg-gradient-to-r from-teal-400 to-emerald-500 hover:from-teal-300 hover:to-emerald-400 text-slate-950 font-bold rounded-xl shadow-lg shadow-teal-950/50 transition-all active:scale-95 flex items-center gap-2">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          Check Answers (Story 3)
+        </button>
+        <div class="flex gap-2">
+          <button onclick="toggleAnswers(3)" id="toggle-btn-3" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg transition-colors">
+            Show Answers
+          </button>
+          <button onclick="resetStory(3)" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 text-xs font-semibold rounded-lg transition-colors">
+            Reset
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MASTER COMPLETION DASHBOARD -->
+    <div id="master-dashboard" class="hidden bg-gradient-to-b from-slate-850 to-slate-900 border-2 border-emerald-500/80 rounded-2xl p-6 md:p-8 text-center space-y-4 shadow-2xl animate-pulse-glow">
+      <div class="inline-flex p-3 rounded-2xl bg-emerald-500/20 text-emerald-400 mb-2">
+        <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <h3 class="text-2xl md:text-3xl font-extrabold text-white">
+        Cross-Cultural Grammar Champion!
+      </h3>
+      <p class="text-slate-300 max-w-xl mx-auto text-sm md:text-base">
+        You successfully completed all three stories! You mastered the difference between actions happening right now (Present Continuous) and customs/state verbs (Present Simple).
+      </p>
+      <div class="inline-block bg-slate-950/80 border border-emerald-500/40 px-6 py-3 rounded-xl">
+        <span class="text-sm text-slate-400 block">Total Blanks Solved</span>
+        <span id="total-score-badge" class="text-2xl md:text-3xl font-black text-emerald-400">31 / 31 Correct</span>
+      </div>
+      <div class="pt-2">
+        <button onclick="resetAllStories()" class="px-6 py-2.5 bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold rounded-xl text-sm transition-all shadow-lg shadow-sky-950/40">
+          Play All Stories Again
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT -->
+  <script>
+    // --- 1. ROBUST WEB AUDIO API SOUND SYSTEM ---
+    let audioCtx = null;
+
+    function ensureAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    // Unlock audio context on initial user click anywhere
+    window.addEventListener('click', () => {
+      ensureAudioContext();
+    }, { once: true });
+    window.addEventListener('keydown', () => {
+      ensureAudioContext();
+    }, { once: true });
+
+    function playTone(isCorrect) {
+      try {
+        const ctx = ensureAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        if (isCorrect) {
+          // Cheerful, pleasant chime chord (C5 -> E5 -> G5 -> C6)
+          const notes = [523.25, 659.25, 783.99, 1046.50];
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+
+            gain.gain.setValueAtTime(0.001, now + idx * 0.05);
+            gain.gain.linearRampToValueAtTime(0.12, now + idx * 0.05 + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.35);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now + idx * 0.05);
+            osc.stop(now + idx * 0.05 + 0.36);
+          });
+        } else {
+          // Low gentle double thud for incorrect attempt
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.exponentialRampToValueAtTime(140, now + 0.22);
+
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + 0.25);
+        }
+      } catch (err) {
+        console.warn("Audio chime prevented:", err);
+      }
+    }
+
+    function testAudio() {
+      ensureAudioContext();
+      playTone(true);
+      const notice = document.getElementById('audio-notice');
+      if (notice) {
+        notice.classList.add('border-emerald-500/60');
+        setTimeout(() => notice.classList.remove('border-emerald-500/60'), 600);
+      }
+    }
+
+    // --- 2. CONFETTI PARTICLE SYSTEM ---
+    const canvas = document.getElementById('confetti-canvas');
+    const ctxCanvas = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function triggerConfetti() {
+      for (let i = 0; i < 45; i++) {
+        particles.push({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2,
+          r: Math.random() * 5 + 3,
+          dx: (Math.random() - 0.5) * 12,
+          dy: (Math.random() - 0.5) * 12 - 4,
+          color: ['#38bdf8', '#22c55e', '#f59e0b', '#a855f7', '#14b8a6', '#f43f5e'][Math.floor(Math.random() * 6)],
+          life: 55
+        });
+      }
+    }
+
+    function renderConfetti() {
+      ctxCanvas.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p) => {
+        ctxCanvas.beginPath();
+        ctxCanvas.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctxCanvas.fillStyle = p.color;
+        ctxCanvas.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+        p.dy += 0.25;
+        p.life--;
+      });
+      particles = particles.filter(p => p.life > 0);
+      requestAnimationFrame(renderConfetti);
+    }
+    renderConfetti();
+
+    // --- 3. GRAMMAR HINTS FOR SOCRATIC A2 GUIDANCE ---
+    const grammarHints = {
+      // Story 1: The Noisy Noodles
+      1: "Notice 'Leo is visiting Japan': action in progress during his trip (be + verb-ing).",
+      2: "Action happening right now in the story: he 'is going' to the restaurant.",
+      3: "Happening right at this moment at the table: Kenji 'is eating'.",
+      4: "Action in progress right now: he 'is slurping' them loudly.",
+      5: "Stative verb of feeling: 'feel' stays in Present Simple -> 'feels'.",
+      6: "Plural negative habit in Leo's country: 'do not make' or \"don't make\".",
+      7: "General habit after 'when they': base form 'eat'.",
+      8: "Stative verb of definition: slurping 'means' (singular).",
+      9: "Action in progress right now: Kenji 'is showing'.",
+      10: "Stative verb of emotion: 'love' stays in Present Simple -> 'loves'.",
+
+      // Story 2: The Bad Thumbs Up
+      11: "Action currently happening on the field: Tom 'is playing'.",
+      12: "Instantaneous action in a sports story: he 'makes' a great pass (Present Simple).",
+      13: "Instantaneous sports event: his teammate 'scores' a goal (Present Simple).",
+      14: "Stative verb of emotion: Tom 'feels' very happy.",
+      15: "Instantaneous physical action: he 'gives' him a thumbs up.",
+      16: "Gesture in progress right now: he 'is saying' with his hand.",
+      17: "Stative verb of appearance: teammate 'looks' angry.",
+      18: "Negative mental state: 'does not understand' or \"doesn't understand\".",
+      19: "Definition / meaning (state verb): a thumbs up 'means' great.",
+      20: "General fact about Greece: it 'is' a rude sign.",
+
+      // Story 3: Don't Touch the Head
+      21: "Ongoing holiday trip: Alex 'is spending'.",
+      22: "Sensory verb of perception: he 'sees' a boy (stative).",
+      23: "Action in progress right now: the boy 'is playing' with a car.",
+      24: "Action happening right now: Alex 'is smiling'.",
+      25: "Action connected to smiling: 'patting' or 'is patting'.",
+      26: "Action in progress at this moment: he 'is trying' to be friendly.",
+      27: "Stative appearance: mother 'looks' very upset.",
+      28: "Emotional state: Alex 'feels' confused.",
+      29: "General cultural belief: patting a child's head 'is' a nice thing.",
+      30: "Permanent physical fact: the head 'is' the most important part.",
+      31: "Cultural prohibition / rule: people 'do not touch' or \"don't touch\"."
+    };
+
+    // --- 4. VALIDATION & ANSWER CHECKING ENGINE ---
+    function normalizeInput(str) {
+      return str
+        .toLowerCase()
+        .replace(/[’`]/g, "'") // Standardize all apostrophe types
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    const storyStatus = { 1: false, 2: false, 3: false };
+
+    function checkStory(storyNum) {
+      ensureAudioContext();
+      const inputs = document.querySelectorAll(`input[data-story="${storyNum}"]`);
+      const feedbackBox = document.getElementById(`feedback-${storyNum}`);
+      let correctCount = 0;
+      let firstErrorHint = '';
+
+      inputs.forEach(input => {
+        const id = input.dataset.id;
+        const validAnswers = input.dataset.answer.split('|').map(normalizeInput);
+        const userVal = normalizeInput(input.value);
+
+        input.classList.remove('input-correct', 'input-incorrect', 'animate-shake');
+
+        if (userVal && validAnswers.includes(userVal)) {
+          input.classList.add('input-correct');
+          correctCount++;
+        } else {
+          input.classList.add('input-incorrect', 'animate-shake');
+          if (!firstErrorHint && grammarHints[id]) {
+            firstErrorHint = grammarHints[id];
+          }
+        }
+      });
+
+      const total = inputs.length;
+      feedbackBox.classList.remove('hidden', 'bg-emerald-950/60', 'border-emerald-500/40', 'text-emerald-300', 'bg-amber-950/60', 'border-amber-500/40', 'text-amber-300', 'bg-red-950/60', 'border-red-500/40', 'text-red-300');
+
+      if (correctCount === total) {
+        playTone(true);
+        triggerConfetti();
+        storyStatus[storyNum] = true;
+
+        feedbackBox.classList.add('bg-emerald-950/60', 'border-emerald-500/40', 'text-emerald-300');
+        feedbackBox.innerHTML = `<strong>Splendid!</strong> All ${total} blanks are 100% correct! You mastered the present tenses for this story.`;
+
+        checkMasterCompletion();
+      } else {
+        playTone(false);
+        storyStatus[storyNum] = false;
+
+        if (correctCount > total / 2) {
+          feedbackBox.classList.add('bg-amber-950/60', 'border-amber-500/40', 'text-amber-300');
+        } else {
+          feedbackBox.classList.add('bg-red-950/60', 'border-red-500/40', 'text-red-300');
+        }
+
+        feedbackBox.innerHTML = `
+          <strong>Score: ${correctCount} / ${total} correct.</strong> 
+          <span class="block mt-1 text-slate-300 text-xs md:text-sm">Hint for your first mistake: ${firstErrorHint || "Check whether the action is happening right now (is/are + -ing), is an instantaneous sports action, or is a state/custom!"}</span>
+        `;
+      }
+    }
+
+    function toggleAnswers(storyNum) {
+      const inputs = document.querySelectorAll(`input[data-story="${storyNum}"]`);
+      const btn = document.getElementById(`toggle-btn-${storyNum}`);
+      const isShowing = btn.textContent.includes('Hide');
+
+      inputs.forEach(input => {
+        if (!isShowing) {
+          const primaryAnswer = input.dataset.answer.split('|')[0];
+          input.value = primaryAnswer;
+          input.classList.remove('input-incorrect', 'animate-shake');
+          input.classList.add('input-correct');
+        } else {
+          input.value = '';
+          input.classList.remove('input-correct', 'input-incorrect', 'animate-shake');
+        }
+      });
+
+      if (!isShowing) {
+        btn.textContent = 'Hide Answers';
+        const feedbackBox = document.getElementById(`feedback-${storyNum}`);
+        feedbackBox.classList.remove('hidden', 'bg-amber-950/60', 'bg-red-950/60');
+        feedbackBox.classList.add('bg-emerald-950/60', 'border-emerald-500/40', 'text-emerald-300');
+        feedbackBox.innerHTML = `<strong>Answers Displayed:</strong> Review the correct forms in each blank above.`;
+        storyStatus[storyNum] = true;
+        checkMasterCompletion();
+      } else {
+        btn.textContent = 'Show Answers';
+        resetStory(storyNum);
+      }
+    }
+
+    function resetStory(storyNum) {
+      const inputs = document.querySelectorAll(`input[data-story="${storyNum}"]`);
+      inputs.forEach(input => {
+        input.value = '';
+        input.classList.remove('input-correct', 'input-incorrect', 'animate-shake');
+      });
+      const feedbackBox = document.getElementById(`feedback-${storyNum}`);
+      feedbackBox.classList.add('hidden');
+      storyStatus[storyNum] = false;
+      const toggleBtn = document.getElementById(`toggle-btn-${storyNum}`);
+      if (toggleBtn) toggleBtn.textContent = 'Show Answers';
+      document.getElementById('master-dashboard').classList.add('hidden');
+    }
+
+    function checkMasterCompletion() {
+      if (storyStatus[1] && storyStatus[2] && storyStatus[3]) {
+        setTimeout(() => {
+          triggerConfetti();
+          const master = document.getElementById('master-dashboard');
+          master.classList.remove('hidden');
+          master.scrollIntoView({ behavior: 'smooth' });
+        }, 300);
+      }
+    }
+
+    function resetAllStories() {
+      resetStory(1);
+      resetStory(2);
+      resetStory(3);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // --- 5. NATIVE SPEECH SYNTHESIS FOR STORY NARRATION ---
+    const storyTexts = {
+      1: "Story 1: The Noisy Noodles. Leo is visiting Japan. He is going to a noodle restaurant with his new friend, Kenji. Kenji is eating his noodles very loudly. He is slurping them! Leo feels shocked. In Leo's country, people do not make noise when they eat. But in Japan, slurping means the food is delicious. Kenji is showing that he loves the food.",
+      2: "Story 2: The Bad Thumbs Up. Tom is playing a football game in Greece. He makes a great pass to his teammate. His teammate scores a goal! Tom feels very happy and gives him a thumbs up sign. He is saying Good job with his hand. His teammate looks angry. Tom does not understand. In Tom's culture, a thumbs up means great. But in Greece, it is a rude sign!",
+      3: "Story 3: Don't Touch the Head. Alex is spending his holiday in Thailand. He sees a cute little boy. The boy is playing with a toy car. Alex is smiling and patting the boy on the head. He is trying to be friendly. The boy's mother looks very upset. Alex feels confused. In Alex's culture, patting a child's head is a nice thing. But in Thailand, the head is the most important part of the body. People do not touch someone's head."
+    };
+
+    let currentPlayingStory = null;
+
+    function toggleAudio(storyNum) {
+      if (!('speechSynthesis' in window)) {
+        alert("Text-to-speech audio is not supported in this browser.");
+        return;
+      }
+
+      ensureAudioContext();
+      const btn = document.getElementById(`audio-btn-${storyNum}`);
+
+      if (window.speechSynthesis.speaking && currentPlayingStory === storyNum) {
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+          btn.querySelector('span').textContent = 'Pause';
+        } else {
+          window.speechSynthesis.pause();
+          btn.querySelector('span').textContent = 'Resume';
+        }
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+      resetAudioButtonLabels();
+
+      const u = new SpeechSynthesisUtterance(storyTexts[storyNum]);
+      u.rate = 0.88; // Deliberate A2 instructional pace
+      u.pitch = 1.0;
+
+      u.onstart = () => {
+        currentPlayingStory = storyNum;
+        btn.querySelector('span').textContent = 'Pause';
+      };
+
+      u.onend = () => {
+        currentPlayingStory = null;
+        btn.querySelector('span').textContent = 'Play';
+      };
+
+      u.onerror = () => {
+        currentPlayingStory = null;
+        btn.querySelector('span').textContent = 'Play';
+      };
+
+      window.speechSynthesis.speak(u);
+    }
+
+    function stopAudio() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        currentPlayingStory = null;
+        resetAudioButtonLabels();
+      }
+    }
+
+    function resetAudioButtonLabels() {
+      [1, 2, 3].forEach(num => {
+        const btn = document.getElementById(`audio-btn-${num}`);
+        if (btn) btn.querySelector('span').textContent = 'Play';
+      });
+    }
+
+    // Pressing Enter in any input triggers check for that story
+    document.querySelectorAll('.input-blank').forEach(input => {
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const storyNum = input.dataset.story;
+          checkStory(storyNum);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
