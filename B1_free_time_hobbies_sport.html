@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Starter Unit: Free Time, Hobbies & Sport</title>
+<style>
+  :root {
+    --bg: #090d16;
+    --card: #131b2e;
+    --card-hover: #1c2742;
+    --accent: #38bdf8;
+    --accent-hover: #0284c7;
+    --gold: #facc15;
+    --emerald: #10b981;
+    --rose: #f43f5e;
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+    --border: #223254;
+    --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
+  body { background: var(--bg); color: var(--text); line-height: 1.6; padding: 24px 14px; }
+  .container { max-width: 960px; margin: 0 auto; position: relative; }
+
+  header { text-align: center; margin-bottom: 24px; }
+  .tag { background: #e11d48; color: #fff; font-size: 0.78rem; font-weight: 800; padding: 3px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  h1 { font-size: 2.1rem; color: #fff; margin: 10px 0 4px; }
+  h1 span { color: var(--accent); }
+  p.subtitle { color: var(--text-muted); font-size: 0.98rem; }
+
+  #confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .btn {
+    background: var(--accent);
+    color: #090d16;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:hover { background: var(--accent-hover); color: #fff; transform: translateY(-1px); }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { background: var(--card-hover); border-color: var(--accent); }
+  .btn-success { background: var(--emerald); color: #fff; }
+  .btn-sm { padding: 6px 12px; font-size: 0.82rem; }
+  .btn-purple { background: #8b5cf6; color: #fff; }
+  .btn-purple:hover { background: #7c3aed; color: #fff; }
+
+  .section-title {
+    font-size: 1.35rem;
+    margin: 34px 0 16px;
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .phase-badge {
+    background: #0284c7;
+    color: #fff;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+    font-weight: 800;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 22px;
+  }
+
+  /* Phase 1: Collocations */
+  .bank-container {
+    background: #0c1322;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+    min-height: 52px;
+    justify-content: center;
+  }
+  .chip {
+    background: #1e293b;
+    border: 1.5px solid var(--border);
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.92rem;
+    font-weight: 600;
+    transition: 0.2s;
+  }
+  .chip:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .chip.selected { background: var(--accent); color: #090d16; border-color: #fff; box-shadow: 0 0 12px rgba(56,189,248,0.5); }
+  .chip.used { display: none; }
+
+  .colloc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+  .colloc-card {
+    background: #0e172a;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .colloc-card:hover { border-color: var(--accent); }
+  .colloc-card.card-success { border-color: var(--emerald); background: rgba(16, 185, 129, 0.1); }
+  .colloc-card.card-shake { animation: shake 0.35s ease-in-out; border-color: var(--rose); }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+  .colloc-verb { font-weight: 700; color: var(--accent); font-size: 1rem; }
+  .colloc-slot {
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    border-bottom: 1.5px dashed var(--border);
+    padding: 2px 6px;
+  }
+  .colloc-slot.filled { font-style: normal; color: #fff; font-weight: 600; border-bottom: none; }
+
+  /* Phase 2: Sports Grid */
+  .sports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .sport-card {
+    background: #0e172a;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    position: relative;
+  }
+  .sport-card.solved { border-color: var(--emerald); background: rgba(16, 185, 129, 0.08); }
+  .pic-num {
+    position: absolute;
+    top: 8px; left: 8px;
+    background: #e11d48;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sport-icon { font-size: 2.5rem; margin: 10px 0 6px; }
+  select {
+    width: 100%;
+    padding: 8px 10px;
+    background: #1e293b;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: #fff;
+    outline: none;
+    font-size: 0.9rem;
+  }
+  select:focus { border-color: var(--accent); }
+
+  .odd-container {
+    background: #0c1322;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 18px;
+  }
+  .odd-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .odd-btn {
+    background: #1e293b;
+    border: 1.5px solid var(--border);
+    color: #cbd5e1;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .odd-btn.selected { background: #e11d48; border-color: #fff; color: #fff; }
+
+  /* Phase 3: Valuation System & Writing */
+  .q-box {
+    background: #0d1527;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 22px;
+  }
+  .q-title { font-weight: 700; color: #f1f5f9; margin-bottom: 10px; font-size: 1.05rem; }
+  textarea {
+    width: 100%;
+    height: 90px;
+    background: #090d16;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: #f8fafc;
+    padding: 12px;
+    font-size: 0.95rem;
+    resize: vertical;
+    outline: none;
+    line-height: 1.5;
+  }
+  textarea:focus { border-color: var(--accent); }
+  .word-counter { text-align: right; font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+  .action-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  /* Valuation Audit Card */
+  .valuation-card {
+    background: #080c16;
+    border: 1.5px solid #38bdf8;
+    border-radius: 10px;
+    padding: 18px;
+    margin-top: 14px;
+    display: none;
+    animation: fadeIn 0.35s ease;
+  }
+  .val-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .val-score-badge {
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--gold);
+    background: rgba(250, 204, 21, 0.12);
+    padding: 4px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(250, 204, 21, 0.4);
+  }
+  .val-section {
+    margin-bottom: 10px;
+    font-size: 0.92rem;
+  }
+  .val-label {
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 3px;
+  }
+  .val-good { color: #86efac; }
+  .val-bad { color: #fca5a5; }
+  .val-recom {
+    background: rgba(56, 189, 248, 0.08);
+    border-left: 3px solid var(--accent);
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: #e2e8f0;
+  }
+
+  .model-answer {
+    background: rgba(16, 185, 129, 0.08);
+    border-left: 3px solid var(--emerald);
+    padding: 12px 14px;
+    border-radius: 6px;
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    display: none;
+  }
+
+  /* Teacher Submission Card */
+  .submit-card {
+    background: linear-gradient(145deg, #131b2e, #0c1527);
+    border: 2px solid var(--accent);
+    border-radius: 14px;
+    padding: 26px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    margin-top: 36px;
+  }
+  .name-input {
+    width: 100%;
+    max-width: 320px;
+    padding: 12px 14px;
+    background: #090d16;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    margin: 12px 0 16px;
+    text-align: center;
+  }
+  .name-input:focus { border-color: var(--accent); }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+
+<canvas id="confetti-canvas"></canvas>
+
+<div class="container">
+  <header>
+    <span class="tag">Starter Unit • Welcome!</span>
+    <h1>Free Time, Hobbies <span>& Sport</span></h1>
+    <p class="subtitle">Vocabulary Collocations, Sports Identification & Writing Valuation Lab</p>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- PHASE 1: COLLOCATIONS MATCHER (EX 1)       -->
+  <!-- ========================================== -->
+  <div class="section-title">
+    <span class="phase-badge">Phase 1</span>
+    <span>Verb & Noun Collocations (Exercise 1)</span>
+  </div>
+
+  <div class="card">
+    <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 12px;">
+      Click a <strong>noun phrase</strong> from the box, then click the matching <strong>verb card</strong> to complete the phrase. Listen with 🔊 when matched!
+    </p>
+
+    <!-- Noun Phrase Bank -->
+    <div class="bank-container" id="phraseBank"></div>
+
+    <!-- Collocation Cards (1 to 11) -->
+    <div class="colloc-grid" id="collocGrid"></div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- PHASE 2: SPORTS MATCHING (EX 3)           -->
+  <!-- ========================================== -->
+  <div class="section-title">
+    <span class="phase-badge" style="background:#7c3aed;">Phase 2</span>
+    <span>Sport Identification (Pictures 1–8)</span>
+  </div>
+
+  <div class="card">
+    <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 14px;">
+      Match each picture (1–8) with the correct sport from the list.
+    </p>
+
+    <div class="sports-grid" id="sportsGrid"></div>
+
+    <!-- Odd sports out -->
+    <div class="odd-container">
+      <h4 style="color: var(--gold); font-size: 0.95rem; margin-bottom: 6px;">
+        🔍 Which TWO sports from the list are NOT pictured above?
+      </h4>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">Click the two sports that do not appear in pictures 1–8:</p>
+      <div class="odd-chips" id="oddChipsContainer"></div>
+      <div id="oddFeedback" style="margin-top: 10px; font-weight: 700; font-size: 0.9rem;"></div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- PHASE 3: DISCUSSION & VALUATION AUDIT     -->
+  <!-- ========================================== -->
+  <div class="section-title">
+    <span class="phase-badge" style="background:#ec4899;">Phase 3</span>
+    <span>Use it! Discussion & Writing Valuation (Exercise 5)</span>
+  </div>
+
+  <div class="card">
+    <div style="background: rgba(236, 72, 153, 0.1); border-left: 4px solid #ec4899; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;">
+      <strong style="color: #f472b6; font-size: 1rem;">📏 Strict Word Count Requirement: 40 to 50 words per question</strong>
+      <p style="font-size: 0.9rem; color: #cbd5e1; margin-top: 4px;">
+        For each question below, you must write a response that is <strong>between 40 and 50 words</strong>. Watch the live word counter change color as you type:
+        <span style="color: #facc15;">Yellow = Too short (&lt;40 words)</span> &bull; 
+        <span style="color: #4ade80;">Green = Perfect length (40–50 words)</span> &bull; 
+        <span style="color: #fb923c;">Orange = Too long (&gt;50 words)</span>.
+      </p>
+    </div>
+
+    <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 16px;">
+      Write your answers in English. Then click <strong>"Evaluate My Answer"</strong> to receive an immediate diagnostic analysis on your <strong>Vocabulary</strong>, <strong>Grammar</strong>, <strong>Content & Length (40–50 words)</strong>, an explicit <strong>Score out of 10</strong>, and custom <strong>Recommendations</strong>!
+    </p>
+
+    <!-- Q1 -->
+    <div class="q-box">
+      <div class="q-title">
+        1. What is your favourite sport to watch on TV? Why?
+        <span style="font-size: 0.82rem; font-weight: 600; color: #f472b6; margin-left: 8px;">(Target: 40–50 words)</span>
+      </div>
+      <textarea id="ans-0" placeholder="Write between 40 and 50 words here. Explain which sport you love to watch on TV, who you watch it with, and specific reasons why it is entertaining or exciting..."></textarea>
+      <div class="word-counter" id="wc-0" style="color: #facc15;">0 / 40–50 words (Too short)</div>
+      
+      <div class="action-row">
+        <button class="btn btn-purple btn-sm" onclick="evaluateAnswer(0)">📊 Evaluate My Answer (Q1)</button>
+        <button class="btn btn-outline btn-sm" onclick="toggleModel(0)">Show Model Answer</button>
+      </div>
+
+      <!-- Valuation Breakdown Card Q1 -->
+      <div class="valuation-card" id="val-card-0"></div>
+
+      <div class="model-answer" id="model-0">
+        <div style="font-weight: 700; color: #4ade80; margin-bottom: 4px;">Model Answer (45 words):</div>
+        My favourite sport to watch on TV is athletics because the sprinters are incredibly fast and energetic. During the Olympic Games, I regularly watch the exciting hundred-metre sprint finals with my family at weekends. It is always thrilling to see who crosses the finish line first!
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="q-box">
+      <div class="q-title">
+        2. What is your favourite sport to do? How often do you do it?
+        <span style="font-size: 0.82rem; font-weight: 600; color: #f472b6; margin-left: 8px;">(Target: 40–50 words)</span>
+      </div>
+      <textarea id="ans-1" placeholder="Write between 40 and 50 words here. Name the sport you participate in, state clearly how often you do it (e.g. twice a week, every weekend), and describe who you play with or how it helps your health..."></textarea>
+      <div class="word-counter" id="wc-1" style="color: #facc15;">0 / 40–50 words (Too short)</div>
+
+      <div class="action-row">
+        <button class="btn btn-purple btn-sm" onclick="evaluateAnswer(1)">📊 Evaluate My Answer (Q2)</button>
+        <button class="btn btn-outline btn-sm" onclick="toggleModel(1)">Show Model Answer</button>
+      </div>
+
+      <!-- Valuation Breakdown Card Q2 -->
+      <div class="valuation-card" id="val-card-1"></div>
+
+      <div class="model-answer" id="model-1">
+        <div style="font-weight: 700; color: #4ade80; margin-bottom: 4px;">Model Answer (44 words):</div>
+        My favourite sport to do is swimming because it keeps my body healthy and relaxed. I usually go to the public swimming pool twice a week after school with my classmates. We practice different swimming strokes together, which is both fantastic exercise and great fun.
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="q-box">
+      <div class="q-title">
+        3. What isn't a good sport to do on your own? Why?
+        <span style="font-size: 0.82rem; font-weight: 600; color: #f472b6; margin-left: 8px;">(Target: 40–50 words)</span>
+      </div>
+      <textarea id="ans-2" placeholder="Write between 40 and 50 words here. Identify a team sport (e.g. rugby, basketball, volleyball) and explain in detail why you need teammates, partners, or opposition to play it properly..."></textarea>
+      <div class="word-counter" id="wc-2" style="color: #facc15;">0 / 40–50 words (Too short)</div>
+
+      <div class="action-row">
+        <button class="btn btn-purple btn-sm" onclick="evaluateAnswer(2)">📊 Evaluate My Answer (Q3)</button>
+        <button class="btn btn-outline btn-sm" onclick="toggleModel(2)">Show Model Answer</button>
+      </div>
+
+      <!-- Valuation Breakdown Card Q3 -->
+      <div class="valuation-card" id="val-card-2"></div>
+
+      <div class="model-answer" id="model-2">
+        <div style="font-weight: 700; color: #4ade80; margin-bottom: 4px;">Model Answer (46 words):</div>
+        Rugby is definitely not a good sport to do on your own because it is an intense team game. You always need opponents to tackle and reliable teammates to pass the ball to. Without other active players on the pitch, practicing real match tactics becomes impossible.
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- SUBMISSION CARD (WEBHOOK INTEGRATION)       -->
+  <!-- ========================================== -->
+  <div class="submit-card">
+    <h3 style="color: var(--accent); font-size: 1.4rem;">Submit Your Work to Teacher</h3>
+    <p style="color: var(--text-muted); font-size: 0.92rem; margin-top: 4px;">
+      Type your full name below. Your scores, written answers, and valuation marks will be submitted directly to your teacher's Google Sheet!
+    </p>
+
+    <input type="text" id="studentName" class="name-input" placeholder="Enter Your Full Name" required autocomplete="name">
+    <br>
+    <button class="btn btn-success" id="submitBtn" onclick="submitWorkToSheet()" style="font-size: 1.05rem; padding: 12px 28px;">
+      🚀 Submit Work
+    </button>
+    <div id="submitStatus" style="margin-top: 12px; font-weight: 700; font-size: 0.95rem;"></div>
+  </div>
+
+</div>
+
+
+<script>
+// ==========================================
+// CONFIGURATION & WEBHOOK URL
+// ==========================================
+const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxID8_ZvaQfVflyoz4iJXH0k1uFtXM_O0piItLl1zVV_-tmJuB5QQ4wrW5LP5UEKHIY/exec";
+
+// ==========================================
+// DATA: COLLOCATIONS (EXERCISE 1)
+// ==========================================
+const collocations = [
+  { id: 1, verb: "chat", target: "online" },
+  { id: 2, verb: "download", target: "songs" },
+  { id: 3, verb: "go", target: "shopping" },
+  { id: 4, verb: "go for", target: "a bike ride" },
+  { id: 5, verb: "hang out with", target: "friends" },
+  { id: 6, verb: "listen to", target: "music" },
+  { id: 7, verb: "make", target: "cakes/videos" },
+  { id: 8, verb: "play", target: "an instrument" },
+  { id: 9, verb: "read", target: "books/magazines" },
+  { id: 10, verb: "take", target: "photos" },
+  { id: 11, verb: "write", target: "a blog" }
+];
+
+// ==========================================
+// DATA: SPORTS (EXERCISE 3)
+// ==========================================
+const sportsPictures = [
+  { num: 1, correct: "gymnastics", icon: "🤸" },
+  { num: 2, correct: "rugby", icon: "🏉" },
+  { num: 3, correct: "sailing", icon: "⛵" },
+  { num: 4, correct: "athletics", icon: "🏃" },
+  { num: 5, correct: "swimming", icon: "🏊" },
+  { num: 6, correct: "basketball", icon: "🏀" },
+  { num: 7, correct: "table tennis", icon: "🏓" },
+  { num: 8, correct: "hockey", icon: "🏑" }
+];
+
+const allSportsList = [
+  "athletics", "basketball", "gymnastics", "hockey",
+  "rugby", "sailing", "swimming", "table tennis",
+  "volleyball", "windsurfing"
+];
+
+const oddSportsTargets = ["volleyball", "windsurfing"];
+
+// ==========================================
+// STATE
+// ==========================================
+let selectedChip = null;
+let collocSolved = 0;
+let sportsSolved = 0;
+let selectedOdds = new Set();
+let questionMarks = { 0: null, 1: null, 2: null };
+
+// ==========================================
+// AUDIO SYNTHESIS & TTS
+// ==========================================
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playChime(isCorrect) {
+  try {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    if (isCorrect) {
+      [523.25, 659.25, 783.99].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + i * 0.05);
+        gain.gain.setValueAtTime(0.12, now + i * 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.05);
+        osc.stop(now + 0.4);
+      });
+    } else {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(260, now);
+      osc.frequency.exponentialRampToValueAtTime(190, now + 0.22);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    }
+  } catch(e) {}
+}
+
+function speakWord(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-GB';
+  u.rate = 0.9;
+  window.speechSynthesis.speak(u);
+}
+
+// ==========================================
+// CONFETTI
+// ==========================================
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function launchConfetti() {
+  for (let i = 0; i < 35; i++) {
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+      r: Math.random() * 5 + 3,
+      dx: (Math.random() - 0.5) * 10,
+      dy: (Math.random() - 0.5) * 10 - 3,
+      color: ['#38bdf8', '#10b981', '#facc15', '#f43f5e', '#a855f7'][Math.floor(Math.random() * 5)],
+      life: 50
+    });
+  }
+}
+function updateConfetti() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = p.color;
+    ctx.fill();
+    p.x += p.dx;
+    p.y += p.dy;
+    p.dy += 0.2;
+    p.life--;
+  });
+  particles = particles.filter(p => p.life > 0);
+  requestAnimationFrame(updateConfetti);
+}
+updateConfetti();
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ==========================================
+// BUILD PHASE 1 (COLLOCATIONS)
+// ==========================================
+function initPhase1() {
+  const bank = document.getElementById('phraseBank');
+  const grid = document.getElementById('collocGrid');
+  bank.innerHTML = '';
+  grid.innerHTML = '';
+
+  const shuffledNouns = shuffle(collocations.map(c => c.target));
+  shuffledNouns.forEach(noun => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.innerText = noun;
+    chip.onclick = () => selectChip(noun, chip);
+    bank.appendChild(chip);
+  });
+
+  collocations.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'colloc-card';
+    card.id = `colloc-${item.id}`;
+
+    card.innerHTML = `
+      <div>
+        <span style="color:var(--text-muted); font-size:0.85rem; margin-right:4px;">${item.id}.</span>
+        <span class="colloc-verb">${item.verb}</span>
+      </div>
+      <div class="colloc-slot" id="slot-${item.id}">_______</div>
+    `;
+
+    card.onclick = () => handleCollocClick(item, card);
+    grid.appendChild(card);
+  });
+}
+
+function selectChip(noun, chipEl) {
+  if (chipEl.classList.contains('used')) return;
+  if (selectedChip && selectedChip.element === chipEl) {
+    chipEl.classList.remove('selected');
+    selectedChip = null;
+    return;
+  }
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  chipEl.classList.add('selected');
+  selectedChip = { noun: noun, element: chipEl };
+  speakWord(noun);
+}
+
+function handleCollocClick(item, cardEl) {
+  if (cardEl.classList.contains('card-success')) return;
+  if (!selectedChip) return;
+
+  const slot = document.getElementById(`slot-${item.id}`);
+
+  if (selectedChip.noun === item.target) {
+    playChime(true);
+    cardEl.classList.add('card-success');
+    selectedChip.element.classList.add('used');
+    slot.className = 'colloc-slot filled';
+    slot.innerHTML = `<strong>${item.target}</strong> <span style="cursor:pointer;" onclick="speakWord('${item.verb} ${item.target}')">🔊</span>`;
+    
+    collocSolved++;
+    selectedChip = null;
+
+    if (collocSolved === collocations.length) {
+      launchConfetti();
+    }
+  } else {
+    playChime(false);
+    cardEl.classList.remove('card-shake');
+    void cardEl.offsetWidth;
+    cardEl.classList.add('card-shake');
+  }
+}
+
+// ==========================================
+// BUILD PHASE 2 (SPORTS MATCHING)
+// ==========================================
+function initPhase2() {
+  const grid = document.getElementById('sportsGrid');
+  grid.innerHTML = '';
+
+  sportsPictures.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'sport-card';
+    card.id = `scard-${item.num}`;
+
+    let options = `<option value="">-- Select Sport --</option>`;
+    allSportsList.forEach(s => {
+      options += `<option value="${s}">${s}</option>`;
+    });
+
+    card.innerHTML = `
+      <div class="pic-num">${item.num}</div>
+      <div class="sport-icon">${item.icon}</div>
+      <select onchange="checkSport(${item.num}, this.value, this)">
+        ${options}
+      </select>
+    `;
+    grid.appendChild(card);
+  });
+
+  const oddContainer = document.getElementById('oddChipsContainer');
+  oddContainer.innerHTML = '';
+  allSportsList.forEach(sport => {
+    const btn = document.createElement('button');
+    btn.className = 'odd-btn';
+    btn.innerText = sport;
+    btn.onclick = () => toggleOddSport(sport, btn);
+    oddContainer.appendChild(btn);
+  });
+}
+
+function checkSport(num, selectedSport, selectEl) {
+  const target = sportsPictures.find(s => s.num === num).correct;
+  const card = document.getElementById(`scard-${num}`);
+
+  if (selectedSport === target) {
+    playChime(true);
+    card.classList.add('solved');
+    selectEl.disabled = true;
+    selectEl.style.color = "#86efac";
+    sportsSolved++;
+    if (sportsSolved === 8) launchConfetti();
+  } else if (selectedSport !== "") {
+    playChime(false);
+    selectEl.style.borderColor = "var(--rose)";
+    setTimeout(() => { selectEl.style.borderColor = "var(--border)"; }, 600);
+  }
+}
+
+function toggleOddSport(sport, btn) {
+  if (selectedOdds.has(sport)) {
+    selectedOdds.delete(sport);
+    btn.classList.remove('selected');
+  } else {
+    if (selectedOdds.size >= 2) return;
+    selectedOdds.add(sport);
+    btn.classList.add('selected');
+  }
+
+  const fb = document.getElementById('oddFeedback');
+  if (selectedOdds.size === 2) {
+    const isCorrect = oddSportsTargets.every(t => selectedOdds.has(t));
+    if (isCorrect) {
+      playChime(true);
+      launchConfetti();
+      fb.style.color = "var(--emerald)";
+      fb.innerText = "✓ Perfect! Volleyball and windsurfing are the two sports not shown in pictures 1–8.";
+    } else {
+      playChime(false);
+      fb.style.color = "var(--rose)";
+      fb.innerText = "Not quite. Look carefully at pictures 1 to 8 again!";
+    }
+  } else {
+    fb.innerText = "";
+  }
+}
+
+// ==========================================
+// PHASE 3: VALUATION AUDIT ENGINE
+// ==========================================
+[0, 1, 2].forEach(idx => {
+  const ta = document.getElementById(`ans-${idx}`);
+  const wc = document.getElementById(`wc-${idx}`);
+  ta.addEventListener('input', () => {
+    const raw = ta.value.trim();
+    const words = raw ? raw.split(/\s+/).filter(Boolean).length : 0;
+    
+    if (words === 0) {
+      wc.innerText = `0 / 40–50 words (Too short)`;
+      wc.style.color = '#facc15';
+    } else if (words < 40) {
+      wc.innerText = `${words} / 40–50 words (${40 - words} more needed)`;
+      wc.style.color = '#facc15';
+    } else if (words <= 50) {
+      wc.innerText = `✓ ${words} / 40–50 words (Perfect length)`;
+      wc.style.color = '#4ade80';
+    } else {
+      wc.innerText = `${words} / 40–50 words (${words - 50} words over limit)`;
+      wc.style.color = '#fb923c';
+    }
+  });
+});
+
+function toggleModel(idx) {
+  const el = document.getElementById(`model-${idx}`);
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+
+function evaluateAnswer(idx) {
+  const text = document.getElementById(`ans-${idx}`).value.trim();
+  const card = document.getElementById(`val-card-${idx}`);
+
+  if (!text) {
+    alert("Please write your answer in the box before requesting an evaluation!");
+    document.getElementById(`ans-${idx}`).focus();
+    return;
+  }
+
+  card.style.display = 'block';
+
+  const words = text.split(/\s+/).filter(Boolean);
+  const wordCount = words.length;
+
+  let score = 5; // Base starting mark
+  let vocabGood = [];
+  let vocabBad = [];
+  let grammarGood = [];
+  let grammarBad = [];
+  let contentGood = [];
+  let contentBad = [];
+  let recommendations = [];
+
+  // --- 1. STRICT WORD COUNT EVALUATION (40 to 50 words) ---
+  if (wordCount >= 40 && wordCount <= 50) {
+    score += 2;
+    contentGood.push(`Precise length constraint adhered to (${wordCount} words - fits the 40–50 target range).`);
+  } else if (wordCount < 40) {
+    const missing = 40 - wordCount;
+    if (wordCount < 20) {
+      score -= 3;
+      contentBad.push(`Severely below required length (${wordCount} words). You must write between 40 and 50 words.`);
+      recommendations.push(`Expand your answer with ${missing} more words: add reasons, examples, or description.`);
+    } else {
+      score -= 1;
+      contentBad.push(`Under the 40-word minimum (${wordCount} words). You need ${missing} more word${missing === 1 ? '' : 's'}.`);
+      recommendations.push(`Add 1 or 2 extra details (such as when you do it, why you enjoy it, or who you are with) to reach at least 40 words.`);
+    }
+  } else {
+    // wordCount > 50
+    const over = wordCount - 50;
+    score -= 1;
+    contentBad.push(`Slightly above the maximum 50-word limit (${wordCount} words, which is ${over} word${over === 1 ? '' : 's'} over).`);
+    recommendations.push(`Edit your sentences to be slightly more concise so your response stays strictly between 40 and 50 words.`);
+  }
+
+  // --- 2. VOCABULARY AUDIT ---
+  const sportTermsRegex = /\b(basketball|football|athletics|swimming|rugby|sailing|table tennis|hockey|volleyball|windsurfing|tennis|gymnastics|cycling|running|sprint|match|game|sport|team|ball|pitch|pool|court)\b/i;
+  const descriptiveAdjRegex = /\b(exciting|fast|dynamic|fun|healthy|active|difficult|dangerous|boring|tiring|interesting|great|favourite|favorite|popular|competitive|thrilling|energetic|intense|fantastic)\b/i;
+  const collocationsRegex = /\b(play\s+\w+|go\s+\w+|watch\s+on\s+tv|twice\s+a\s+week|once\s+a\s+week|on\s+my\s+own|with\s+friends|with\s+my\s+family|at\s+the\s+weekend|pass\s+the\s+ball)\b/i;
+
+  if (sportTermsRegex.test(text)) {
+    score += 1;
+    vocabGood.push("Precise sports terminology used correctly.");
+  } else {
+    vocabBad.push("Lacks specific sport nouns (e.g. mention basketball, swimming, rugby, athletics).");
+    recommendations.push("Include specific sport vocabulary from Starter Unit Exercise 3.");
+  }
+
+  if (descriptiveAdjRegex.test(text)) {
+    score += 1;
+    vocabGood.push("Effective descriptive adjectives employed (e.g. exciting, dynamic, competitive, thrilling).");
+  } else {
+    vocabBad.push("Relies on very basic adjectives or lacks vivid description.");
+    recommendations.push("Enhance descriptions with descriptive adjectives such as 'fast', 'exciting', 'competitive', or 'challenging'.");
+  }
+
+  if (collocationsRegex.test(text)) {
+    vocabGood.push("Good use of collocations / prepositional phrases (e.g., 'twice a week', 'on my own', 'watch on TV').");
+  }
+
+  // --- 3. GRAMMAR & SYNTAX AUDIT ---
+  if (/^[A-Z]/.test(text)) {
+    grammarGood.push("Sentence begins with an appropriate capital letter.");
+  } else {
+    score -= 1;
+    grammarBad.push("Missing initial capital letter.");
+    recommendations.push("Always start your sentences with a capital letter.");
+  }
+
+  if (/[.!?]$/.test(text)) {
+    grammarGood.push("Proper terminal punctuation (ended with a period / full stop).");
+  } else {
+    score -= 1;
+    grammarBad.push("Missing terminal punctuation at the end of the response.");
+    recommendations.push("End your thoughts with a full stop (.).");
+  }
+
+  if (/\b(because|and|but|so|although|since|which|where)\b/i.test(text)) {
+    score += 1;
+    grammarGood.push("Compound/complex structure using connectors ('because', 'and', 'but', 'which').");
+  } else {
+    grammarBad.push("Simple sentence structure lacking linking connectors.");
+    recommendations.push("Use connectors like 'because', 'which', or 'but' to link your clauses and justify your thoughts.");
+  }
+
+  if (/\bi\s/g.test(text)) {
+    score -= 1;
+    grammarBad.push("Lower-case 'i' detected. The personal pronoun 'I' must always be capitalized in English.");
+    recommendations.push("Capitalize 'I' whenever referring to yourself.");
+  }
+
+  // --- 4. PROMPT CONTENT RELEVANCE ---
+  if (idx === 0) {
+    // Q1: What is favourite sport to watch + WHY?
+    const hasWhy = /\b(because|as|since|reason|makes me|exciting|thrilling|love to watch)\b/i.test(text);
+    if (hasWhy) {
+      score += 1;
+      contentGood.push("Directly answered 'Why' with a clear justification.");
+    } else {
+      score -= 1;
+      contentBad.push("You named a sport, but did not clearly explain 'Why' you enjoy watching it.");
+      recommendations.push("Add a full clause explaining 'Why' (e.g. 'I enjoy watching it on TV because it is fast-paced...').");
+    }
+  } else if (idx === 1) {
+    // Q2: What is favourite sport to do + HOW OFTEN?
+    const hasFreq = /\b(every|twice|once|times|week|month|day|often|usually|always|sometimes|weekend|regularly)\b/i.test(text);
+    if (hasFreq) {
+      score += 1;
+      contentGood.push("Clear frequency given stating how often you participate.");
+    } else {
+      score -= 1;
+      contentBad.push("Missing explicit frequency: you did not state how often you participate.");
+      recommendations.push("Include a frequency phrase (e.g. 'I do it twice a week' or 'every Saturday morning').");
+    }
+  } else if (idx === 2) {
+    // Q3: What isn't a good sport on your own + WHY?
+    const hasTeamSolo = /\b(team|alone|own|other|partner|player|players|need|pass|together|opponent|opponents)\b/i.test(text);
+    if (hasTeamSolo) {
+      score += 1;
+      contentGood.push("Thoughtfully addresses the contrast between team interaction and practicing alone.");
+    } else {
+      contentBad.push("Explain specifically why you cannot practice it alone (e.g. needing teammates, passes, or an opponent).");
+      recommendations.push("Mention that team sports like rugby, basketball, or volleyball require other players to pass or tackle.");
+    }
+  }
+
+  // Constrain final score strictly between 1 and 10
+  score = Math.max(1, Math.min(10, score));
+  questionMarks[idx] = score;
+
+  if (score >= 8) {
+    playChime(true);
+    launchConfetti();
+  } else {
+    playChime(false);
+  }
+
+  // Render Valuation Breakdown Card
+  card.innerHTML = `
+    <div class="val-header">
+      <div>
+        <strong style="color:var(--accent); font-size:1.05rem;">Diagnostic Valuation Report (Question ${idx + 1})</strong>
+        <div style="font-size:0.82rem; color:var(--text-muted); margin-top:2px;">
+          Length: <strong style="color:${wordCount >= 40 && wordCount <= 50 ? '#4ade80' : '#facc15'}">${wordCount} words</strong> (Target: 40–50 words)
+        </div>
+      </div>
+      <div class="val-score-badge">${score} / 10 Marks</div>
+    </div>
+
+    <!-- Content & Length Section -->
+    <div class="val-section">
+      <div class="val-label">🎯 <strong>Content & Word Count (40–50 words):</strong></div>
+      ${contentGood.length ? `<div class="val-good">✓ Good: ${contentGood.join(' ')}</div>` : ''}
+      ${contentBad.length ? `<div class="val-bad">✗ Check: ${contentBad.join(' ')}</div>` : ''}
+    </div>
+
+    <!-- Vocabulary Section -->
+    <div class="val-section">
+      <div class="val-label">📖 <strong>Vocabulary:</strong></div>
+      ${vocabGood.length ? `<div class="val-good">✓ Good: ${vocabGood.join(' ')}</div>` : ''}
+      ${vocabBad.length ? `<div class="val-bad">✗ Areas to improve: ${vocabBad.join(' ')}</div>` : ''}
+    </div>
+
+    <!-- Grammar Section -->
+    <div class="val-section">
+      <div class="val-label">✍️ <strong>Grammar & Mechanics:</strong></div>
+      ${grammarGood.length ? `<div class="val-good">✓ Good: ${grammarGood.join(' ')}</div>` : ''}
+      ${grammarBad.length ? `<div class="val-bad">✗ Mechanics to fix: ${grammarBad.join(' ')}</div>` : ''}
+    </div>
+
+    <!-- Actionable Recommendations -->
+    <div class="val-recom">
+      <strong>💡 Key Recommendations for Improvement:</strong>
+      <ul style="margin-left: 20px; margin-top: 4px;">
+        ${recommendations.map(r => `<li>${r}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+}
+
+// ==========================================
+// SUBMIT WORK VIA WEBHOOK
+// ==========================================
+function submitWorkToSheet() {
+  const nameField = document.getElementById('studentName');
+  const studentName = nameField.value.trim();
+  const statusEl = document.getElementById('submitStatus');
+  const submitBtn = document.getElementById('submitBtn');
+
+  if (!studentName) {
+    alert("Please enter your full name before submitting!");
+    nameField.focus();
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.innerText = "Submitting to Teacher...";
+  statusEl.style.color = "var(--gold)";
+  statusEl.innerText = "Connecting to Google Sheet...";
+
+  const a1 = document.getElementById('ans-0').value.trim();
+  const a2 = document.getElementById('ans-1').value.trim();
+  const a3 = document.getElementById('ans-2').value.trim();
+
+  const m1 = questionMarks[0] !== null ? `${questionMarks[0]}/10` : 'Not evaluated';
+  const m2 = questionMarks[1] !== null ? `${questionMarks[1]}/10` : 'Not evaluated';
+  const m3 = questionMarks[2] !== null ? `${questionMarks[2]}/10` : 'Not evaluated';
+
+  const payload = {
+    name: studentName,
+    scores: `Collocations: ${collocSolved}/11 | Sports: ${sportsSolved}/8 | Valuation Marks: [Q1: ${m1}, Q2: ${m2}, Q3: ${m3}]`,
+    answers: `Q1: ${a1} || Q2: ${a2} || Q3: ${a3}`
+  };
+
+  fetch(GOOGLE_SHEET_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }).then(() => {
+    playChime(true);
+    launchConfetti();
+    submitBtn.innerText = "✓ Work Submitted!";
+    submitBtn.style.background = "var(--emerald)";
+    statusEl.style.color = "var(--emerald)";
+    statusEl.innerText = "Success! Your answers, phase scores, and valuation marks were recorded in your teacher's spreadsheet.";
+  }).catch(err => {
+    console.error(err);
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Submit Work";
+    statusEl.style.color = "var(--rose)";
+    statusEl.innerText = "Submission failed. Please check your internet connection.";
+  });
+}
+
+// Initialize on Load
+initPhase1();
+initPhase2();
+</script>
+</body>
+</html>
+```
