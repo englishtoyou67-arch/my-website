@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Realms of Valor: Character Traits</title>
+<style>
+  :root {
+    --bg-dark: #0f141c;
+    --card-bg: #1a2232;
+    --card-border: #2c3a52;
+    --gold: #d4af37;
+    --gold-glow: rgba(212, 175, 55, 0.4);
+    --text-main: #e2e8f0;
+    --text-muted: #94a3b8;
+    
+    /* 4 Tile Colors */
+    --tile-emerald: #059669;
+    --tile-amber: #d97706;
+    --tile-royal: #2563eb;
+    --tile-crimson: #dc2626;
+
+    --correct: #10b981;
+    --wrong: #ef4444;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+  body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Fullscreen Canvas for Fireworks */
+  #fxCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 25px;
+    z-index: 1;
+  }
+
+  header h1 {
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 1.8rem;
+    text-shadow: 0 0 10px var(--gold-glow);
+  }
+
+  header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  /* Navigation Pills */
+  .stage-nav {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    z-index: 1;
+  }
+
+  .nav-btn {
+    background: #1e293b;
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .nav-btn.active {
+    background: var(--gold);
+    color: #0f141c;
+    border-color: var(--gold);
+    box-shadow: 0 0 10px var(--gold-glow);
+  }
+
+  /* Main Container */
+  .main-container {
+    width: 100%;
+    max-width: 1100px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 1;
+  }
+
+  /* Stage 1 Layout: Left Choices, Right Text */
+  .stage1-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+  }
+
+  @media (max-width: 820px) {
+    .stage1-grid { grid-template-columns: 1fr; }
+  }
+
+  .lore-panel {
+    background: rgba(15, 20, 28, 0.7);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    color: var(--gold);
+    font-weight: bold;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 2px;
+  }
+
+  .lore-text {
+    line-height: 1.8;
+    font-size: 1.05rem;
+    color: #cbd5e1;
+  }
+
+  .active-lex-block {
+    display: inline;
+    background: rgba(56, 189, 248, 0.15);
+    border: 1px solid #38bdf8;
+    border-radius: 6px;
+    padding: 3px 6px;
+    transition: all 0.3s ease;
+  }
+
+  .highlight-word {
+    color: #38bdf8;
+    font-weight: bold;
+  }
+
+  .highlight-definition {
+    color: #fef08a;
+    font-style: italic;
+    font-size: 0.95rem;
+    margin-left: 4px;
+    font-weight: normal;
+  }
+
+  .passive-word {
+    color: #f8fafc;
+    font-weight: 600;
+  }
+
+  .quiz-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .question-header {
+    margin-bottom: 15px;
+  }
+
+  .question-header h3 {
+    color: var(--gold);
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+  }
+
+  .target-term {
+    font-size: 1.4rem;
+    color: #fff;
+    font-weight: bold;
+    margin-top: 4px;
+  }
+
+  .tiles-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .tile-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 16px 12px;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.15s, box-shadow 0.15s;
+    user-select: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  }
+
+  .tile-btn:active { transform: scale(0.97); }
+
+  .tile-emerald { background: var(--tile-emerald); }
+  .tile-amber { background: var(--tile-amber); }
+  .tile-royal { background: var(--tile-royal); }
+  .tile-crimson { background: var(--tile-crimson); }
+
+  /* Animations for Feedback */
+  @keyframes correctPulse {
+    0% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.04); filter: brightness(1.4); box-shadow: 0 0 15px var(--correct); }
+    100% { transform: scale(1); filter: brightness(1); }
+  }
+
+  @keyframes wrongShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+  }
+
+  .anim-correct { animation: correctPulse 0.4s ease-out; border: 2px solid #fff !important; }
+  .anim-wrong { animation: wrongShake 0.4s ease-in-out; filter: grayscale(0.5); }
+
+  .panel-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid var(--card-border);
+  }
+
+  .action-btn {
+    background: var(--gold);
+    color: #0f141c;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 22px;
+    font-weight: bold;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .action-btn:hover {
+    background: #f1c40f;
+    box-shadow: 0 0 12px var(--gold-glow);
+  }
+
+  .action-btn:disabled {
+    background: #475569;
+    color: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* Stage 2 Layout: Sorting */
+  .stage2-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .word-bank {
+    background: rgba(15, 20, 28, 0.8);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 15px;
+    min-height: 80px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .trait-pill {
+    background: #334155;
+    border: 1px solid #475569;
+    color: #f8fafc;
+    padding: 7px 15px;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+
+  .trait-pill:hover {
+    border-color: var(--gold);
+    transform: translateY(-2px);
+  }
+
+  .trait-pill.selected {
+    background: var(--gold);
+    color: #0f141c;
+    border-color: #fff;
+    box-shadow: 0 0 10px var(--gold-glow);
+    transform: scale(1.05);
+  }
+
+  .heroes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+
+  @media (max-width: 768px) {
+    .heroes-grid { grid-template-columns: 1fr; }
+  }
+
+  .hero-card {
+    background: rgba(15, 20, 28, 0.6);
+    border: 2px dashed var(--card-border);
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 340px;
+  }
+
+  .hero-card.ready-to-drop {
+    border-color: var(--gold);
+    background: rgba(212, 175, 55, 0.08);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+  }
+
+  .hero-card svg {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 10px;
+  }
+
+  .hero-card h4 {
+    color: var(--gold);
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+  }
+
+  .hero-card .role-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .slotted-traits {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: auto;
+  }
+
+  .slotted-trait-tag {
+    background: #1e293b;
+    border: 1px solid #10b981;
+    color: #e2e8f0;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: correctPulse 0.3s ease-out;
+  }
+
+  .result-banner {
+    display: none;
+    background: #111827;
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    text-align: center;
+    animation: correctPulse 0.5s ease-out;
+  }
+
+  .result-banner h2 {
+    color: var(--gold);
+    margin-bottom: 8px;
+    font-size: 1.4rem;
+  }
+
+  .result-banner p {
+    color: #cbd5e1;
+    font-size: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<!-- Canvas for fireworks -->
+<canvas id="fxCanvas"></canvas>
+
+<header>
+  <h1>The Realms of Valor</h1>
+  <p>Lesson 2: Psychological Profiles & Character Traits</p>
+</header>
+
+<div class="stage-nav">
+  <button class="nav-btn active" id="btnStage1" onclick="switchStage(1)">Stage 1: Lexical Decryption</button>
+  <button class="nav-btn" id="btnStage2" onclick="switchStage(2)">Stage 2: Assign Traits to Heroes</button>
+</div>
+
+<main class="main-container">
+
+  <!-- ==================== STAGE 1: VOCABULARY DECRYPTION ==================== -->
+  <section id="stage1Section">
+    <div class="stage1-grid">
+      <!-- Left: Multiple Choice -->
+      <div class="quiz-panel">
+        <div class="question-header">
+          <h3 id="heroChapterTitle">Character 1 of 3: Goran the Tank</h3>
+          <p style="color: var(--text-muted); font-size:0.85rem;">Select the exact Russian translation for the highlighted trait:</p>
+          <div class="target-term" id="targetTermDisplay">honest</div>
+        </div>
+
+        <div class="tiles-grid" id="tilesContainer">
+          <!-- 4 color-coded tiles injected by JS -->
+        </div>
+
+        <div class="panel-footer">
+          <span style="font-size: 0.85rem; color: var(--text-muted);" id="qProgress">Word 1 / 18</span>
+          <button class="action-btn" id="checkStage1Btn" onclick="evaluateStage1Answer()">Submit Word</button>
+        </div>
+      </div>
+
+      <!-- Right: Narrative Lore Text -->
+      <div class="lore-panel">
+        <span class="hero-tag" id="loreHeroTag">Dossier: Goran</span>
+        <div class="lore-text" id="loreParagraph">
+          <!-- Text with dynamic bracketed glossary definitions injected by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 1 Verdict Banner -->
+    <div class="result-banner" id="stage1Verdict">
+      <h2 id="stage1VerdictTitle"></h2>
+      <p id="stage1VerdictBody"></p>
+      <button class="action-btn" style="margin-top: 15px;" onclick="switchStage(2)">Proceed to Stage 2 &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ==================== STAGE 2: CHARACTER SORTING ==================== -->
+  <section id="stage2Section" style="display: none;">
+    <div class="stage2-container">
+      <div style="font-size: 0.95rem; color: var(--text-muted);">
+        <strong>Instructions:</strong> Tap a word in the bank to select it, then tap the matching hero's card to assign it. Immediate feedback and fireworks will verify your choice!
+      </div>
+
+      <!-- Word Bank -->
+      <div class="word-bank" id="wordBank">
+        <!-- Word pills injected here -->
+      </div>
+
+      <!-- 3 Heroes Grid -->
+      <div class="heroes-grid">
+        <!-- Goran -->
+        <div class="hero-card" id="card-goran" onclick="assignSelectedToHero('goran', event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M12 8v8"/>
+            <path d="M8 12h8"/>
+          </svg>
+          <h4>Goran</h4>
+          <span class="role-sub">The Tank</span>
+          <div class="slotted-traits" id="slots-goran"></div>
+        </div>
+
+        <!-- Lyra -->
+        <div class="hero-card" id="card-lyra" onclick="assignSelectedToHero('lyra', event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m14.5 17.5 5 5"/>
+            <path d="m4 4 7 7"/>
+            <path d="M7 11V7h4"/>
+            <path d="M20 20l-5-5"/>
+            <path d="m17 4 3 3-9 9-4-1 1-4 9-9Z"/>
+          </svg>
+          <h4>Lyra</h4>
+          <span class="role-sub">The Rogue</span>
+          <div class="slotted-traits" id="slots-lyra"></div>
+        </div>
+
+        <!-- Master Eldon -->
+        <div class="hero-card" id="card-eldon" onclick="assignSelectedToHero('eldon', event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20"/>
+            <path d="m4.93 4.93 14.14 14.14"/>
+            <path d="M2 12h20"/>
+            <path d="m19.07 4.93-14.14 14.14"/>
+            <circle cx="12" cy="12" r="4"/>
+          </svg>
+          <h4>Master Eldon</h4>
+          <span class="role-sub">The Mage</span>
+          <div class="slotted-traits" id="slots-eldon"></div>
+        </div>
+      </div>
+
+      <!-- Stage 2 Game Verdict Banner -->
+      <div class="result-banner" id="stage2Verdict">
+        <h2 id="stage2VerdictTitle"></h2>
+        <p id="stage2VerdictBody"></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ==================== SOUND SYNTHESIS (Web Audio API) ==================== */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playSound(isCorrect) {
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  const now = audioCtx.currentTime;
+
+  if (isCorrect) {
+    // Cheerful, upbeat victory fanfare: C5 -> E5 -> G5 -> C6
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, idx) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+
+      gain.gain.setValueAtTime(0, now + idx * 0.08);
+      gain.gain.linearRampToValueAtTime(0.25, now + idx * 0.08 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.25);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now + idx * 0.08);
+      osc.stop(now + idx * 0.08 + 0.25);
+    });
+  } else {
+    // Low harsh buzz for error
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(150, now);
+    osc.frequency.exponentialRampToValueAtTime(80, now + 0.28);
+    gain.gain.setValueAtTime(0.22, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.3);
+  }
+}
+
+/* ==================== FIREWORKS PARTICLE ENGINE ==================== */
+const canvas = document.getElementById("fxCanvas");
+const ctx = canvas.getContext("2d");
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+function launchFireworks(targetX, targetY) {
+  const x = targetX || (window.innerWidth / 2);
+  const y = targetY || (window.innerHeight / 3);
+  const particleCount = 50;
+  const colors = ['#f59e0b', '#10b981', '#38bdf8', '#ec4899', '#f43f5e', '#a855f7', '#fbbf24'];
+
+  for (let i = 0; i < particleCount; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 7 + 2;
+    particles.push({
+      x: x,
+      y: y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      size: Math.random() * 4 + 2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      alpha: 1,
+      decay: Math.random() * 0.02 + 0.015
+    });
+  }
+}
+
+function updateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.12; // gravity
+    p.alpha -= p.decay;
+
+    if (p.alpha <= 0) {
+      particles.splice(i, 1);
+    } else {
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = p.color;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+  requestAnimationFrame(updateParticles);
+}
+requestAnimationFrame(updateParticles);
+
+/* ==================== DATA DEFINITIONS (With Oxford Word Skills Glossaries) ==================== */
+const stage1Data = [
+  // Goran's Section
+  {
+    hero: "Goran the Tank",
+    chapter: "Character 1 of 3: Goran the Tank",
+    textTemplate: "Goran saw himself as {0}, deeply {1}, and {2} of the rookie players. He spent hours crafting shields for the squad. However, the rest of the team felt he was a bit {3}. Goran had almost no {4}; he took every minor regulation seriously.",
+    words: [
+      {
+        term: "honest",
+        definition: "always telling the truth",
+        correct: "честный, правдивый",
+        options: ["честный, правдивый", "жестокий, грубый", "гордый, высокомерный", "нерешительный"]
+      },
+      {
+        term: "hard-working",
+        definition: "able to work with effort and for a long time",
+        correct: "трудолюбивый, усердный",
+        options: ["ленивый, праздный", "трудолюбивый, усердный", "нетерпеливый", "легкомысленный"]
+      },
+      {
+        term: "tolerant",
+        definition: "able to accept ideas you don't agree with",
+        correct: "терпимый к чужим взглядам",
+        options: ["агрессивный к слабым", "эгоистичный", "равнодушный", "терпимый к чужим взглядам"]
+      },
+      {
+        term: "dull",
+        definition: "boring",
+        correct: "скучный, нудный",
+        options: ["скучный, нудный", "опасный, ядовитый", "ловкий, скрытный", "щедрый на похвалу"]
+      },
+      {
+        term: "sense of humour",
+        definition: "the ability to laugh at things and see when sth is funny",
+        correct: "чувство юмора",
+        options: ["жажда победы", "чувство долга", "чувство юмора", "страх темноты"]
+      }
+    ]
+  },
+  // Lyra's Section
+  {
+    hero: "Lyra the Rogue",
+    chapter: "Character 2 of 3: Lyra the Rogue",
+    textTemplate: "Lyra the Rogue was exceptionally {0} and {1}. She aimed for the guild's grandmaster title and never doubted her daggers. In camp, she was surprisingly {2}, readily tossing gold coins and rare potions to rookies. But under pressure, she was brutally {3}. Some party members called her {4} because she looked down on slower players, and in battle, she became terrifyingly {5}.",
+    words: [
+      {
+        term: "ambitious",
+        definition: "having a strong desire to do well or be successful",
+        correct: "амбициозный, целеустремленный",
+        options: ["безразличный", "амбициозный, целеустремленный", "трусливый", "доверчивый"]
+      },
+      {
+        term: "self-confident",
+        definition: "feeling sure about your own ability",
+        correct: "уверенный в себе",
+        options: ["замкнутый", "растерянный", "уверенный в себе", "подозрительный"]
+      },
+      {
+        term: "generous",
+        definition: "happy to give more money and help than is usual",
+        correct: "щедрый, великодушный",
+        options: ["жадный, скупой", "щедрый, великодушный", "жестокий", "строгий"]
+      },
+      {
+        term: "impatient",
+        definition: "not able to stay calm and wait for sth/sb",
+        correct: "нетерпеливый",
+        options: ["нетерпеливый", "спокойный", "пугливый", "безответственный"]
+      },
+      {
+        term: "arrogant",
+        definition: "thinking you are better than other people",
+        correct: "высокомерный, заносчивый",
+        options: ["скромный", "вежливый", "высокомерный, заносчивый", "неуверенный"]
+      },
+      {
+        term: "aggressive",
+        definition: "likely to fight or argue",
+        correct: "агрессивный, вспыльчивый",
+        options: ["миролюбивый", "агрессивный, вспыльчивый", "тихий", "ленивый"]
+      }
+    ]
+  },
+  // Eldon's Section
+  {
+    hero: "Master Eldon the Mage",
+    chapter: "Character 3 of 3: Master Eldon the Mage",
+    textTemplate: "Everyone saw Eldon as {0} and remarkably {1}. Even when poison arrows flew, his eyes held a spark of boundless magical {2}. He was the most {3} tactician in the party, keeping escape scrolls ready. Yet recruits whispered that Eldon was completely {4} or slightly {5}. Who else would drink lightning potions just to see his beard spark? But no one ever called him {6}.",
+    words: [
+      {
+        term: "cheerful",
+        definition: "feeling happy",
+        correct: "жизнерадостный, бодрый",
+        options: ["унылый, мрачный", "жизнерадостный, бодрый", "забывчивый", "необщительный"]
+      },
+      {
+        term: "easy-going",
+        definition: "relaxed and not worried by what other people do",
+        correct: "с легким характером, неконфликтный",
+        options: ["строгий и суровый", "нервный и вспыльчивый", "с легким характером, неконфликтный", "подозрительный"]
+      },
+      {
+        term: "energy",
+        definition: "the ability to be very active without getting tired",
+        correct: "энергия, неутомимость",
+        options: ["усталость", "энергия, неутомимость", "жадность", "хитрость"]
+      },
+      {
+        term: "responsible",
+        definition: "able to act sensibly and intelligently",
+        correct: "ответственный, надежный",
+        options: ["легкомысленный", "опасный", "ответственный, надежный", "непослушный"]
+      },
+      {
+        term: "crazy",
+        definition: "not sensible or practical: a bit stupid, but wants to enjoy life",
+        correct: "чокнутый, безбашенный",
+        options: ["чокнутый, безбашенный", "рассудительный", "наивный", "злой"]
+      },
+      {
+        term: "mad",
+        definition: "out of control, daring, not practical",
+        correct: "сумасшедший, безумный",
+        options: ["медлительный", "сумасшедший, безумный", "хитрый", "робкий"]
+      },
+      {
+        term: "stupid",
+        definition: "lacking thought or sense (always negative)",
+        correct: "глупый, тупой",
+        options: ["мудрый", "глупый, тупой", "странный", "отважный"]
+      }
+    ]
+  }
+];
+
+// Target Assignments for Stage 2
+const targetAssignments = {
+  goran: ["honest", "hard-working", "tolerant", "dull", "no sense of humour"],
+  lyra: ["ambitious", "self-confident", "generous", "impatient", "arrogant", "aggressive"],
+  eldon: ["cheerful", "easy-going", "energy", "responsible", "crazy", "mad", "not stupid"]
+};
+
+// Flatten all items into the Stage 2 bank
+const stage2WordList = [
+  ...targetAssignments.goran,
+  ...targetAssignments.lyra,
+  ...targetAssignments.eldon
+].sort(() => 0.5 - Math.random());
+
+/* ==================== STATE MANAGEMENT ==================== */
+let currentChapterIdx = 0;
+let currentWordIdx = 0;
+let stage1Score = 0;
+let stage1TotalWords = 0;
+let selectedTileIdx = null;
+
+stage1Data.forEach(c => stage1TotalWords += c.words.length);
+
+let stage2UnassignedWords = [...stage2WordList];
+let stage2Assigned = { goran: [], lyra: [], eldon: [] };
+let selectedStage2Word = null;
+let stage2Mistakes = 0;
+
+/* ==================== STAGE 1 FUNCTIONS ==================== */
+function renderStage1Question() {
+  const chapter = stage1Data[currentChapterIdx];
+  const wordObj = chapter.words[currentWordIdx];
+
+  document.getElementById("heroChapterTitle").innerText = chapter.chapter;
+  document.getElementById("loreHeroTag").innerText = "Dossier: " + chapter.hero;
+  document.getElementById("targetTermDisplay").innerText = wordObj.term;
+
+  let countSoFar = 0;
+  for (let i = 0; i < currentChapterIdx; i++) {
+    countSoFar += stage1Data[i].words.length;
+  }
+  countSoFar += (currentWordIdx + 1);
+  document.getElementById("qProgress").innerText = `Word ${countSoFar} / ${stage1TotalWords}`;
+
+  let formattedText = chapter.textTemplate;
+  chapter.words.forEach((w, idx) => {
+    if (idx === currentWordIdx) {
+      formattedText = formattedText.replace(
+        `{${idx}}`,
+        `<span class="active-lex-block"><span class="highlight-word">${w.term}</span> <span class="highlight-definition">(${w.definition})</span></span>`
+      );
+    } else {
+      formattedText = formattedText.replace(`{${idx}}`, `<span class="passive-word">${w.term}</span>`);
+    }
+  });
+  document.getElementById("loreParagraph").innerHTML = formattedText;
+
+  const tileColors = ['tile-emerald', 'tile-amber', 'tile-royal', 'tile-crimson'];
+  const container = document.getElementById("tilesContainer");
+  container.innerHTML = "";
+  selectedTileIdx = null;
+
+  const shuffledOptions = [...wordObj.options].sort(() => 0.5 - Math.random());
+
+  shuffledOptions.forEach((optText, index) => {
+    const btn = document.createElement("button");
+    btn.className = `tile-btn ${tileColors[index % 4]}`;
+    btn.innerText = optText;
+    btn.onclick = () => {
+      document.querySelectorAll(".tile-btn").forEach(b => b.style.outline = "none");
+      btn.style.outline = "3px solid #fff";
+      selectedTileIdx = optText;
+    };
+    container.appendChild(btn);
+  });
+
+  const checkBtn = document.getElementById("checkStage1Btn");
+  checkBtn.disabled = false;
+  checkBtn.innerText = "Submit Word";
+}
+
+function evaluateStage1Answer() {
+  if (selectedTileIdx === null) {
+    alert("Please select one of the colored answer tiles first!");
+    return;
+  }
+
+  const chapter = stage1Data[currentChapterIdx];
+  const wordObj = chapter.words[currentWordIdx];
+  const isCorrect = (selectedTileIdx === wordObj.correct);
+
+  const buttons = document.querySelectorAll(".tile-btn");
+  let clickedBtn = null;
+  buttons.forEach(b => {
+    if (b.innerText === selectedTileIdx) clickedBtn = b;
+  });
+
+  const checkBtn = document.getElementById("checkStage1Btn");
+  checkBtn.disabled = true;
+
+  if (isCorrect) {
+    playSound(true);
+    if (clickedBtn) {
+      const rect = clickedBtn.getBoundingClientRect();
+      launchFireworks(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      clickedBtn.classList.add("anim-correct");
+    }
+    stage1Score++;
+  } else {
+    playSound(false);
+    if (clickedBtn) clickedBtn.classList.add("anim-wrong");
+    buttons.forEach(b => {
+      if (b.innerText === wordObj.correct) {
+        b.style.border = "3px solid #10b981";
+      }
+    });
+  }
+
+  setTimeout(() => {
+    if (currentWordIdx + 1 < chapter.words.length) {
+      currentWordIdx++;
+      renderStage1Question();
+    } else if (currentChapterIdx + 1 < stage1Data.length) {
+      currentChapterIdx++;
+      currentWordIdx = 0;
+      renderStage1Question();
+    } else {
+      showStage1Results();
+    }
+  }, 1000);
+}
+
+function showStage1Results() {
+  document.querySelector(".stage1-grid").style.display = "none";
+  const banner = document.getElementById("stage1Verdict");
+  banner.style.display = "block";
+
+  const percent = Math.round((stage1Score / stage1TotalWords) * 100);
+  let rank = "";
+  let comment = "";
+
+  if (percent >= 90) {
+    rank = "RANK: GUILD GRANDMASTER (S-TIER)";
+    comment = `Flawless lexical decryption! You scored ${stage1Score}/${stage1TotalWords} (${percent}%). Your comprehension of combat psychology is absolute.`;
+  } else if (percent >= 70) {
+    rank = "RANK: VETERAN SQUAD LEADER (B-TIER)";
+    comment = `Solid tactical run. You scored ${stage1Score}/${stage1TotalWords} (${percent}%). A few vocabulary nuances slipped through the cracks, but you're battle-ready.`;
+  } else {
+    rank = "RANK: NOVICE RECRUIT (D-TIER)";
+    comment = `Defeat! You scored ${stage1Score}/${stage1TotalWords} (${percent}%). Character reads were inaccurate and party morale is breaking. Review definitions and try again!`;
+  }
+
+  document.getElementById("stage1VerdictTitle").innerText = rank;
+  document.getElementById("stage1VerdictBody").innerText = comment;
+}
+
+/* ==================== STAGE 2 FUNCTIONS (IMMEDIATE VERIFICATION) ==================== */
+function renderStage2WordBank() {
+  const container = document.getElementById("wordBank");
+  container.innerHTML = "";
+
+  if (stage2UnassignedWords.length === 0) {
+    container.innerHTML = `<span style="color: #10b981; font-weight: bold;">All character traits successfully unlocked and assigned!</span>`;
+    return;
+  }
+
+  stage2UnassignedWords.forEach(word => {
+    const pill = document.createElement("div");
+    pill.className = `trait-pill ${selectedStage2Word === word ? "selected" : ""}`;
+    pill.innerText = word;
+    pill.onclick = () => selectStage2Word(word);
+    container.appendChild(pill);
+  });
+}
+
+function selectStage2Word(word) {
+  selectedStage2Word = (selectedStage2Word === word) ? null : word;
+  renderStage2WordBank();
+  highlightReadyHeroCards();
+}
+
+function highlightReadyHeroCards() {
+  ['goran', 'lyra', 'eldon'].forEach(hero => {
+    const card = document.getElementById(`card-${hero}`);
+    if (selectedStage2Word) {
+      card.classList.add("ready-to-drop");
+    } else {
+      card.classList.remove("ready-to-drop");
+    }
+  });
+}
+
+function assignSelectedToHero(heroKey, evt) {
+  if (!selectedStage2Word) return;
+
+  const card = document.getElementById(`card-${heroKey}`);
+  const targetArray = targetAssignments[heroKey];
+  const isCorrectHero = targetArray.includes(selectedStage2Word) && !stage2Assigned[heroKey].includes(selectedStage2Word);
+
+  if (isCorrectHero) {
+    // Cheerful sound + Fireworks directly over the hero card!
+    playSound(true);
+    const rect = card.getBoundingClientRect();
+    launchFireworks(rect.left + rect.width / 2, rect.top + rect.height / 3);
+
+    // Flash green border animation
+    card.classList.add("anim-correct");
+    setTimeout(() => card.classList.remove("anim-correct"), 400);
+
+    // Slot the trait
+    const wordIdx = stage2UnassignedWords.indexOf(selectedStage2Word);
+    if (wordIdx > -1) {
+      stage2UnassignedWords.splice(wordIdx, 1);
+    }
+    stage2Assigned[heroKey].push(selectedStage2Word);
+    selectedStage2Word = null;
+
+    highlightReadyHeroCards();
+    renderStage2WordBank();
+    renderHeroSlots();
+
+    // Check if stage 2 is complete
+    if (stage2UnassignedWords.length === 0) {
+      setTimeout(showStage2FinalVerdict, 700);
+    }
+  } else {
+    // Wrong Hero: Sound + Shake Card
+    playSound(false);
+    stage2Mistakes++;
+    card.classList.add("anim-wrong");
+    setTimeout(() => card.classList.remove("anim-wrong"), 400);
+  }
+}
+
+function renderHeroSlots() {
+  ['goran', 'lyra', 'eldon'].forEach(hero => {
+    const slotContainer = document.getElementById(`slots-${hero}`);
+    slotContainer.innerHTML = "";
+    stage2Assigned[hero].forEach(word => {
+      const tag = document.createElement("div");
+      tag.className = "slotted-trait-tag";
+      tag.innerHTML = `<span>&#10003; ${word}</span>`;
+      slotContainer.appendChild(tag);
+    });
+  });
+}
+
+function showStage2FinalVerdict() {
+  const banner = document.getElementById("stage2Verdict");
+  banner.style.display = "block";
+
+  // Extra grand celebration fireworks burst
+  launchFireworks(window.innerWidth * 0.25, window.innerHeight * 0.3);
+  setTimeout(() => launchFireworks(window.innerWidth * 0.75, window.innerHeight * 0.3), 200);
+  setTimeout(() => launchFireworks(window.innerWidth * 0.5, window.innerHeight * 0.2), 400);
+
+  let rank = "";
+  let comment = "";
+
+  if (stage2Mistakes === 0) {
+    rank = "FINAL VERDICT: MASTER GUILD STRATEGIST (FLAWLESS RUN)";
+    comment = "Incredible work! You assigned all character traits with zero mistakes. Your squad operates at peak psychological synergy!";
+  } else if (stage2Mistakes <= 3) {
+    rank = "FINAL VERDICT: LEVEL 50 PARTY TACTICIAN";
+    comment = `Quest accomplished! You completed the roster with only ${stage2Mistakes} minor misplacement(s). Goran, Lyra, and Eldon are primed for the Iron Pass raid.`;
+  } else {
+    rank = "FINAL VERDICT: APPRENTICE HERO MANAGER (ELEMENTARY LEVEL)";
+    comment = `You finished the squad, but recorded ${stage2Mistakes} mistakes during the assignment. Level up your observation skills and study the character files again!`;
+  }
+
+  document.getElementById("stage2VerdictTitle").innerText = rank;
+  document.getElementById("stage2VerdictBody").innerText = comment;
+}
+
+/* ==================== STAGE SWITCHING ==================== */
+function switchStage(stageNum) {
+  document.getElementById("btnStage1").classList.toggle("active", stageNum === 1);
+  document.getElementById("btnStage2").classList.toggle("active", stageNum === 2);
+  document.getElementById("stage1Section").style.display = (stageNum === 1 ? "block" : "none");
+  document.getElementById("stage2Section").style.display = (stageNum === 2 ? "block" : "none");
+
+  if (stageNum === 2) {
+    renderStage2WordBank();
+    renderHeroSlots();
+  }
+}
+
+// Start game
+renderStage1Question();
+</script>
+</body>
+</html>
