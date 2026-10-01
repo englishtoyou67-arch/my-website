@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voici l'automne, le temps des pommes - Pour Vasilisa</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            automne: {
+              50: '#fef7ee',
+              100: '#fdedd6',
+              200: '#fbd7ac',
+              300: '#f7b977',
+              400: '#f2903f',
+              500: '#ee7117',
+              600: '#df540d',
+              700: '#b93e0d',
+              800: '#933212',
+              900: '#772b12',
+            },
+            foret: {
+              600: '#166534',
+              700: '#14532d',
+              800: '#0f3e21',
+              900: '#082f17',
+            },
+            ardoise: {
+              850: '#141d2f',
+              900: '#0f172a',
+              950: '#080d19',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap');
+    
+    body {
+      font-family: 'Quicksand', system-ui, -apple-system, sans-serif;
+    }
+    
+    .font-titre {
+      font-family: 'Fredoka', cursive, sans-serif;
+    }
+
+    .mot-cliquable {
+      display: inline-block;
+      cursor: pointer;
+      padding: 1px 4px;
+      margin: 1px 2px;
+      border-radius: 6px;
+      transition: all 0.15s ease-in-out;
+      border-bottom: 2px dashed rgba(242, 144, 63, 0.4);
+    }
+    .mot-cliquable:hover {
+      background-color: rgba(242, 144, 63, 0.25);
+      color: #fed7aa;
+      transform: translateY(-2px);
+    }
+    .mot-en-lecture {
+      background-color: #f97316 !important;
+      color: #0f172a !important;
+      font-weight: 700;
+      transform: scale(1.08);
+      box-shadow: 0 0 10px rgba(249, 115, 22, 0.7);
+    }
+
+    .carte-secouee {
+      animation: secousse 0.38s cubic-bezier(.36,.07,.19,.97) both;
+    }
+    @keyframes secousse {
+      10%, 90% { transform: translate3d(-3px, 0, 0); }
+      20%, 80% { transform: translate3d(4px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+      40%, 60% { transform: translate3d(5px, 0, 0); }
+    }
+
+    canvas#confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body class="bg-ardoise-950 text-slate-100 min-h-screen p-3 sm:p-6 flex flex-col items-center">
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="max-w-4xl w-full mx-auto space-y-8">
+    
+    <!-- EN-TÊTE CHALEUREUX AVEC PRÉNOM ET DÉCORATION AUTOMNALE -->
+    <header class="text-center space-y-3 relative bg-gradient-to-b from-ardoise-900 to-ardoise-850 p-6 md:p-8 rounded-3xl border-2 border-automne-500/40 shadow-2xl">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-automne-900/60 border border-automne-500/50 text-automne-300 text-xs sm:text-sm font-bold uppercase tracking-wider shadow">
+        <span>🍂 Français Débutant</span> &bull; <span>Bienvenue Vasilisa !</span>
+      </div>
+      
+      <h1 class="text-3xl sm:text-5xl font-extrabold font-titre text-transparent bg-clip-text bg-gradient-to-r from-automne-300 via-amber-200 to-orange-400 drop-shadow">
+        Voici l'automne, le temps des pommes 🍎
+      </h1>
+      
+      <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+        Découvre le vocabulaire de la forêt dorée, écoute l'histoire de Pierre et Aline, 
+        et clique sur <strong class="text-automne-300 underline decoration-wavy">chaque mot</strong> pour entendre sa prononciation française exacte !
+      </p>
+
+      <!-- BARRE SPÉCIALE PRONONCIATION POUR VASILISA -->
+      <div class="mt-4 pt-4 border-t border-slate-700/70 flex flex-wrap items-center justify-between gap-3 bg-ardoise-950/70 p-3 sm:p-4 rounded-2xl border border-slate-800">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🗣️</span>
+          <div class="text-left">
+            <div class="text-xs text-slate-400 font-semibold">Mode Prononciation Active :</div>
+            <div class="text-sm font-bold text-automne-300" id="vitesseLabel">Vitesse Normale (0.85x)</div>
+          </div>
+        </div>
+
+        <!-- SÉLECTEUR DE VITESSE (NORMALE vs TORTUE) -->
+        <div class="flex items-center gap-2 bg-ardoise-900 p-1 rounded-xl border border-slate-700">
+          <button onclick="changerVitesseAudio(0.85, 'Vitesse Normale (0.85x)')" id="btnVitesseNormale" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-automne-500 text-ardoise-950 shadow">
+            🐇 Normale
+          </button>
+          <button onclick="changerVitesseAudio(0.60, 'Vitesse Lente Tortue 🐢 (0.60x)')" id="btnVitesseLente" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition text-slate-300 hover:text-white">
+            🐢 Lente (Écoute chaque son)
+          </button>
+        </div>
+
+        <button onclick="testerSon()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold border border-slate-700 transition flex items-center gap-1.5">
+          <span>🔔 Tester le carillon</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ============================================================ -->
+    <!-- ÉTAPE 1 : VOCABULAIRE VISUEL, ASSOCIATION ET GENRE          -->
+    <!-- ============================================================ -->
+    <section class="bg-ardoise-850 border border-slate-800 rounded-3xl p-5 sm:p-7 shadow-xl space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+        <div>
+          <span class="text-xs font-bold text-automne-400 uppercase tracking-widest">Étape 1 &bull; Notre Vocabulaire</span>
+          <h2 class="text-xl sm:text-2xl font-bold font-titre text-white flex items-center gap-2">
+            <span>🌲 Les 10 trésors de la forêt d'automne</span>
+          </h2>
+        </div>
+        <div class="bg-ardoise-900 px-3.5 py-1.5 rounded-xl border border-slate-700 text-xs sm:text-sm text-automne-300 font-bold" id="scoreEtape1">
+          Mots associés : 0 / 10
+        </div>
+      </div>
+
+      <div class="bg-automne-950/60 border border-automne-600/30 p-4 rounded-2xl text-xs sm:text-sm text-slate-200 leading-relaxed">
+        <strong>💡 Consigne pour Vasilisa :</strong><br>
+        1. Clique sur un mot dans la boîte orange ci-dessous pour l'écouter.<br>
+        2. Clique ensuite sur la carte de l'objet correspondant pour les relier.<br>
+        3. Enfin, choisis le bon article (<strong class="text-automne-300">LE, LA, LES, L' ou IL</strong>) pour valider son genre !
+      </div>
+
+      <!-- BOÎTE DES ÉTIQUETTES DE MOTS MÉLANGÉES -->
+      <div>
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Boîte de mots à associer :</div>
+        <div id="banqueMots" class="flex flex-wrap gap-2.5 p-3.5 bg-ardoise-900/90 rounded-2xl border-2 border-dashed border-slate-700 min-h-[64px] justify-center items-center">
+          <!-- Injecté dynamiquement -->
+        </div>
+      </div>
+
+      <!-- GRILLE DES 10 CARTES D'OBJETS -->
+      <div id="grilleVocabulaire" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+        <!-- Cartes injectées dynamiquement -->
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- ÉTAPE 2 : LECTURE ACTIVE "L'AUTOMNE EST LÀ" & COMPRÉHENSION -->
+    <!-- ============================================================ -->
+    <section class="bg-ardoise-850 border border-slate-800 rounded-3xl p-5 sm:p-7 shadow-xl space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+        <div>
+          <span class="text-xs font-bold text-amber-400 uppercase tracking-widest">Étape 2 &bull; Lecture Interactive</span>
+          <h2 class="text-xl sm:text-2xl font-bold font-titre text-white flex items-center gap-2">
+            <span>📖 Récit : « L'AUTOMNE EST LÀ »</span>
+          </h2>
+        </div>
+
+        <!-- CONTRÔLES AUDIO DU TEXTE ENTIER -->
+        <div class="flex items-center gap-2 bg-ardoise-900 px-3 py-1.5 rounded-xl border border-slate-700">
+          <span class="text-xs text-slate-400 font-semibold">Histoire :</span>
+          <button onclick="lireHistoire()" id="btnLireHistoire" class="text-xs font-bold px-3 py-1.5 bg-automne-500 hover:bg-automne-400 text-slate-950 rounded-lg transition flex items-center gap-1">
+            ▶️ Écouter tout
+          </button>
+          <button onclick="basculerPauseAudio()" id="btnPauseHistoire" class="text-xs font-semibold px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition flex items-center gap-1 opacity-50 cursor-not-allowed" disabled>
+            ⏸️ Pause
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-ardoise-950/80 p-5 sm:p-6 rounded-2xl border border-slate-800 space-y-3.5 text-base sm:text-lg leading-loose text-slate-200" id="conteneurTexteLecture">
+        <!-- Le texte est découpé mot par mot pour être cliquable -->
+        <div class="text-xs font-bold text-automne-400 uppercase tracking-widest flex items-center gap-2">
+          <span>🎧 Clique sur n'importe quel mot pour entendre sa prononciation isolée :</span>
+        </div>
+
+        <p class="pt-2">
+          <span class="mot-cliquable" onclick="prononcerMot('C\'est')">C'est</span>
+          <span class="mot-cliquable" onclick="prononcerMot('l\'automne')">l'automne.</span>
+          <span class="mot-cliquable" onclick="prononcerMot('Le')">Le</span>
+          <span class="mot-cliquable" onclick="prononcerMot('soleil')">soleil</span>
+          <span class="mot-cliquable" onclick="prononcerMot('brille')">brille,</span>
+          <span class="mot-cliquable" onclick="prononcerMot('mais')">mais</span>
+          <span class="mot-cliquable" onclick="prononcerMot('il')">il</span>
+          <span class="mot-cliquable" onclick="prononcerMot('ne')">ne</span>
+          <span class="mot-cliquable" onclick="prononcerMot('fait')">fait</span>
+          <span class="mot-cliquable" onclick="prononcerMot('pas')">pas</span>
+          <span class="mot-cliquable" onclick="prononcerMot('chaud')">chaud.</span>
+          <span class="mot-cliquable" onclick="prononcerMot('Le')">Le</span>
+          <span class="mot-cliquable" onclick="prononcerMot('vent')">vent</span>
+          <span class="mot-cliquable" onclick="prononcerMot('caresse')">caresse</span>
+          <span class="mot-cliquable" onclick="prononcerMot('les')">les</span>
+          <span class="mot-cliquable" onclick="prononcerMot('arbres')">arbres.</span>
+          <span class="mot-cliquable" onclick="prononcerMot('Les')">Les</span>
+          <span class="mot-cliquable" onclick="prononcerMot('feuilles')">feuilles</span>
+          <span class="mot-cliquable" onclick="prononcerMot('rouges')">rouges,</span>
+          <span class="mot-cliquable" onclick="prononcerMot('jaunes')">jaunes,</span>
+          <span class="mot-cliquable" onclick="prononcerMot('vertes')">vertes</span>
+          <span class="mot-cliquable" onclick="prononcerMot('volent')">volent</span>
+          <span class="mot-cliquable" onclick="prononcerMot('comme')">comme</span>
+          <span class="mot-cliquable" onclick="prononcerMot('des')">des</span>
+          <span class="mot-cliquable" onclick="prononcerMot('oiseaux')">oiseaux.</span>
+          <span class="mot-cliquable" onclick="prononcerMot('Un')">Un</span>
+          <span class="mot-cliquable" onclick="prononcerMot('écureuil')">écureuil</span>
+          <span class="mot-cliquable" onclick="prononcerMot('saute')">saute</span>
+          <span class="mot-cliquable" onclick="prononcerMot('d\'une')">d'une</span>
+          <span class="mot-cliquable" onclick="prononcerMot('branche')">branche</span>
+          <span class="mot-cliquable" onclick="prononcerMot('à')">à</span>
+          <span class="mot-cliquable" onclick="prononcerMot('l\'autre')">l'autre.</span>
+          <span class="mot-cliquable text-amber-300 font-bold" onclick="prononcerMot('Plouf !')">Plouf !</span>
+          <span class="mot-cliquable" onclick="prononcerMot('Une')">Une</span>
+          <span class="mot-cliquable" onclick="prononcerMot('pluie')">pluie</span>
+          <span class="mot-cliquable" onclick="prononcerMot('de')">de</span>
+          <span class="mot-cliquable" onclick="prononcerMot('glands')">glands</span>
+          <span class="mot-cliquable" onclick="prononcerMot('tombe')">tombe</span>
+          <span class="mot-cliquable" onclick="prononcerMot('par')">par</span>
+          <span class="mot-cliquable" onclick="prononcerMot('terre')">terre.</span>
+          <span class="mot-cliquable" onclick="prononcerMot('Pierre')">Pierre</span>
+          <span class="mot-cliquable" onclick="prononcerMot('joue')">joue</span>
+          <span class="mot-cliquable" onclick="prononcerMot('au')">au</span>
+          <span class="mot-cliquable" onclick="prononcerMot('ballon')">ballon.</span>
+          <span class="mot-cliquable" onclick="prononcerMot('Aline')">Aline</span>
+          <span class="mot-cliquable" onclick="prononcerMot('fait')">fait</span>
+          <span class="mot-cliquable" onclick="prononcerMot('un')">un</span>
+          <span class="mot-cliquable" onclick="prononcerMot('bouquet')">bouquet</span>
+          <span class="mot-cliquable" onclick="prononcerMot('de')">de</span>
+          <span class="mot-cliquable" onclick="prononcerMot('feuilles')">feuilles.</span>
+          <span class="mot-cliquable" onclick="prononcerMot('Elle')">Elle</span>
+          <span class="mot-cliquable" onclick="prononcerMot('demande')">demande :</span>
+        </p>
+
+        <p class="pl-4 border-l-2 border-automne-500/60 italic space-y-1">
+          <div>
+            — <span class="mot-cliquable" onclick="prononcerMot('Annette')">Annette,</span>
+            <span class="mot-cliquable" onclick="prononcerMot('que')">que</span>
+            <span class="mot-cliquable" onclick="prononcerMot('fais-tu')">fais-tu ?</span>
+          </div>
+          <div>
+            — <span class="mot-cliquable" onclick="prononcerMot('Je')">Je</span>
+            <span class="mot-cliquable" onclick="prononcerMot('cherche')">cherche</span>
+            <span class="mot-cliquable" onclick="prononcerMot('des')">des</span>
+            <span class="mot-cliquable" onclick="prononcerMot('glands')">glands !</span>
+          </div>
+        </p>
+
+        <p>
+          <span class="mot-cliquable" onclick="prononcerMot('Un')">Un</span>
+          <span class="mot-cliquable" onclick="prononcerMot('gros')">gros</span>
+          <span class="mot-cliquable" onclick="prononcerMot('nuage')">nuage</span>
+          <span class="mot-cliquable" onclick="prononcerMot('gris')">gris</span>
+          <span class="mot-cliquable" onclick="prononcerMot('cache')">cache</span>
+          <span class="mot-cliquable" onclick="prononcerMot('le')">le</span>
+          <span class="mot-cliquable" onclick="prononcerMot('soleil')">soleil.</span>
+        </p>
+
+        <p class="pl-4 border-l-2 border-amber-500/60 italic space-y-1">
+          <div>
+            — <span class="mot-cliquable" onclick="prononcerMot('Où')">Où</span>
+            <span class="mot-cliquable" onclick="prononcerMot('est')">est</span>
+            <span class="mot-cliquable" onclick="prononcerMot('le')">le</span>
+            <span class="mot-cliquable" onclick="prononcerMot('soleil')">soleil ?</span>
+          </div>
+          <div>
+            — <span class="mot-cliquable" onclick="prononcerMot('Il')">Il</span>
+            <span class="mot-cliquable" onclick="prononcerMot('joue')">joue</span>
+            <span class="mot-cliquable" onclick="prononcerMot('à')">à</span>
+            <span class="mot-cliquable" onclick="prononcerMot('cache-cache')">cache-cache !</span>
+            <span class="mot-cliquable" onclick="prononcerMot('répond')">répond</span>
+            <span class="mot-cliquable" onclick="prononcerMot('Pierre')">Pierre.</span>
+          </div>
+        </p>
+
+        <p>
+          <span class="mot-cliquable" onclick="prononcerMot('Le')">Le</span>
+          <span class="mot-cliquable" onclick="prononcerMot('vent')">vent</span>
+          <span class="mot-cliquable" onclick="prononcerMot('souffle')">souffle.</span>
+          <span class="mot-cliquable" onclick="prononcerMot('Il')">Il</span>
+          <span class="mot-cliquable" onclick="prononcerMot('pleut')">pleut.</span>
+          <span class="mot-cliquable" onclick="prononcerMot('L\'automne')">L'automne</span>
+          <span class="mot-cliquable" onclick="prononcerMot('est')">est</span>
+          <span class="mot-cliquable" onclick="prononcerMot('là')">là</span>
+          <span class="mot-cliquable" onclick="prononcerMot('avec')">avec</span>
+          <span class="mot-cliquable" onclick="prononcerMot('la')">la</span>
+          <span class="mot-cliquable" onclick="prononcerMot('pluie')">pluie</span>
+          <span class="mot-cliquable" onclick="prononcerMot('et')">et</span>
+          <span class="mot-cliquable" onclick="prononcerMot('le')">le</span>
+          <span class="mot-cliquable" onclick="prononcerMot('vent')">vent.</span>
+          <span class="mot-cliquable" onclick="prononcerMot('Les')">Les</span>
+          <span class="mot-cliquable" onclick="prononcerMot('enfants')">enfants</span>
+          <span class="mot-cliquable" onclick="prononcerMot('courent')">courent</span>
+          <span class="mot-cliquable" onclick="prononcerMot('à')">à</span>
+          <span class="mot-cliquable" onclick="prononcerMot('la')">la</span>
+          <span class="mot-cliquable" onclick="prononcerMot('maison')">maison.</span>
+        </p>
+      </div>
+
+      <!-- QUESTIONS DE COMPRÉHENSION -->
+      <div class="space-y-4 pt-2">
+        <h3 class="text-base sm:text-lg font-bold text-amber-300 font-titre">
+          ❓ Réponds aux questions sur l'histoire (4 questions) :
+        </h3>
+        <div id="quizComprehension" class="space-y-4">
+          <!-- Injecté dynamiquement -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- ÉTAPE 3 : ATELIER DE PHRASES (PUZZLE DE L'EXERCICE 5)       -->
+    <!-- ============================================================ -->
+    <section class="bg-ardoise-850 border border-slate-800 rounded-3xl p-5 sm:p-7 shadow-xl space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+        <div>
+          <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest">Étape 3 &bull; Exercice 5 du manuel</span>
+          <h2 class="text-xl sm:text-2xl font-bold font-titre text-white flex items-center gap-2">
+            <span>🧩 Remets les mots en ordre pour faire des phrases</span>
+          </h2>
+        </div>
+        <div class="bg-ardoise-900 px-3.5 py-1.5 rounded-xl border border-slate-700 text-xs sm:text-sm text-emerald-400 font-bold" id="scoreEtape3">
+          Phrases réussies : 0 / 3
+        </div>
+      </div>
+
+      <p class="text-xs sm:text-sm text-slate-300">
+        Clique sur les morceaux de phrase dans le bon ordre pour reconstruire les 3 phrases du manuel. 
+        Tu peux écouter la phrase entière dès que tu as réussi !
+      </p>
+
+      <div id="conteneurPuzzles" class="space-y-6">
+        <!-- Injecté dynamiquement -->
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- ÉTAPE 4 : EXPRESSION ÉCRITE GUIDÉE (40 À 50 MOTS) & VALUATION -->
+    <!-- ============================================================ -->
+    <section class="bg-ardoise-850 border border-slate-800 rounded-3xl p-5 sm:p-7 shadow-xl space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+        <div>
+          <span class="text-xs font-bold text-rose-400 uppercase tracking-widest">Étape 4 &bull; Expression Écrite</span>
+          <h2 class="text-xl sm:text-2xl font-bold font-titre text-white flex items-center gap-2">
+            <span>✍️ Mon petit texte d'automne (40 à 50 mots)</span>
+          </h2>
+        </div>
+        <div class="bg-ardoise-900 border border-rose-500/50 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold text-rose-300">
+          Objectif strict : 40 à 50 mots
+        </div>
+      </div>
+
+      <div class="bg-ardoise-950/80 border-l-4 border-automne-500 p-4 rounded-xl text-xs sm:text-sm text-slate-200 space-y-2">
+        <strong class="text-automne-300 text-sm">🍁 La consigne pour Vasilisa :</strong>
+        <p class="text-slate-300 leading-relaxed">
+          Décris ce que tu vois et ce que tu aimes en automne dans la forêt. 
+          Parle de la météo (<em>le vent, la pluie, le soleil</em>), des animaux (<em>l'écureuil, le hérisson</em>), 
+          et des feuilles colorées (<em>rouges, jaunes, vertes</em>).
+        </p>
+        <div class="text-xs text-amber-300 font-semibold pt-1">
+          Mots d'aide : <em>C'est l'automne, les feuilles, des champignons, le vent souffle, j'aime, petit écureuil, glands</em>.
+        </div>
+      </div>
+
+      <!-- ZONE DE SAISIE AVEC COMPTEUR DYNAMIQUE -->
+      <div>
+        <textarea id="texteVasilisa" class="w-full h-36 bg-ardoise-950 border-2 border-slate-700 rounded-2xl p-4 text-sm sm:text-base text-slate-100 placeholder-slate-500 focus:border-automne-500 focus:outline-none transition leading-relaxed" placeholder="Écris ton petit texte ici en français... Regarde le compteur de mots juste en dessous !"></textarea>
+        
+        <div class="flex flex-wrap justify-between items-center text-xs sm:text-sm mt-2 px-1 font-bold">
+          <span id="compteurMots" class="text-amber-400">0 / 40–50 mots (Trop court)</span>
+          <span class="text-slate-400 text-xs">Zone idéale : entre 40 et 50 mots</span>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <button onclick="evaluerTexteVasilisa()" class="px-5 py-3 bg-gradient-to-r from-automne-600 to-orange-600 hover:from-automne-500 hover:to-orange-500 text-white font-extrabold rounded-xl shadow-lg transition active:scale-95 text-xs sm:text-sm flex items-center gap-2">
+          <span>📊 Évaluer mon texte (Note sur 10)</span>
+        </button>
+        <button onclick="toggleModeleTexte()" id="btnModele" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs sm:text-sm font-semibold border border-slate-700 transition">
+          Voir un modèle exemple
+        </button>
+      </div>
+
+      <!-- MODÈLE CONSULTABLE ET ÉCOUTABLE -->
+      <div id="panneauModele" class="hidden bg-ardoise-900 border border-emerald-500/50 rounded-2xl p-4 sm:p-5 text-xs sm:text-sm space-y-2">
+        <div class="text-emerald-400 font-bold flex items-center justify-between flex-wrap gap-2">
+          <span>🌟 Exemple de texte réussi (Exactement 45 mots) :</span>
+          <button onclick="prononcerPhrase(document.getElementById('texteExempleModele').innerText)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold border border-slate-700">
+            🔊 Écouter ce modèle
+          </button>
+        </div>
+        <p id="texteExempleModele" class="text-slate-200 italic leading-relaxed pt-1">
+          "C'est l'automne dans la grande forêt. Le vent souffle doucement et les belles feuilles rouges et jaunes volent partout. Un petit écureuil rapide cherche des glands sous les grands arbres. J'aime ramasser des champignons avec mes copains. Quand il pleut, nous rentrons vite à la maison."
+        </p>
+      </div>
+
+      <!-- PANNEAU D'ÉVALUATION DIAGNOSTIQUE SUR 10 -->
+      <div id="panneauEvaluation" class="hidden bg-ardoise-900 border-2 border-automne-500 rounded-2xl p-5 space-y-3.5 shadow-2xl">
+        <!-- Injecté dynamiquement par JavaScript -->
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TRANSMISSION AU PROFESSEUR (GOOGLE SHEETS WEBHOOK)          -->
+    <!-- ============================================================ -->
+    <section class="bg-gradient-to-b from-ardoise-900 to-ardoise-950 border-2 border-automne-500/60 rounded-3xl p-6 sm:p-8 text-center space-y-4 shadow-2xl">
+      <div class="inline-flex p-3 rounded-2xl bg-automne-950 border border-automne-600/40 text-automne-400">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      </div>
+
+      <h3 class="text-2xl sm:text-3xl font-extrabold font-titre text-white">
+        Envoyer mon travail au professeur 📬
+      </h3>
+      
+      <p class="text-slate-300 text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
+        Vasilisa, vérifie ton prénom ci-dessous, puis clique sur le bouton vert pour envoyer tes scores et ton texte directement dans le tableau de ton professeur !
+      </p>
+
+      <div class="max-w-xs mx-auto space-y-3">
+        <input type="text" id="nomEtudiant" value="Vasilisa" placeholder="Prénom de l'élève" class="w-full text-center px-4 py-3 bg-ardoise-950 border-2 border-slate-700 rounded-xl text-white font-bold text-base focus:border-automne-400 focus:outline-none">
+        
+        <button onclick="soumettreTravailGoogleSheet()" id="btnSoumettre" class="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold rounded-xl shadow-lg transition transform active:scale-95 text-base flex items-center justify-center gap-2">
+          <span>🚀 Envoyer mon travail au professeur</span>
+        </button>
+      </div>
+
+      <div id="statutSoumission" class="text-xs sm:text-sm font-semibold min-h-[22px]"></div>
+    </section>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MOTEUR LOGIQUE JAVASCRIPT & AUDIO                           -->
+  <!-- ============================================================ -->
+  <script>
+    // 1. CONFIGURATION DU WEBHOOK GOOGLE SHEETS
+    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxID8_ZvaQfVflyoz4iJXH0k1uFtXM_O0piItLl1zVV_-tmJuB5QQ4wrW5LP5UEKHIY/exec";
+
+    // 2. SYNTHÈSE VOCALE & CONTRÔLE DE VITESSE (SPÉCIAL VASILISA)
+    let vitesseActuelle = 0.85;
+
+    function changerVitesseAudio(nouvelleVitesse, nomVitesse) {
+      vitesseActuelle = nouvelleVitesse;
+      document.getElementById('vitesseLabel').innerText = nomVitesse;
+
+      const btnN = document.getElementById('btnVitesseNormale');
+      const btnL = document.getElementById('btnVitesseLente');
+
+      if (nouvelleVitesse === 0.85) {
+        btnN.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-automne-500 text-ardoise-950 shadow";
+        btnL.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition text-slate-300 hover:text-white";
+      } else {
+        btnL.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-automne-500 text-ardoise-950 shadow";
+        btnN.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition text-slate-300 hover:text-white";
+      }
+
+      prononcerMot("Vitesse ajustée");
+    }
+
+    function prononcerMot(texte) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(texte);
+      u.lang = 'fr-FR';
+      u.rate = vitesseActuelle;
+      u.pitch = 1.0;
+      window.speechSynthesis.speak(u);
+    }
+
+    function prononcerPhrase(texte) {
+      prononcerMot(texte);
+    }
+
+    let enLectureHistoire = false;
+
+    function lireHistoire() {
+      if (!('speechSynthesis' in window)) {
+        alert("La synthèse vocale n'est pas supportée sur ce navigateur.");
+        return;
+      }
+      
+      const btnLire = document.getElementById('btnLireHistoire');
+      const btnPause = document.getElementById('btnPauseHistoire');
+
+      // Si déjà en pause, relancer depuis le début
+      window.speechSynthesis.cancel();
+
+      const texteHistoire = "C'est l'automne. Le soleil brille, mais il ne fait pas chaud. Le vent caresse les arbres. Les feuilles rouges, jaunes, vertes volent comme des oiseaux. Un écureuil saute d'une branche à l'autre. Plouf! Une pluie de glands tombe par terre. Pierre joue au ballon. Aline fait un bouquet de feuilles. Elle demande: Annette, que fais-tu? Je cherche des glands! Un gros nuage gris cache le soleil. Où est le soleil? Il joue à cache-cache! répond Pierre. Le vent souffle. Il pleut. L'automne est là avec la pluie et le vent. Les enfants courent à la maison.";
+      
+      const u = new SpeechSynthesisUtterance(texteHistoire);
+      u.lang = 'fr-FR';
+      u.rate = vitesseActuelle;
+      
+      u.onstart = () => {
+        enLectureHistoire = true;
+        btnLire.innerText = "🔄 Recommencer";
+        btnPause.disabled = false;
+        btnPause.classList.remove('opacity-50', 'cursor-not-allowed');
+        btnPause.classList.add('bg-amber-600', 'text-white');
+        btnPause.innerText = "⏸️ Pause";
+      };
+
+      u.onend = () => {
+        reinitialiserBoutonsAudioHistoire();
+      };
+
+      u.onerror = () => {
+        reinitialiserBoutonsAudioHistoire();
+      };
+      
+      window.speechSynthesis.speak(u);
+    }
+
+    function basculerPauseAudio() {
+      if (!('speechSynthesis' in window) || !enLectureHistoire) return;
+
+      const btnPause = document.getElementById('btnPauseHistoire');
+
+      if (window.speechSynthesis.paused) {
+        // Reprendre la lecture
+        window.speechSynthesis.resume();
+        btnPause.innerText = "⏸️ Pause";
+        btnPause.classList.remove('bg-emerald-600');
+        btnPause.classList.add('bg-amber-600');
+      } else if (window.speechSynthesis.speaking) {
+        // Mettre en pause
+        window.speechSynthesis.pause();
+        btnPause.innerText = "▶️ Continuer";
+        btnPause.classList.remove('bg-amber-600');
+        btnPause.classList.add('bg-emerald-600');
+      }
+    }
+
+    function reinitialiserBoutonsAudioHistoire() {
+      enLectureHistoire = false;
+      const btnLire = document.getElementById('btnLireHistoire');
+      const btnPause = document.getElementById('btnPauseHistoire');
+      if (btnLire) btnLire.innerText = "▶️ Écouter tout";
+      if (btnPause) {
+        btnPause.innerText = "⏸️ Pause";
+        btnPause.disabled = true;
+        btnPause.className = "text-xs font-semibold px-2.5 py-1.5 bg-slate-800 text-slate-300 rounded-lg transition flex items-center gap-1 opacity-50 cursor-not-allowed";
+      }
+    }
+
+    // 3. SYNTHÉTISEUR SONORE WEB AUDIO API (CARILLON & SONS BIENVEILLANTS)
+    let audioCtx = null;
+    function getAudioCtx() {
+      if (!audioCtx) {
+        const AudioClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioClass) audioCtx = new AudioClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    window.addEventListener('click', () => { getAudioCtx(); }, { once: true });
+    window.addEventListener('keydown', () => { getAudioCtx(); }, { once: true });
+
+    function jouerSon(succes) {
+      try {
+        const ctx = getAudioCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        if (succes) {
+          // Accord mélodieux et doux (Fa majeur / Do / Fa)
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+
+            gain.gain.setValueAtTime(0.001, now + idx * 0.05);
+            gain.gain.linearRampToValueAtTime(0.12, now + idx * 0.05 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.38);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now + idx * 0.05);
+            osc.stop(now + idx * 0.05 + 0.4);
+          });
+        } else {
+          // Son doux de réflexion (onde sinusoïdale descendante discrète)
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(220, now + 0.25);
+
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + 0.27);
+        }
+      } catch (err) {
+        console.warn("Audio non disponible:", err);
+      }
+    }
+
+    function testerSon() {
+      getAudioCtx();
+      jouerSon(true);
+      declencherConfetti();
+    }
+
+    // 4. ANIMATION DES CONFETTIS SUR CANVAS
+    const canvas = document.getElementById('confetti-canvas');
+    const ctxCanvas = canvas.getContext('2d');
+    let particules = [];
+
+    function ajusterTailleCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', ajusterTailleCanvas);
+    ajusterTailleCanvas();
+
+    function declencherConfetti() {
+      for (let i = 0; i < 40; i++) {
+        particules.push({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2,
+          r: Math.random() * 5 + 3,
+          dx: (Math.random() - 0.5) * 12,
+          dy: (Math.random() - 0.5) * 12 - 3,
+          couleur: ['#f97316', '#facc15', '#22c55e', '#ef4444', '#38bdf8', '#fb923c'][Math.floor(Math.random() * 6)],
+          vie: 55
+        });
+      }
+    }
+
+    function animerConfetti() {
+      ctxCanvas.clearRect(0, 0, canvas.width, canvas.height);
+      particules.forEach(p => {
+        ctxCanvas.beginPath();
+        ctxCanvas.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctxCanvas.fillStyle = p.couleur;
+        ctxCanvas.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+        p.dy += 0.22;
+        p.vie--;
+      });
+      particules = particules.filter(p => p.vie > 0);
+      requestAnimationFrame(animerConfetti);
+    }
+    animerConfetti();
+
+    function melangerTableau(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // ============================================================
+    // 5. INITIALISATION DE L'ÉTAPE 1 (10 MOTS DU MANUEL)
+    // ============================================================
+    const donneesVocabulaire = [
+      { id: 0, nom: "ciel", article: "le", typeArticle: "LE", icone: "☁️", phonetique: "sjɛl", options: ["LE", "LA", "LES"] },
+      { id: 1, nom: "vent", article: "le", typeArticle: "LE", icone: "💨", phonetique: "vɑ̃", options: ["LE", "LA", "LES"] },
+      { id: 2, nom: "forêt", article: "la", typeArticle: "LA", icone: "🌲", phonetique: "fɔ.ʁɛ", options: ["LE", "LA", "LES"] },
+      { id: 3, nom: "champignons", article: "des", typeArticle: "DES", icone: "🍄", phonetique: "ʃɑ̃.pi.ɲɔ̃", options: ["LE", "LA", "DES"] },
+      { id: 4, nom: "feuilles", article: "les", typeArticle: "LES", icone: "🍂", phonetique: "fœj", options: ["LE", "LA", "LES"] },
+      { id: 5, nom: "hérisson", article: "le", typeArticle: "LE", icone: "🦔", phonetique: "e.ʁi.sɔ̃", options: ["LE", "LA", "LES"] },
+      { id: 6, nom: "glands", article: "les", typeArticle: "LES", icone: "🌰", phonetique: "ɡlɑ̃", options: ["LE", "LA", "LES"] },
+      { id: 7, nom: "écureuil", article: "l'", typeArticle: "L'", icone: "🐿️", phonetique: "e.ky.ʁœj", options: ["LE", "LA", "L'"] },
+      { id: 8, nom: "pluie", article: "la", typeArticle: "LA", icone: "🌧️", phonetique: "plɥi", options: ["LE", "LA", "LES"] },
+      { id: 9, nom: "pleut", article: "il", typeArticle: "IL", icone: "☔", phonetique: "plø", options: ["IL", "ELLE", "ON"] }
+    ];
+
+    let motSelectionne = null;
+    let etape1MotsResolus = 0;
+    let etape1ArticlesResolus = 0;
+
+    function construireEtape1() {
+      const banque = document.getElementById('banqueMots');
+      const grille = document.getElementById('grilleVocabulaire');
+      banque.innerHTML = '';
+      grille.innerHTML = '';
+
+      // 1. Étiquettes de mots mélangées
+      const motsMelanges = melangerTableau(donneesVocabulaire);
+      motsMelanges.forEach(item => {
+        const etiquette = document.createElement('button');
+        etiquette.className = "px-3.5 py-2 bg-ardoise-800 hover:bg-automne-500 hover:text-ardoise-950 text-slate-100 rounded-xl text-xs sm:text-sm font-bold border border-slate-700 transition shadow flex items-center gap-1.5";
+        etiquette.id = `etiquette-${item.id}`;
+        etiquette.innerHTML = `<span>${item.nom}</span> <span class="text-xs opacity-75">🔊</span>`;
+        etiquette.onclick = () => selectionnerEtiquetteMot(item, etiquette);
+        banque.appendChild(etiquette);
+      });
+
+      // 2. Cartes d'objets mélangées
+      const cartesMelangees = melangerTableau(donneesVocabulaire);
+      cartesMelangees.forEach(item => {
+        const carte = document.createElement('div');
+        carte.className = "bg-ardoise-900 border-2 border-slate-800 rounded-2xl p-4 flex flex-col items-center text-center transition cursor-pointer hover:border-slate-600 relative";
+        carte.id = `carte-objet-${item.id}`;
+
+        carte.innerHTML = `
+          <div class="text-4xl mb-1">${item.icone}</div>
+          <div id="emplacement-mot-${item.id}" class="w-full min-h-[38px] border-2 border-dashed border-slate-700 rounded-xl flex items-center justify-center text-xs text-slate-400 font-semibold my-2 px-2 bg-ardoise-950/40">
+            Clique pour relier le mot
+          </div>
+          <div id="ligne-articles-${item.id}" class="flex gap-1.5 justify-center w-full opacity-30 pointer-events-none transition mt-1">
+            ${item.options.map(opt => `<button class="px-2.5 py-1 bg-ardoise-800 hover:bg-automne-500 hover:text-ardoise-950 text-slate-200 text-xs font-bold rounded-lg transition" onclick="verifierArticle(${item.id}, '${opt}', this)">${opt}</button>`).join('')}
+          </div>
+          <div id="retour-carte-${item.id}" class="text-[11px] font-bold min-h-[18px] mt-2 text-slate-400"></div>
+        `;
+
+        carte.onclick = (e) => {
+          if (e.target.closest('#ligne-articles-' + item.id) || e.target.closest('.speaker-btn')) return;
+          associerCarte(item, carte);
+        };
+
+        grille.appendChild(carte);
+      });
+    }
+
+    function selectionnerEtiquetteMot(item, element) {
+      if (element.classList.contains('deja-place')) return;
+
+      document.querySelectorAll('#banqueMots button').forEach(b => {
+        b.classList.remove('ring-2', 'ring-automne-400', 'bg-automne-500', 'text-ardoise-950');
+      });
+
+      element.classList.add('ring-2', 'ring-automne-400', 'bg-automne-500', 'text-ardoise-950');
+      motSelectionne = { item: item, element: element };
+
+      // Prononce immédiatement le mot pour Vasilisa
+      prononcerMot(item.nom);
+    }
+
+    function associerCarte(item, carteElement) {
+      if (carteElement.classList.contains('mot-relie')) return;
+
+      if (!motSelectionne) {
+        carteElement.classList.add('carte-secouee');
+        setTimeout(() => carteElement.classList.remove('carte-secouee'), 400);
+        return;
+      }
+
+      const slot = document.getElementById(`emplacement-mot-${item.id}`);
+      const ligneArticles = document.getElementById(`ligne-articles-${item.id}`);
+      const retour = document.getElementById(`retour-carte-${item.id}`);
+
+      if (motSelectionne.item.id === item.id) {
+        // Bonne association !
+        jouerSon(true);
+        carteElement.classList.add('mot-relie', 'border-automne-500/70', 'bg-automne-950/20');
+        motSelectionne.element.classList.add('deja-place', 'opacity-30', 'pointer-events-none');
+        motSelectionne.element.classList.remove('ring-2', 'ring-automne-400', 'bg-automne-500', 'text-ardoise-950');
+
+        slot.className = "w-full min-h-[38px] border-2 border-solid border-automne-500 rounded-xl flex items-center justify-between text-xs sm:text-sm text-automne-200 font-bold my-2 px-3 bg-automne-950/60";
+        slot.innerHTML = `
+          <span>${item.nom}</span>
+          <button class="speaker-btn text-sm hover:scale-110 transition" onclick="prononcerMot('${item.nom}')">🔊</button>
+        `;
+
+        ligneArticles.classList.remove('opacity-30', 'pointer-events-none');
+        retour.className = "text-[11px] font-bold min-h-[18px] mt-2 text-automne-400";
+        retour.innerText = "Super ! Choisis maintenant le bon article :";
+
+        etape1MotsResolus++;
+        document.getElementById('scoreEtape1').innerText = `Mots associés : ${etape1MotsResolus} / 10`;
+
+        motSelectionne = null;
+      } else {
+        // Mauvaise association
+        jouerSon(false);
+        carteElement.classList.add('carte-secouee', 'border-rose-500');
+        setTimeout(() => carteElement.classList.remove('carte-secouee', 'border-rose-500'), 400);
+        retour.className = "text-[11px] font-bold min-h-[18px] mt-2 text-rose-400";
+        retour.innerText = `Ce n'est pas « ${motSelectionne.item.nom} ». Réessaie !`;
+      }
+    }
+
+    function verifierArticle(itemId, articleChoisi, boutonElement) {
+      const item = donneesVocabulaire.find(v => v.id === itemId);
+      const carte = document.getElementById(`carte-objet-${itemId}`);
+      const retour = document.getElementById(`retour-carte-${itemId}`);
+      const slot = document.getElementById(`emplacement-mot-${itemId}`);
+
+      if (articleChoisi === item.typeArticle) {
+        jouerSon(true);
+        declencherConfetti();
+        carte.classList.remove('border-rose-500');
+        carte.classList.add('border-emerald-500', 'bg-emerald-950/20');
+
+        retour.className = "text-[11px] font-bold min-h-[18px] mt-2 text-emerald-400";
+        retour.innerHTML = `✓ Bravo ! On dit <strong>${item.article} ${item.nom}</strong>`;
+
+        slot.innerHTML = `
+          <span>${item.article} ${item.nom}</span>
+          <button class="speaker-btn text-sm hover:scale-110 transition" onclick="prononcerMot('${item.article} ${item.nom}')">🔊</button>
+        `;
+
+        // Prononce l'expression complète avec l'article
+        prononcerMot(`${item.article} ${item.nom}`);
+
+        // Verrouiller les boutons d'article de cette carte
+        const ligneArticles = document.getElementById(`ligne-articles-${itemId}`);
+        ligneArticles.querySelectorAll('button').forEach(b => {
+          b.disabled = true;
+          b.classList.add('opacity-40');
+        });
+        boutonElement.classList.remove('opacity-40');
+        boutonElement.classList.add('bg-emerald-600', 'text-white');
+
+        etape1ArticlesResolus++;
+      } else {
+        jouerSon(false);
+        carte.classList.add('carte-secouee');
+        setTimeout(() => carte.classList.remove('carte-secouee'), 400);
+        retour.className = "text-[11px] font-bold min-h-[18px] mt-2 text-rose-400";
+        retour.innerText = `Attention : regarde si le mot est masculin, féminin ou pluriel !`;
+      }
+    }
+
+    // ============================================================
+    // 6. INITIALISATION DE L'ÉTAPE 2 (QUESTIONS COMPRÉHENSION)
+    // ============================================================
+    const questionsLecture = [
+      {
+        id: 0,
+        question: "1. À quoi joue le soleil quand le gros nuage gris arrive ?",
+        reponses: [
+          { texte: "Il joue à cache-cache !", correct: true, indice: "Bravo ! Le texte dit : « — Il joue à cache-cache ! répond Pierre. »" },
+          { texte: "Il joue au ballon avec Pierre.", correct: false, indice: "Regarde bien : c'est Pierre qui joue au ballon !" },
+          { texte: "Il dort dans la forêt.", correct: false, indice: "Non, il se cache simplement derrière le gros nuage gris." }
+        ]
+      },
+      {
+        id: 1,
+        question: "2. Que cherche Annette dans la forêt ?",
+        reponses: [
+          { texte: "Elle cherche des glands.", correct: true, indice: "Très bien ! Annette dit : « — Je cherche des glands ! »" },
+          { texte: "Elle cherche son cartable.", correct: false, indice: "Non, nous sommes en forêt d'automne, pas en classe !" },
+          { texte: "Elle cherche un parapluie.", correct: false, indice: "Non, elle ramasse les glands tombés par terre." }
+        ]
+      },
+      {
+        id: 2,
+        question: "3. Que fait Aline avec les feuilles de toutes les couleurs ?",
+        reponses: [
+          { texte: "Elle fait un bouquet de feuilles.", correct: true, indice: "Exact ! « Aline fait un bouquet de feuilles. »" },
+          { texte: "Elle mange des pommes rouges.", correct: false, indice: "Non, Aline ramasse les jolies feuilles rouges, jaunes et vertes." },
+          { texte: "Elle attrape l'écureuil.", correct: false, indice: "L'écureuil saute sur les branches, on ne l'attrape pas !" }
+        ]
+      },
+      {
+        id: 3,
+        question: "4. Où courent les enfants quand le vent souffle et qu'il pleut ?",
+        reponses: [
+          { texte: "Les enfants courent à la maison.", correct: true, indice: "Parfait ! La dernière phrase dit : « Les enfants courent à la maison. »" },
+          { texte: "Ils restent sous la pluie.", correct: false, indice: "Non, il pleut beaucoup alors ils se mettent à l'abri !" },
+          { texte: "Ils vont à l'école de dessin.", correct: false, indice: "Ils rentrent bien vite à la maison pour être au chaud." }
+        ]
+      }
+    ];
+
+    let etape2Score = 0;
+    const etape2Resolues = [false, false, false, false];
+
+    function construireEtape2() {
+      const conteneur = document.getElementById('quizComprehension');
+      conteneur.innerHTML = '';
+
+      questionsLecture.forEach((q, idx) => {
+        const carte = document.createElement('div');
+        carte.className = "p-4 bg-ardoise-900 rounded-2xl border border-slate-800 space-y-3";
+        carte.id = `quiz-carte-${idx}`;
+
+        const titre = document.createElement('div');
+        titre.className = "text-sm font-bold text-slate-100 flex items-center justify-between";
+        titre.innerHTML = `<span>${q.question}</span>`;
+
+        const grilleChoix = document.createElement('div');
+        grilleChoix.className = "grid grid-cols-1 sm:grid-cols-3 gap-2";
+
+        q.reponses.forEach((rep) => {
+          const btn = document.createElement('button');
+          btn.className = "text-left text-xs sm:text-sm p-3 rounded-xl border border-slate-700 bg-ardoise-950 text-slate-200 hover:border-automne-400 hover:bg-ardoise-800 transition font-medium";
+          btn.innerText = rep.texte;
+          btn.onclick = () => verifierReponseLecture(idx, rep, btn, carte);
+          grilleChoix.appendChild(btn);
+        });
+
+        const feedback = document.createElement('div');
+        feedback.className = "text-xs font-semibold hidden mt-1";
+        feedback.id = `quiz-fb-${idx}`;
+
+        carte.appendChild(titre);
+        carte.appendChild(grilleChoix);
+        carte.appendChild(feedback);
+        conteneur.appendChild(carte);
+      });
+    }
+
+    function verifierReponseLecture(qIdx, reponse, bouton, carte) {
+      getAudioCtx();
+      const fb = document.getElementById(`quiz-fb-${qIdx}`);
+      fb.classList.remove('hidden', 'text-emerald-400', 'text-rose-400');
+
+      if (reponse.correct) {
+        jouerSon(true);
+        declencherConfetti();
+        carte.classList.add('border-emerald-500/80', 'bg-emerald-950/20');
+        fb.classList.add('text-emerald-400');
+        fb.innerHTML = `✓ ${reponse.indice}`;
+
+        carte.querySelectorAll('button').forEach(b => {
+          b.disabled = true;
+          b.classList.add('opacity-40');
+        });
+        bouton.classList.remove('opacity-40');
+        bouton.classList.add('bg-emerald-900/60', 'border-emerald-500', 'text-emerald-200');
+
+        etape2Resolues[qIdx] = true;
+        etape2Score = etape2Resolues.filter(Boolean).length;
+      } else {
+        jouerSon(false);
+        carte.classList.add('carte-secouee');
+        setTimeout(() => carte.classList.remove('carte-secouee'), 400);
+        fb.classList.add('text-rose-400');
+        fb.innerHTML = `✗ Indice : ${reponse.indice}`;
+        bouton.classList.add('border-rose-500', 'text-rose-300');
+      }
+    }
+
+    // ============================================================
+    // 7. INITIALISATION DE L'ÉTAPE 3 (PUZZLES DE PHRASES - EX 5)
+    // ============================================================
+    const puzzlesPhrases = [
+      {
+        id: 0,
+        numero: "Phrase 1",
+        motsPieces: ["Les feuilles", "rouges, jaunes, vertes", "tombent", "par terre."],
+        phraseCible: "Les feuilles rouges, jaunes, vertes tombent par terre."
+      },
+      {
+        id: 1,
+        numero: "Phrase 2",
+        motsPieces: ["Les enfants", "cherchent", "les champignons."],
+        phraseCible: "Les enfants cherchent les champignons."
+      },
+      {
+        id: 2,
+        numero: "Phrase 3",
+        motsPieces: ["Une pluie", "de glands", "tombe", "par terre."],
+        phraseCible: "Une pluie de glands tombe par terre."
+      }
+    ];
+
+    let etape3PhrasesResolues = 0;
+    const phrasesEnCours = { 0: [], 1: [], 2: [] };
+
+    function construireEtape3() {
+      const conteneur = document.getElementById('conteneurPuzzles');
+      conteneur.innerHTML = '';
+
+      puzzlesPhrases.forEach((puz, pIdx) => {
+        const boite = document.createElement('div');
+        boite.className = "p-4 sm:p-5 bg-ardoise-900 rounded-2xl border border-slate-800 space-y-3";
+        boite.id = `boite-puzzle-${pIdx}`;
+
+        const titre = document.createElement('div');
+        titre.className = "text-xs sm:text-sm font-bold text-emerald-400 uppercase tracking-wider flex justify-between items-center";
+        titre.innerHTML = `<span>🧩 ${puz.numero}</span> <span id="statut-puz-${pIdx}" class="text-xs text-slate-400">À ordonner</span>`;
+
+        // Zone où s'affichent les morceaux choisis
+        const zoneAssemblage = document.createElement('div');
+        zoneAssemblage.className = "min-h-[50px] p-3 bg-ardoise-950 border-2 border-dashed border-slate-700 rounded-xl flex flex-wrap gap-2 items-center text-sm font-bold text-automne-300";
+        zoneAssemblage.id = `zone-assemblage-${pIdx}`;
+        zoneAssemblage.innerHTML = `<span class="text-xs text-slate-500 font-normal italic">Clique sur les morceaux de phrase ci-dessous dans le bon ordre...</span>`;
+
+        // Banque des morceaux mélangés
+        const banquePieces = document.createElement('div');
+        banquePieces.className = "flex flex-wrap gap-2 pt-1";
+        banquePieces.id = `banque-pieces-${pIdx}`;
+
+        const piecesMelangees = melangerTableau(puz.motsPieces);
+        piecesMelangees.forEach(morceau => {
+          const btnMorceau = document.createElement('button');
+          btnMorceau.className = "px-3 py-2 bg-ardoise-800 hover:bg-emerald-600 hover:text-white text-slate-200 text-xs sm:text-sm font-bold rounded-xl border border-slate-700 transition shadow";
+          btnMorceau.innerText = morceau;
+          btnMorceau.onclick = () => ajouterMorceauPhrase(pIdx, morceau, btnMorceau, puz);
+          banquePieces.appendChild(btnMorceau);
+        });
+
+        // Bouton reset pour cette phrase
+        const barreAction = document.createElement('div');
+        barreAction.className = "flex items-center gap-2 pt-1";
+        barreAction.innerHTML = `
+          <button onclick="reinitialiserPuzzle(${pIdx})" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg border border-slate-700 transition">
+            🔄 Recommencer cette phrase
+          </button>
+          <div id="audio-phrase-${pIdx}" class="hidden">
+            <button onclick="prononcerPhrase('${puz.phraseCible.replace(/'/g, "\\'")}')" class="px-3 py-1 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg transition flex items-center gap-1">
+              🔊 Écouter la phrase entière
+            </button>
+          </div>
+        `;
+
+        boite.appendChild(titre);
+        boite.appendChild(zoneAssemblage);
+        boite.appendChild(banquePieces);
+        boite.appendChild(barreAction);
+        conteneur.appendChild(boite);
+      });
+    }
+
+    function ajouterMorceauPhrase(pIdx, morceau, bouton, puz) {
+      if (bouton.classList.contains('deja-utilise')) return;
+
+      prononcerMot(morceau);
+      phrasesEnCours[pIdx].push(morceau);
+      bouton.classList.add('deja-utilise', 'opacity-30', 'pointer-events-none');
+
+      const zone = document.getElementById(`zone-assemblage-${pIdx}`);
+      zone.innerHTML = phrasesEnCours[pIdx].map(m => `<span class="bg-ardoise-800 px-2.5 py-1 rounded-lg border border-slate-600 text-white">${m}</span>`).join(' ');
+
+      // Vérifie si tous les morceaux sont posés
+      if (phrasesEnCours[pIdx].length === puz.motsPieces.length) {
+        verifierPuzzleComplet(pIdx, puz);
+      }
+    }
+
+    function verifierPuzzleComplet(pIdx, puz) {
+      const phraseConstruite = phrasesEnCours[pIdx].join(' ').trim();
+      const boite = document.getElementById(`boite-puzzle-${pIdx}`);
+      const statut = document.getElementById(`statut-puz-${pIdx}`);
+      const zoneAudio = document.getElementById(`audio-phrase-${pIdx}`);
+
+      if (phraseConstruite === puz.phraseCible) {
+        jouerSon(true);
+        declencherConfetti();
+        boite.classList.add('border-emerald-500', 'bg-emerald-950/20');
+        statut.className = "text-xs text-emerald-400 font-bold";
+        statut.innerText = "✓ Phrase parfaite !";
+        zoneAudio.classList.remove('hidden');
+
+        // Prononce la phrase complète
+        prononcerPhrase(puz.phraseCible);
+
+        etape3PhrasesResolues++;
+        document.getElementById('scoreEtape3').innerText = `Phrases réussies : ${etape3PhrasesResolues} / 3`;
+      } else {
+        jouerSon(false);
+        boite.classList.add('carte-secouee');
+        setTimeout(() => boite.classList.remove('carte-secouee'), 400);
+        statut.className = "text-xs text-rose-400 font-bold";
+        statut.innerText = "L'ordre n'est pas correct. Clique sur Recommencer !";
+      }
+    }
+
+    function reinitialiserPuzzle(pIdx) {
+      phrasesEnCours[pIdx] = [];
+      const zone = document.getElementById(`zone-assemblage-${pIdx}`);
+      zone.innerHTML = `<span class="text-xs text-slate-500 font-normal italic">Clique sur les morceaux de phrase ci-dessous dans le bon ordre...</span>`;
+
+      const boite = document.getElementById(`boite-puzzle-${pIdx}`);
+      boite.classList.remove('border-emerald-500', 'bg-emerald-950/20');
+      document.getElementById(`statut-puz-${pIdx}`).className = "text-xs text-slate-400";
+      document.getElementById(`statut-puz-${pIdx}`).innerText = "À ordonner";
+      document.getElementById(`audio-phrase-${pIdx}`).classList.add('hidden');
+
+      const banque = document.getElementById(`banque-pieces-${pIdx}`);
+      banque.querySelectorAll('button').forEach(b => {
+        b.classList.remove('deja-utilise', 'opacity-30', 'pointer-events-none');
+      });
+    }
+
+    // ============================================================
+    // 8. INITIALISATION DE L'ÉTAPE 4 (EXPRESSION ÉCRITE 40-50 MOTS)
+    // ============================================================
+    const zoneTexteVasilisa = document.getElementById('texteVasilisa');
+    const compteurMots = document.getElementById('compteurMots');
+
+    zoneTexteVasilisa.addEventListener('input', () => {
+      const texte = zoneTexteVasilisa.value.trim();
+      const mots = texte ? texte.split(/\s+/).filter(Boolean).length : 0;
+
+      if (mots === 0) {
+        compteurMots.innerText = "0 / 40–50 mots (Trop court)";
+        compteurMots.className = "text-amber-400 font-bold";
+      } else if (mots < 40) {
+        const manque = 40 - mots;
+        compteurMots.innerText = `${mots} / 40–50 mots (${manque} mot${manque > 1 ? 's' : ''} restant${manque > 1 ? 's' : ''})`;
+        compteurMots.className = "text-amber-400 font-bold";
+      } else if (mots <= 50) {
+        compteurMots.innerText = `✓ ${mots} / 40–50 mots (Longueur parfaite !)`;
+        compteurMots.className = "text-emerald-400 font-bold";
+      } else {
+        const trop = mots - 50;
+        compteurMots.innerText = `${mots} / 40–50 mots (${trop} mot${trop > 1 ? 's' : ''} en trop)`;
+        compteurMots.className = "text-rose-400 font-bold";
+      }
+    });
+
+    function toggleModeleTexte() {
+      const p = document.getElementById('panneauModele');
+      const btn = document.getElementById('btnModele');
+      if (p.classList.contains('hidden')) {
+        p.classList.remove('hidden');
+        btn.innerText = "Masquer le modèle";
+      } else {
+        p.classList.add('hidden');
+        btn.innerText = "Voir un modèle exemple";
+      }
+    }
+
+    let derniereNoteSur10 = null;
+
+    function evaluerTexteVasilisa() {
+      getAudioCtx();
+      const texte = zoneTexteVasilisa.value.trim();
+      const panneau = document.getElementById('panneauEvaluation');
+
+      if (!texte) {
+        alert("Vasilisa, écris d'abord ton petit texte avant de demander l'évaluation !");
+        zoneTexteVasilisa.focus();
+        return;
+      }
+
+      panneau.classList.remove('hidden');
+      const mots = texte.split(/\s+/).filter(Boolean);
+      const nbMots = mots.length;
+
+      let score = 5; // Base de départ
+      let vocabulairePositif = [];
+      let vocabulaireAmelioration = [];
+      let grammairePositif = [];
+      let grammaireAmelioration = [];
+      let contenuPositif = [];
+      let contenuAmelioration = [];
+      let conseils = [];
+
+      // 1. VÉRIFICATION STRICTE DE LA LONGUEUR (40 À 50 MOTS)
+      if (nbMots >= 40 && nbMots <= 50) {
+        score += 2;
+        contenuPositif.push(`Longueur parfaite (${nbMots} mots respecte la consigne de 40 à 50 mots).`);
+      } else if (nbMots < 40) {
+        const manque = 40 - nbMots;
+        score -= (nbMots < 25 ? 3 : 1);
+        contenuAmelioration.push(`Ton texte est un peu court (${nbMots} mots). Il manque ${manque} mot${manque > 1 ? 's' : ''}.`);
+        conseils.push(`Ajoute une phrase supplémentaire décrivant les animaux (le hérisson, l'écureuil) ou la pluie.`);
+      } else {
+        const enTrop = nbMots - 50;
+        score -= 1;
+        contenuAmelioration.push(`Ton texte dépasse un peu la limite (${nbMots} mots, soit ${enTrop} mot${enTrop > 1 ? 's' : ''} en trop).`);
+        conseils.push(`Essaie de raccourcir légèrement une phrase pour rester entre 40 et 50 mots.`);
+      }
+
+      // 2. VOCABULAIRE THÉMATIQUE DE L'AUTOMNE
+      const regexAutomne = /\b(automne|feuilles|arbres|vent|pluie|pleut|glands|écureuil|hérisson|champignons|forêt|soleil|nuage|rouge|jaune|verte|pommes)\b/gi;
+      const motsTrouves = texte.match(regexAutomne) || [];
+      const motsUniques = [...new Set(motsTrouves.map(m => m.toLowerCase()))];
+
+      if (motsUniques.length >= 4) {
+        score += 2;
+        vocabulairePositif.push(`Très riche vocabulaire de l'automne (${motsUniques.length} mots clés utilisés : ${motsUniques.slice(0, 5).join(', ')}).`);
+      } else if (motsUniques.length >= 2) {
+        score += 1;
+        vocabulairePositif.push(`Bon début de vocabulaire (${motsUniques.join(', ')}).`);
+        vocabulaireAmelioration.push(`Essaie d'ajouter d'autres mots de la leçon comme « les feuilles », « l'écureuil » ou « les champignons ».`);
+        conseils.push(`Intègre au moins 4 mots différents de la liste de vocabulaire de l'Étape 1.`);
+      } else {
+        vocabulaireAmelioration.push(`Il manque les mots de la leçon d'automne.`);
+        conseils.push(`Utilise les mots appris : le vent, la forêt, les champignons, l'écureuil.`);
+      }
+
+      // 3. GRAMMAIRE & MÉCANIQUE
+      if (/^[A-ZÀÂÉÈÊËÎÏÔÙÛÜÇ]/.test(texte) && /[.!?]$/.test(texte)) {
+        score += 1;
+        grammairePositif.push("Majuscule au début et point final bien présents.");
+      } else {
+        score -= 1;
+        grammaireAmelioration.push("Pense à commencer par une lettre majuscule et à terminer par un point.");
+        conseils.push("Vérifie la ponctuation : une majuscule au début et un point à la fin.");
+      }
+
+      if (/\b(et|mais|avec|dans|quand|parce que)\b/i.test(texte)) {
+        score += 1;
+        grammairePositif.push("Bons connecteurs de phrase utilisés (« et », « mais », « avec », « quand »).");
+      } else {
+        grammaireAmelioration.push("Essaie d'utiliser des petits mots de liaison comme « et », « mais », « dans ».");
+        conseils.push("Relie tes idées avec « et » ou « avec » pour former des phrases fluides.");
+      }
+
+      // Borner le score entre 1 et 10
+      score = Math.max(1, Math.min(10, score));
+      derniereNoteSur10 = score;
+
+      if (score >= 8) {
+        jouerSon(true);
+        declencherConfetti();
+      } else {
+        jouerSon(false);
+      }
+
+      // Affichage du rapport
+      panneau.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
+          <div>
+            <span class="text-xs uppercase tracking-wider text-automne-400 font-bold">Rapport d'évaluation</span>
+            <div class="text-base font-bold text-white">Diagnostic pour Vasilisa (${nbMots} mots écrits)</div>
+          </div>
+          <div class="px-4 py-1.5 rounded-full bg-automne-500/20 border border-automne-400 text-automne-300 font-extrabold text-lg sm:text-xl">
+            Note : ${score} / 10
+          </div>
+        </div>
+
+        <div class="space-y-2.5 text-xs sm:text-sm">
+          <div>
+            <strong class="text-slate-300">📏 Longueur &amp; Consigne (40–50 mots) :</strong>
+            ${contenuPositif.length ? `<div class="text-emerald-400">✓ ${contenuPositif.join(' ')}</div>` : ''}
+            ${contenuAmelioration.length ? `<div class="text-rose-400">✗ ${contenuAmelioration.join(' ')}</div>` : ''}
+          </div>
+
+          <div>
+            <strong class="text-slate-300">🌲 Vocabulaire de l'automne :</strong>
+            ${vocabulairePositif.length ? `<div class="text-emerald-400">✓ ${vocabulairePositif.join(' ')}</div>` : ''}
+            ${vocabulaireAmelioration.length ? `<div class="text-amber-400">✗ ${vocabulaireAmelioration.join(' ')}</div>` : ''}
+          </div>
+
+          <div>
+            <strong class="text-slate-300">✍️ Grammaire &amp; Ponctuation :</strong>
+            ${grammairePositif.length ? `<div class="text-emerald-400">✓ ${grammairePositif.join(' ')}</div>` : ''}
+            ${grammaireAmelioration.length ? `<div class="text-rose-400">✗ ${grammaireAmelioration.join(' ')}</div>` : ''}
+          </div>
+
+          <div class="bg-ardoise-950 p-3.5 rounded-xl border border-slate-800 text-slate-200 mt-2">
+            <strong class="text-automne-300">💡 Conseils personnalisés pour Vasilisa :</strong>
+            <ul class="list-disc ml-5 mt-1 space-y-1 text-xs">
+              ${conseils.map(c => `<li>${c}</li>`).join('')}
+            </ul>
+          </div>
+
+          <div class="pt-2">
+            <button onclick="prononcerPhrase('${texte.replace(/'/g, "\\'")}')" class="px-3.5 py-1.5 bg-ardoise-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold border border-slate-700 flex items-center gap-1.5">
+              <span>🔊 Écouter mon propre texte à voix haute</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // ============================================================
+    // 9. TRANSMISSION VIA GOOGLE SHEETS WEBHOOK
+    // ============================================================
+    function soumettreTravailGoogleSheet() {
+      const champNom = document.getElementById('nomEtudiant');
+      const nom = champNom.value.trim();
+      const statut = document.getElementById('statutSoumission');
+      const bouton = document.getElementById('btnSoumettre');
+      const texteEcrit = zoneTexteVasilisa.value.trim();
+
+      if (!nom) {
+        alert("Veuillez indiquer le prénom de l'élève avant de soumettre !");
+        champNom.focus();
+        return;
+      }
+
+      bouton.disabled = true;
+      bouton.classList.add('opacity-50');
+      bouton.innerText = "Transmission vers Google Sheets...";
+      statut.className = "text-xs sm:text-sm font-semibold text-amber-400";
+      statut.innerText = "Connexion au tableau du professeur...";
+
+      const noteFinale = derniereNoteSur10 !== null ? `${derniereNoteSur10}/10` : "Non évalué";
+
+      const chargeUtile = {
+        name: nom,
+        scores: `Étape 1 (Vocab): ${etape1MotsResolus}/10 mots, ${etape1ArticlesResolus}/10 articles | Étape 2 (Lecture): ${etape2Score}/4 | Étape 3 (Phrases): ${etape3PhrasesResolues}/3 | Étape 4 (Note): ${noteFinale}`,
+        answers: `Texte rédigé (${zoneTexteVasilisa.value.split(/\s+/).filter(Boolean).length} mots) : "${texteEcrit || 'Aucun texte rédigé'}"`
+      };
+
+      fetch(GOOGLE_SHEET_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(chargeUtile)
+      }).then(() => {
+        jouerSon(true);
+        declencherConfetti();
+        bouton.innerText = "✓ Travail envoyé avec succès !";
+        bouton.className = "w-full py-3.5 bg-emerald-600 text-white font-extrabold rounded-xl shadow-lg";
+        statut.className = "text-xs sm:text-sm font-semibold text-emerald-400";
+        statut.innerText = `Bravo ${nom} ! Ton travail et tes scores ont été enregistrés dans le tableau de ton professeur.`;
+      }).catch(err => {
+        console.error(err);
+        bouton.disabled = false;
+        bouton.classList.remove('opacity-50');
+        bouton.innerText = "🚀 Envoyer mon travail au professeur";
+        statut.className = "text-xs sm:text-sm font-semibold text-rose-400";
+        statut.innerText = "Erreur de connexion. Vérifiez la connexion Internet et réessayez.";
+      });
+    }
+
+    // Initialisation au chargement de la page
+    window.addEventListener('DOMContentLoaded', () => {
+      construireEtape1();
+      construireEtape2();
+      construireEtape3();
+    });
+  </script>
+</body>
+</html>
