@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moon Base Alpha: Life in 2030 - Present Simple Mission</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            space: {
+              950: '#040714',
+              900: '#090d24',
+              850: '#0e1638',
+              800: '#14204d',
+              700: '#1d2d69',
+              600: '#2b3f8c'
+            },
+            neon: {
+              cyan: '#00f0ff',
+              blue: '#3b82f6',
+              purple: '#a855f7',
+              gold: '#fbbf24',
+              emerald: '#10b981',
+              rose: '#f43f5e'
+            }
+          },
+          fontFamily: {
+            orbitron: ['Orbitron', 'sans-serif'],
+            inter: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@600;800;900&display=swap');
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #040714;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 75%, rgba(168, 85, 247, 0.08) 0%, transparent 45%),
+        radial-gradient(1px 1px at 25px 35px, #ffffff 100%, transparent),
+        radial-gradient(1px 1px at 80px 120px, rgba(255,255,255,0.7) 100%, transparent),
+        radial-gradient(1.5px 1.5px at 150px 220px, #00f0ff 100%, transparent);
+      background-size: 100% 100%, 100% 100%, 200px 200px, 300px 300px, 400px 400px;
+    }
+
+    .font-sci {
+      font-family: 'Orbitron', monospace, sans-serif;
+      letter-spacing: 0.05em;
+    }
+
+    .coin-glow {
+      box-shadow: 0 0 15px rgba(251, 191, 36, 0.45);
+    }
+
+    .neon-border {
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.12);
+    }
+
+    .tile-shake {
+      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-2px, 0, 0); }
+      20%, 80% { transform: translate3d(4px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+      40%, 60% { transform: translate3d(5px, 0, 0); }
+    }
+
+    .coin-bounce {
+      animation: coinPulse 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes coinPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.35) rotate(10deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen p-3 md:p-8 flex flex-col items-center">
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- STICKY TOP HUD -->
+  <aside aria-label="Game Status Bar" class="sticky top-2 z-50 w-full max-w-4xl mx-auto mb-6 bg-space-900/95 backdrop-blur-md border border-slate-700/80 rounded-2xl p-3 px-4 md:px-6 shadow-2xl flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-space-800 border border-neon-cyan/50 flex items-center justify-center text-lg text-neon-cyan font-sci">
+        🌕
+      </div>
+      <div>
+        <div class="text-[10px] tracking-widest uppercase font-bold text-neon-cyan">Base Terminal &bull; Year 2030</div>
+        <div class="text-xs md:text-sm font-semibold text-slate-200">Pilot: <span class="text-white font-bold">Ivan</span> | Unit-4 Online</div>
+      </div>
+    </div>
+
+    <!-- COIN HUD DISPLAY -->
+    <div class="flex items-center gap-3">
+      <div id="coin-badge" class="flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-yellow-500/10 border border-amber-400/50 px-3.5 py-1.5 rounded-full coin-glow">
+        <span class="text-lg md:text-xl">🪙</span>
+        <span id="coin-count" class="font-sci font-bold text-amber-300 text-sm md:text-base">0</span>
+        <span class="text-[11px] text-amber-200 font-semibold uppercase">Space Coins</span>
+      </div>
+
+      <div class="flex items-center gap-1.5 bg-space-850 p-1 rounded-xl border border-slate-700 text-xs">
+        <button id="tts-speed-btn" onclick="toggleAudioSpeed()" class="px-2.5 py-1 rounded-lg text-slate-300 hover:text-white font-medium transition" title="Toggle audio speed">
+          🐇 0.95x
+        </button>
+        <button onclick="testChimeSound()" class="px-2.5 py-1 bg-space-700 hover:bg-space-600 text-neon-cyan rounded-lg font-semibold transition" title="Test Web Audio synthesizer">
+          🔔 Test Chime
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-4xl w-full mx-auto space-y-8">
+
+    <!-- HEADER TITLE BANNER -->
+    <header class="text-center space-y-3 relative p-6 md:p-8 rounded-3xl bg-gradient-to-b from-space-900 to-space-850 border border-slate-800 shadow-2xl">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-space-800 border border-neon-cyan/40 text-neon-cyan text-xs font-bold uppercase tracking-wider">
+        <span>Language in Action</span> &bull; <span>Present Simple Mission</span>
+      </div>
+      <h1 class="text-3xl md:text-5xl font-extrabold font-sci text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan via-blue-400 to-neon-purple drop-shadow-lg">
+        MOON BASE ALPHA: 2030
+      </h1>
+      <p class="text-slate-300 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+        Join Ivan and Nick on the Moon! Master the <strong>Present Simple</strong> tense (<em>base verb vs. -s/-es</em>, <em>don't / doesn't</em>, and questions with <em>Do / Does</em>).
+      </p>
+
+      <div class="mt-4 inline-flex items-center gap-2 text-xs md:text-sm text-slate-300 bg-space-950/80 px-4 py-2 rounded-xl border border-amber-400/40">
+        <span class="text-amber-300 font-bold">⚠️️ Coin Protocol:</span>
+        <em>Space Coins (+10 🪙) are awarded <strong>only on your first attempt</strong>. Read each sentence carefully before choosing!</em>
+      </div>
+    </header>
+
+    <!-- ============================================================ -->
+    <!-- STAGE 1: THE MOON BASE CHRONICLES (SENTENCE-BY-SENTENCE)    -->
+    <!-- ============================================================ -->
+    <section class="bg-space-850 border border-slate-800 rounded-3xl p-5 md:p-7 shadow-2xl space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+        <div>
+          <span class="text-xs font-bold text-neon-cyan uppercase tracking-widest font-sci">Stage 1 &bull; Story Constructor</span>
+          <h2 class="text-xl md:text-2xl font-bold font-sci text-white flex items-center gap-2">
+            <span>🚀 The Moon Base Chronicles (10 Sentences)</span>
+          </h2>
+        </div>
+        <div class="bg-space-900 px-3.5 py-1.5 rounded-xl border border-slate-700 text-xs md:text-sm text-neon-cyan font-bold font-sci" id="s1-progress-display">
+          Sentence 1 / 10
+        </div>
+      </div>
+
+      <p class="text-xs md:text-sm text-slate-300">
+        Reconstruct Ivan and Nick's lunar story. Click the correct <strong>Present Simple</strong> verb tile. Solve it on your first try to win <strong>+10 Space Coins</strong>!
+      </p>
+
+      <!-- ACTIVE SENTENCE PROMPT CARD -->
+      <div id="active-sentence-card" class="bg-space-900 border-2 border-neon-cyan/40 rounded-2xl p-6 text-center space-y-5 transition-all">
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Target Sentence <span id="target-sentence-num">#1</span></div>
+        
+        <div id="sentence-prompt-text" class="text-lg md:text-2xl font-bold text-slate-100 leading-relaxed">
+          <!-- Text with gap injected here -->
+        </div>
+
+        <div id="sentence-hint" class="text-xs text-amber-300 font-medium min-h-[18px]"></div>
+
+        <!-- 4 COLOR VERB TILES -->
+        <div id="verb-tiles-container" class="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+          <!-- Option buttons injected here -->
+        </div>
+      </div>
+
+      <!-- STAGE 1 TEACHER COMMENT CARD (Revealed after sentence 10) -->
+      <div id="stage1-comment-card" class="hidden bg-space-900 border-2 border-neon-cyan rounded-2xl p-5 md:p-6 space-y-3 shadow-xl">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- FULL ACCUMULATED STORY LOG -->
+      <div class="bg-space-950/70 border border-slate-800 rounded-2xl p-4 md:p-5 space-y-3">
+        <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800/80 pb-2">
+          <span>📜 Completed Mission Log (<span id="log-completed-count">0</span>/10 sentences unlocked)</span>
+          <button onclick="readFullLog()" id="btn-read-full-log" class="text-neon-cyan hover:underline disabled:opacity-30 disabled:no-underline" disabled>
+            🔊 Listen to Completed Log
+          </button>
+        </div>
+        <div id="story-log-text" class="text-xs md:text-sm text-slate-300 leading-relaxed italic space-y-1.5 min-h-[50px]">
+          <span class="text-slate-500 font-normal">Solve sentences above to assemble Ivan and Nick's lunar journal...</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- STAGE 2: READING COMPREHENSION CHECK (3 OPTIONS)            -->
+    <!-- ============================================================ -->
+    <section class="bg-space-850 border border-slate-800 rounded-3xl p-5 md:p-7 shadow-2xl space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+        <div>
+          <span class="text-xs font-bold text-neon-purple uppercase tracking-widest font-sci">Stage 2 &bull; Comprehension Protocol</span>
+          <h2 class="text-xl md:text-2xl font-bold font-sci text-white flex items-center gap-2">
+            <span>📡 Mission Debrief (5 Questions)</span>
+          </h2>
+        </div>
+        <div class="bg-space-900 px-3.5 py-1.5 rounded-xl border border-slate-700 text-xs md:text-sm text-neon-purple font-bold font-sci" id="s2-score-display">
+          Score: 0 / 5
+        </div>
+      </div>
+
+      <p class="text-xs md:text-sm text-slate-300">
+        Unit-4 is checking your comprehension of life on Moon Base Alpha. Choose carefully: <strong>coins are awarded only on the first attempt</strong>!
+      </p>
+
+      <div class="space-y-4" id="comprehension-cards-container">
+        <!-- 5 MC Questions injected via JS -->
+      </div>
+
+      <!-- STAGE 2 TEACHER COMMENT CARD (Revealed when all 5 answered) -->
+      <div id="stage2-comment-card" class="hidden bg-space-900 border-2 border-neon-purple rounded-2xl p-5 md:p-6 space-y-3 shadow-xl">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- STAGE 3: GRAMMAR LAB - OPEN ANSWERS & VERIFICATION          -->
+    <!-- ============================================================ -->
+    <section class="bg-space-850 border border-slate-800 rounded-3xl p-5 md:p-7 shadow-2xl space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+        <div>
+          <span class="text-xs font-bold text-neon-emerald uppercase tracking-widest font-sci">Stage 3 &bull; Grammar Lab</span>
+          <h2 class="text-xl md:text-2xl font-bold font-sci text-white flex items-center gap-2">
+            <span>⚙️ Syntax Verification (Present Simple)</span>
+          </h2>
+        </div>
+        <div class="bg-space-900 px-3.5 py-1.5 rounded-xl border border-slate-700 text-xs md:text-sm text-neon-emerald font-bold font-sci" id="s3-score-display">
+          Verified: 0 / 5
+        </div>
+      </div>
+
+      <p class="text-xs md:text-sm text-slate-300">
+        Type the exact Present Simple verb form into each blank. First-attempt correct answers earn <strong>+10 Space Coins</strong> each!
+      </p>
+
+      <div class="space-y-4" id="grammar-form">
+        <!-- Q1 -->
+        <div class="p-4 bg-space-900 rounded-2xl border border-slate-800 space-y-2" id="g-card-0">
+          <div class="text-xs text-slate-400 font-semibold">Prompt 1 &bull; Plural subject (Ivan and Nick):</div>
+          <div class="text-sm md:text-base text-slate-100 flex flex-wrap items-center gap-2">
+            <span>1. Ivan and Nick</span>
+            <input type="text" id="g-input-0" placeholder="wake" class="bg-space-950 border border-slate-700 rounded-lg px-3 py-1.5 text-neon-cyan font-bold w-32 text-center text-sm focus:border-neon-cyan focus:outline-none">
+            <span>(wake) up at seven o'clock every morning.</span>
+          </div>
+          <div id="g-feedback-0" class="text-xs font-semibold hidden"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="p-4 bg-space-900 rounded-2xl border border-slate-800 space-y-2" id="g-card-1">
+          <div class="text-xs text-slate-400 font-semibold">Prompt 2 &bull; Singular 3rd person (Nick):</div>
+          <div class="text-sm md:text-base text-slate-100 flex flex-wrap items-center gap-2">
+            <span>2. Nick</span>
+            <input type="text" id="g-input-1" placeholder="love" class="bg-space-950 border border-slate-700 rounded-lg px-3 py-1.5 text-neon-cyan font-bold w-32 text-center text-sm focus:border-neon-cyan focus:outline-none">
+            <span>(love) planet Earth very much.</span>
+          </div>
+          <div id="g-feedback-1" class="text-xs font-semibold hidden"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="p-4 bg-space-900 rounded-2xl border border-slate-800 space-y-2" id="g-card-2">
+          <div class="text-xs text-slate-400 font-semibold">Prompt 3 &bull; Negative form (Unit-4 / robot):</div>
+          <div class="text-sm md:text-base text-slate-100 flex flex-wrap items-center gap-2">
+            <span>3. Unit-4</span>
+            <input type="text" id="g-input-2" placeholder="not teach" class="bg-space-950 border border-slate-700 rounded-lg px-3 py-1.5 text-neon-cyan font-bold w-44 text-center text-sm focus:border-neon-cyan focus:outline-none">
+            <span>(not / teach) history; it teaches science and geography.</span>
+          </div>
+          <div id="g-feedback-2" class="text-xs font-semibold hidden"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="p-4 bg-space-900 rounded-2xl border border-slate-800 space-y-2" id="g-card-3">
+          <div class="text-xs text-slate-400 font-semibold">Prompt 4 &bull; Question structure (the boys):</div>
+          <div class="text-sm md:text-base text-slate-100 flex flex-wrap items-center gap-2">
+            <span>4.</span>
+            <input type="text" id="g-input-3a" placeholder="Do / Does" class="bg-space-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-neon-cyan font-bold w-24 text-center text-sm focus:border-neon-cyan focus:outline-none">
+            <span>the boys</span>
+            <input type="text" id="g-input-3b" placeholder="wear" class="bg-space-950 border border-slate-700 rounded-lg px-3 py-1.5 text-neon-cyan font-bold w-28 text-center text-sm focus:border-neon-cyan focus:outline-none">
+            <span>(wear) spacesuits when they go outside?</span>
+          </div>
+          <div id="g-feedback-3" class="text-xs font-semibold hidden"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="p-4 bg-space-900 rounded-2xl border border-slate-800 space-y-2" id="g-card-4">
+          <div class="text-xs text-slate-400 font-semibold">Prompt 5 &bull; Singular 3rd person (Ivan):</div>
+          <div class="text-sm md:text-base text-slate-100 flex flex-wrap items-center gap-2">
+            <span>5. Ivan</span>
+            <input type="text" id="g-input-4" placeholder="collect" class="bg-space-950 border border-slate-700 rounded-lg px-3 py-1.5 text-neon-cyan font-bold w-32 text-center text-sm focus:border-neon-cyan focus:outline-none">
+            <span>(collect) fresh vegetables for dinner.</span>
+          </div>
+          <div id="g-feedback-4" class="text-xs font-semibold hidden"></div>
+        </div>
+      </div>
+
+      <div class="pt-2 flex flex-wrap items-center gap-3">
+        <button onclick="checkGrammarStage()" class="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-sci font-bold rounded-xl shadow-lg transition active:scale-95 text-xs md:text-sm">
+          Check Answers 🔍
+        </button>
+        <span id="g-summary-msg" class="text-xs md:text-sm font-semibold text-slate-300"></span>
+      </div>
+
+      <!-- STAGE 3 TEACHER COMMENT CARD -->
+      <div id="stage3-comment-card" class="hidden bg-space-900 border-2 border-neon-emerald rounded-2xl p-5 md:p-6 space-y-3 shadow-xl">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- STAGE 4: WRITING MISSION & VALUATION (40-50 WORDS)           -->
+    <!-- ============================================================ -->
+    <section class="bg-space-850 border border-slate-800 rounded-3xl p-5 md:p-7 shadow-2xl space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+        <div>
+          <span class="text-xs font-bold text-neon-rose uppercase tracking-widest font-sci">Stage 4 &bull; Creative Space Log</span>
+          <h2 class="text-xl md:text-2xl font-bold font-sci text-white flex items-center gap-2">
+            <span>✍️ Your Day on Moon Base Alpha</span>
+          </h2>
+        </div>
+        <div class="bg-space-900 border border-neon-rose/50 px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-bold text-neon-rose font-sci">
+          Target: 40–50 words
+        </div>
+      </div>
+
+      <div class="bg-space-900/90 border-l-4 border-neon-cyan p-4 rounded-xl text-xs md:text-sm text-slate-200 space-y-2">
+        <strong class="text-neon-cyan text-sm">🌌 Mission Briefing for Ivan:</strong>
+        <p class="text-slate-300 leading-relaxed">
+          Imagine a normal day in your life on Moon Base Alpha. Write <strong>between 40 and 50 words</strong> about your daily routine. 
+          Describe when you wake up, what you eat or study with Unit-4, and what you do in your free time!
+        </p>
+        <div class="text-xs text-amber-300 font-semibold pt-1">
+          Required Ingredients: 
+          &bull; At least 3 Present Simple verbs (e.g., <em>wake up, eat, study, jump, play, water</em>)
+          &bull; Adverbs of frequency (e.g., <em>always, usually, often, sometimes, never</em>).
+        </div>
+      </div>
+
+      <!-- TEXTAREA & LIVE WORD COUNTER -->
+      <div>
+        <textarea id="space-log-input" class="w-full h-36 bg-space-950 border-2 border-slate-700 rounded-2xl p-4 text-sm md:text-base text-slate-100 placeholder-slate-500 focus:border-neon-cyan focus:outline-none transition leading-relaxed" placeholder="Type your 40-50 word Moon Base log here in English..."></textarea>
+        
+        <div class="flex flex-wrap justify-between items-center text-xs md:text-sm mt-2 px-1 font-bold">
+          <span id="log-word-counter" class="text-amber-400">0 / 40–50 words (Too short)</span>
+          <span class="text-slate-400 text-xs">Standard Range: 40 to 50 words</span>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <button onclick="evaluateSpaceLog()" class="px-5 py-2.5 bg-gradient-to-r from-neon-purple to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-sci font-bold rounded-xl shadow-lg transition active:scale-95 text-xs md:text-sm flex items-center gap-2">
+          <span>📊 Evaluate My Space Log</span>
+        </button>
+        <button onclick="toggleModelAnswer()" id="btn-toggle-model" class="px-4 py-2.5 bg-space-800 hover:bg-space-700 text-slate-300 rounded-xl text-xs md:text-sm font-semibold border border-slate-700 transition">
+          Show Model Log
+        </button>
+      </div>
+
+      <!-- MODEL ANSWER CARD -->
+      <div id="model-log-panel" class="hidden bg-space-900 border border-emerald-500/50 rounded-2xl p-4 md:p-5 text-xs md:text-sm space-y-2">
+        <div class="text-emerald-400 font-bold flex items-center justify-between flex-wrap gap-2">
+          <span>🏆 Benchmark Model Log (Exact Length: 45 words):</span>
+          <button onclick="speakText(document.getElementById('model-text-content').innerText)" class="px-2.5 py-1 bg-space-800 hover:bg-space-700 text-slate-200 rounded-lg text-xs font-bold border border-slate-700">
+            🔊 Listen to Model
+          </button>
+        </div>
+        <p id="model-text-content" class="text-slate-200 italic leading-relaxed pt-1">
+          "Every morning, I always wake up early and eat warm space porridge. Then, Unit-4 teaches us science on a huge digital screen. In the afternoon, I often water the green potatoes in the dome garden. I sometimes play chess with Nick before bedtime."
+        </p>
+      </div>
+
+      <!-- VALUATION CARD DISPLAY & STAGE 4 TEACHER COMMENT -->
+      <div id="valuation-results-card" class="hidden bg-space-900 border-2 border-neon-cyan rounded-2xl p-5 space-y-3.5 shadow-2xl">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FINAL SUBMIT SECTION (GOOGLE SHEETS WEBHOOK)                -->
+    <!-- ============================================================ -->
+    <section class="bg-gradient-to-b from-space-850 to-space-900 border-2 border-neon-cyan/50 rounded-3xl p-6 md:p-8 text-center space-y-4 shadow-2xl">
+      <div class="inline-flex p-3 rounded-2xl bg-space-950 border border-neon-cyan/40 text-neon-cyan">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+        </svg>
+      </div>
+
+      <h3 class="text-2xl md:text-3xl font-extrabold font-sci text-white">
+        Beam Mission Data to Teacher
+      </h3>
+
+      <p class="text-slate-300 text-xs md:text-sm max-w-lg mx-auto leading-relaxed">
+        Check your name below, then click to send your coins, Stage 1-4 scores, first-attempt accuracy, and Space Log evaluation directly to your teacher's Google Sheet!
+      </p>
+
+      <div class="max-w-xs mx-auto space-y-3">
+        <input type="text" id="student-name-input" value="Ivan" placeholder="Student Name" class="w-full text-center px-4 py-3 bg-space-950 border-2 border-slate-700 rounded-xl text-white font-bold text-base focus:border-neon-cyan focus:outline-none">
+
+        <button onclick="submitMissionToSheet()" id="btn-submit-mission" class="w-full py-3.5 bg-gradient-to-r from-neon-cyan via-blue-600 to-neon-purple hover:opacity-90 text-space-950 font-sci font-black rounded-xl shadow-lg transition transform active:scale-95 text-base flex items-center justify-center gap-2">
+          <span>🚀 Transmit Mission Report</span>
+        </button>
+      </div>
+
+      <div id="submit-status-msg" class="text-xs md:text-sm font-semibold min-h-[22px]"></div>
+    </section>
+
+  </main>
+
+  <script>
+    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxID8_ZvaQfVflyoz4iJXH0k1uFtXM_O0piItLl1zVV_-tmJuB5QQ4wrW5LP5UEKHIY/exec";
+
+    let spaceCoins = 0;
+    let ttsSpeechRate = 0.95;
+
+    // Web Audio Synthesizer
+    let audioCtx = null;
+    function getAudioCtx() {
+      if (!audioCtx) {
+        const AudioClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioClass) audioCtx = new AudioClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    // Audio unlock on user interaction
+    window.addEventListener('click', () => { getAudioCtx(); }, { once: true });
+    window.addEventListener('keydown', () => { getAudioCtx(); }, { once: true });
+
+    function playSynthesizerSound(type) {
+      try {
+        const ctx = getAudioCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        if (type === 'coin') {
+          // Sweet high arpeggio chime (G5 -> C6 -> E6)
+          [783.99, 1046.50, 1318.51].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+
+            gain.gain.setValueAtTime(0.001, now + idx * 0.06);
+            gain.gain.linearRampToValueAtTime(0.14, now + idx * 0.06 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.35);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.06);
+            osc.stop(now + idx * 0.06 + 0.36);
+          });
+        } else if (type === 'error') {
+          // Soft futuristic laser buzz
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.exponentialRampToValueAtTime(130, now + 0.22);
+
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'fanfare') {
+          // Victory fanfare chord
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+
+            gain.gain.setValueAtTime(0.001, now + idx * 0.05);
+            gain.gain.linearRampToValueAtTime(0.15, now + idx * 0.05 + 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.45);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.05);
+            osc.stop(now + idx * 0.05 + 0.46);
+          });
+        }
+      } catch (err) {
+        console.warn("Audio Context error:", err);
+      }
+    }
+
+    function addCoins(amount) {
+      spaceCoins += amount;
+      const coinEl = document.getElementById('coin-count');
+      const badgeEl = document.getElementById('coin-badge');
+      coinEl.innerText = spaceCoins;
+
+      badgeEl.classList.remove('coin-bounce');
+      void badgeEl.offsetWidth;
+      badgeEl.classList.add('coin-bounce');
+    }
+
+    function testChimeSound() {
+      getAudioCtx();
+      playSynthesizerSound('coin');
+      addCoins(10);
+      triggerConfetti();
+    }
+
+    function toggleAudioSpeed() {
+      const btn = document.getElementById('tts-speed-btn');
+      if (ttsSpeechRate > 0.8) {
+        ttsSpeechRate = 0.70;
+        btn.innerText = "🐢 0.70x";
+        btn.classList.add('text-neon-cyan');
+        speakText("Slow speech mode activated");
+      } else {
+        ttsSpeechRate = 0.95;
+        btn.innerText = "🐇 0.95x";
+        btn.classList.remove('text-neon-cyan');
+        speakText("Normal speech speed");
+      }
+    }
+
+    function speakText(txt) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(txt);
+      u.lang = 'en-GB';
+      u.rate = ttsSpeechRate;
+      window.speechSynthesis.speak(u);
+    }
+
+    // Particle Confetti
+    const canvas = document.getElementById('confetti-canvas');
+    const ctxCanvas = canvas.getContext('2d');
+    let confettiParticles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function triggerConfetti() {
+      for (let i = 0; i < 45; i++) {
+        confettiParticles.push({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2,
+          r: Math.random() * 5 + 3,
+          dx: (Math.random() - 0.5) * 12,
+          dy: (Math.random() - 0.5) * 12 - 3,
+          color: ['#00f0ff', '#fbbf24', '#a855f7', '#10b981', '#f43f5e', '#3b82f6'][Math.floor(Math.random() * 6)],
+          life: 55
+        });
+      }
+    }
+
+    function renderConfetti() {
+      ctxCanvas.clearRect(0, 0, canvas.width, canvas.height);
+      confettiParticles.forEach(p => {
+        ctxCanvas.beginPath();
+        ctxCanvas.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctxCanvas.fillStyle = p.color;
+        ctxCanvas.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+        p.dy += 0.22;
+        p.life--;
+      });
+      confettiParticles = confettiParticles.filter(p => p.life > 0);
+      requestAnimationFrame(renderConfetti);
+    }
+    renderConfetti();
+
+    // STAGE 1 DATA WITH TRACKING
+    const stage1Sentences = [
+      {
+        id: 0,
+        prefix: "Ivan and Nick",
+        suffix: "in Moon Base Alpha with their parents.",
+        correct: "live",
+        full: "Ivan and Nick live in Moon Base Alpha with their parents.",
+        options: [
+          { text: "live", color: "bg-blue-600 hover:bg-blue-500 border-blue-400" },
+          { text: "lives", color: "bg-purple-600 hover:bg-purple-500 border-purple-400" },
+          { text: "living", color: "bg-amber-600 hover:bg-amber-500 border-amber-400" },
+          { text: "lived", color: "bg-emerald-600 hover:bg-emerald-500 border-emerald-400" }
+        ],
+        hint: "Plural subject: 'Ivan and Nick' = 'They' -> use the base form 'live'!",
+        attempts: 0,
+        firstTrySuccess: false
+      },
+      {
+        id: 1,
+        prefix: "Every day, the boys",
+        suffix: "up at seven o'clock.",
+        correct: "wake",
+        full: "Every day, the boys wake up at seven o'clock.",
+        options: [
+          { text: "wakes", color: "bg-purple-600 hover:bg-purple-500 border-purple-400" },
+          { text: "wake", color: "bg-blue-600 hover:bg-blue-500 border-blue-400" },
+          { text: "waking", color: "bg-amber-600 hover:bg-amber-500 border-amber-400" },
+          { text: "waked", color: "bg-emerald-600 hover:bg-emerald-500 border-emerald-400" }
+        ],
+        hint: "'The boys' is plural (they), so no -s is needed on the verb!",
+        attempts: 0,
+        firstTrySuccess: false
+      },
+      {
+        id: 2,
+        prefix: "They",
+        suffix: "a little because the gravity is very weak.",
+        correct: "float",
+        full: "They float a little because the gravity is very weak.",
+        options: [
+          { text: "floating", color: "bg-amber-600 hover:bg-amber-500 border-amber-400" },
+          { text: "floats", color: "bg-purple-600 hover:bg-purple-500 border-purple-400" },
+          { text: "float", color: "bg-blue-600 hover:bg-blue-500 border-blue-400" },
+          { text: "floated", color: "bg-emerald-600 hover:bg-emerald-500 border-emerald-400" }
+        ],
+        hint: "Subject pronoun is 'They' -> use base form 'float'.",
+        attempts: 0,
+        firstTrySuccess: false
+      },
+      {
+        id: 3,
+        prefix: "They",
+        suffix: "orange juice through straws.",
+        correct: "drink",
+        full: "They drink orange juice through straws.",
+        options: [
+          { text: "drink", color: "bg-blue-600 hover:bg-blue-500 border-blue-400" },
+          { text: "drinks", color: "bg-purple-600 hover:bg-purple-500 border-purple-400" },
+          { text: "drinking", color: "bg-amber-600 hover:bg-amber-500 border-amber-400" },
+          { text: "drank", color: "bg-emerald-600 hover:bg-emerald-500 border-emerald-400" }
+        ],
+        hint: "Present Simple habit for 'They' is 'drink'.",
+        attempts: 0,
+        firstTrySuccess: false
+      },
+      {
+        id: 4,
+        prefix: "A friendly robot teacher, Unit-4,",
+        suffix: "them science and geography.",
+        correct: "teaches",
+        full: "A friendly robot teacher, Unit-4, teaches them science and geography.",
+        options: [
+          { text: "teach", color: "bg-blue-600 hover:bg-blue-500 border-blue-400" },
+          { text: "teaches", color: "bg-purple-600 hover:bg-purple-500 border-purple-400" },
+          { text: "teaching", color: "bg-amber-600 hover:bg-amber-500 border-amber-400" },
+          { text: "teached", color: "bg-emerald-600 hover:bg-emerald-500 border-emerald-400" }
+        ],
+        hint: "'Unit-4' is singular (He / It) -> verb ending in -ch adds '-es' (teaches)!",
+        attempts: 0,
+        firstTrySuccess: false
+      },
+      {
+        id: 5,
+        prefix: "Ivan and Nick always",
+        suffix: "'Yes!'",
+        correct: "shout",
+        full: "Ivan and Nick always shout, 'Yes!'",
+        options: [
+          { text: "shouts", color: "bg-purple-600 hover:bg-purple-500 border-purple-400" },
+          { text: "shouting", color: "bg-amber-600 hover:bg-amber-500 border-amber-400" },
+          { text: "shout", color: "bg-blue-600 hover:bg-blue-500 border-blue-400" },
+          { text: "shouted", color: "bg-emerald-600 hover:bg-emerald-500 border-emerald-400" }
+        ],
+        hint: "Frequency adverb 'always' comes before the base verb for 'Ivan and Nick' (they)!",
+        attempts: 0,
+        firstTrySuccess: false
+      },
+      {
+        id: 6,
+        prefix: "Nick",
+        suffix: "Earth very much...",
+        correct: "loves",
+        full: "Nick loves Earth very much...",
+        options: [
+          { text: "love", color: "bg-blue-600 hover:bg-blue-500 border-blue-400" },
+          { text: "loves", color: "bg-purple-600 hover:bg-purple-500 border-purple-400" },
+          { text: "loving", color: "bg-amber-600 hover:bg-amber-500 border-amber-400" },
+          { text: "loved", color: "bg-emerald-600 hover:bg-emerald-500 border-emerald-400" }
+        ],
+        hint: "'Nick' is 3rd-person singular (He) -> adds '-s' (loves)!",
+        attempts: 0,
+        firstTrySuccess: false
+      },
+      {
+        id: 7,
+        prefix: "...but Ivan",
+        suffix: "the Moon because he likes jumping.",
+        correct: "prefers",
+        full: "...but Ivan prefers the Moon because he likes jumping.",
+        options: [
+          { text: "prefer", color: "bg-blue-600 hover:bg-blue-500 border-blue-400" },
+          { text: "prefers", color: "bg-purple-600 hover:bg-purple-500 border-purple-400" },
+          { text: "preferring", color: "bg-amber-600 hover:bg-amber-500 border-amber-400" },
+          { text: "prefered", color: "bg-emerald-600 hover:bg-emerald-500 border-emerald-400" }
+        ],
+        hint: "'Ivan' is 3rd-person singular (He) -> adds '-s' (prefers)!",
+        attempts: 0,
+        firstTrySuccess: false
+      },
+      {
+        id: 8,
+        prefix: "Nick",
+        suffix: "the plants in the dome garden...",
+        correct: "waters",
+        full: "Nick waters the plants in the dome garden...",
+        options: [
+          { text: "water", color: "bg-blue-600 hover:bg-blue-500 border-blue-400" },
+          { text: "waters", color: "bg-purple-600 hover:bg-purple-500 border-purple-400" },
+          { text: "watering", color: "bg-amber-600 hover:bg-amber-500 border-amber-400" },
+          { text: "watered", color: "bg-emerald-600 hover:bg-emerald-500 border-emerald-400" }
+        ],
+        hint: "He waters (3rd person singular present).",
+        attempts: 0,
+        firstTrySuccess: false
+      },
+      {
+        id: 9,
+        prefix: "...and Ivan",
+        suffix: "the fresh vegetables for dinner.",
+        correct: "collects",
+        full: "...and Ivan collects the fresh vegetables for dinner.",
+        options: [
+          { text: "collect", color: "bg-blue-600 hover:bg-blue-500 border-blue-400" },
+          { text: "collecting", color: "bg-amber-600 hover:bg-amber-500 border-amber-400" },
+          { text: "collects", color: "bg-purple-600 hover:bg-purple-500 border-purple-400" },
+          { text: "collected", color: "bg-emerald-600 hover:bg-emerald-500 border-emerald-400" }
+        ],
+        hint: "'Ivan' is singular -> adds '-s' (collects)!",
+        attempts: 0,
+        firstTrySuccess: false
+      }
+    ];
+
+    let currentS1Index = 0;
+    let completedSentences = [];
+
+    function renderActiveSentence() {
+      const container = document.getElementById('sentence-prompt-text');
+      const tilesBox = document.getElementById('verb-tiles-container');
+      const numLabel = document.getElementById('target-sentence-num');
+      const progDisplay = document.getElementById('s1-progress-display');
+      const hintEl = document.getElementById('sentence-hint');
+
+      hintEl.innerText = "";
+
+      if (currentS1Index >= stage1Sentences.length) {
+        // Stage 1 Complete
+        container.innerHTML = `<span class="text-neon-emerald font-sci font-bold">🎉 All 10 Moon Base sentences restored successfully!</span>`;
+        tilesBox.innerHTML = `
+          <div class="col-span-2 md:col-span-4 p-4 bg-emerald-950/60 border border-emerald-500 rounded-xl text-emerald-300 font-bold text-sm text-center">
+            Mission 1 Complete! Scroll down to read your Teacher Comment and tackle Stage 2!
+          </div>
+        `;
+        numLabel.innerText = "Complete";
+        progDisplay.innerText = "10 / 10 Completed";
+        renderStage1Comment();
+        return;
+      }
+
+      const item = stage1Sentences[currentS1Index];
+      numLabel.innerText = `#${currentS1Index + 1}`;
+      progDisplay.innerText = `Sentence ${currentS1Index + 1} / 10`;
+
+      container.innerHTML = `
+        <span>${item.prefix}</span>
+        <span class="inline-block px-3 py-1 bg-space-950 border-2 border-dashed border-neon-cyan text-neon-cyan font-bold rounded-lg mx-1 min-w-[90px]">_______</span>
+        <span>${item.suffix}</span>
+      `;
+
+      tilesBox.innerHTML = '';
+      item.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = `p-3 rounded-xl border font-bold text-white shadow-lg transition transform active:scale-95 text-base md:text-lg ${opt.color}`;
+        btn.innerText = opt.text;
+        btn.onclick = () => selectS1Verb(opt.text, item, btn);
+        tilesBox.appendChild(btn);
+      });
+    }
+
+    function selectS1Verb(chosenText, item, btn) {
+      getAudioCtx();
+      const card = document.getElementById('active-sentence-card');
+      const hintEl = document.getElementById('sentence-hint');
+
+      item.attempts++;
+
+      if (chosenText === item.correct) {
+        // Correct Choice!
+        completedSentences.push(item.full);
+        updateStoryLog();
+        speakText(item.full);
+
+        // Strict coin rule: Award coins ONLY if first attempt
+        if (item.attempts === 1) {
+          item.firstTrySuccess = true;
+          playSynthesizerSound('coin');
+          addCoins(10);
+          triggerConfetti();
+        } else {
+          // Solved after errors: chime but 0 coins
+          playSynthesizerSound('fanfare');
+        }
+
+        currentS1Index++;
+        if (currentS1Index === stage1Sentences.length) {
+          playSynthesizerSound('fanfare');
+          triggerConfetti();
+        }
+        renderActiveSentence();
+      } else {
+        // Incorrect attempt
+        playSynthesizerSound('error');
+        card.classList.add('tile-shake');
+        setTimeout(() => card.classList.remove('tile-shake'), 400);
+        btn.classList.add('opacity-40', 'line-through');
+        btn.disabled = true;
+        hintEl.innerText = `💡 Unit-4 Hint: ${item.hint} (Attempt ${item.attempts} - No coin on retry)`;
+      }
+    }
+
+    function renderStage1Comment() {
+      const card = document.getElementById('stage1-comment-card');
+      card.classList.remove('hidden');
+
+      const firstTryCount = stage1Sentences.filter(s => s.firstTrySuccess).length;
+      const coinGain = firstTryCount * 10;
+
+      let feedbackTitle = "";
+      let feedbackText = "";
+
+      if (firstTryCount >= 9) {
+        feedbackTitle = "🌟 Stellar Present Simple Mastery!";
+        feedbackText = `Sensational accuracy, Ivan! You identified ${firstTryCount}/10 verb agreements on your very first attempt, bagging +${coinGain} Space Coins. You have totally mastered the difference between plural subjects (base form) and 3rd person singular '-s/-es' (teaches, loves, prefers).`;
+      } else if (firstTryCount >= 6) {
+        feedbackTitle = "👍 Solid Lunar Trajectory!";
+        feedbackText = `Great effort, Ivan! You got ${firstTryCount}/10 correct on the first attempt (+${coinGain} Space Coins). Notice the sentences where you had to retry: remember to always check who the subject is before picking the verb!`;
+      } else {
+        feedbackTitle = "🧭 Mission Calibration Needed!";
+        feedbackText = `Good perseverance completing the chronicle, Ivan (+${coinGain} coins earned on first tries). Keep in mind the golden rule: he/she/it takes -s/-es (Nick loves, Ivan prefers, Unit-4 teaches), but they takes base verb (Ivan and Nick wake, they float).`;
+      }
+
+      card.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between border-b border-slate-700/80 pb-3 gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">👨‍🏫</span>
+            <div>
+              <div class="text-xs uppercase font-sci text-neon-cyan font-bold">Teacher Debrief &bull; Stage 1</div>
+              <h4 class="text-base font-bold text-white">${feedbackTitle}</h4>
+            </div>
+          </div>
+          <div class="px-3.5 py-1 bg-amber-500/20 border border-amber-400 text-amber-300 font-sci text-xs md:text-sm font-bold rounded-full">
+            First-Try Accuracy: ${firstTryCount} / 10 (+${coinGain} 🪙)
+          </div>
+        </div>
+        <p class="text-xs md:text-sm text-slate-200 leading-relaxed">${feedbackText}</p>
+      `;
+    }
+
+    function updateStoryLog() {
+      const logBox = document.getElementById('story-log-text');
+      const countEl = document.getElementById('log-completed-count');
+      const readBtn = document.getElementById('btn-read-full-log');
+
+      countEl.innerText = completedSentences.length;
+
+      if (completedSentences.length > 0) {
+        logBox.innerHTML = completedSentences.map((s, idx) => 
+          `<div><span class="text-neon-cyan font-bold mr-1">${idx + 1}.</span> ${s}</div>`
+        ).join('');
+        readBtn.disabled = false;
+      }
+    }
+
+    function readFullLog() {
+      if (completedSentences.length === 0) return;
+      const fullText = completedSentences.join(' ');
+      speakText(fullText);
+    }
+
+    // STAGE 2 COMPREHENSION DATA WITH TRACKING
+    const stage2Questions = [
+      {
+        id: 0,
+        question: "1. Where do Ivan and Nick live in the year 2030?",
+        choices: [
+          { text: "A: On Mars in red domes", correct: false },
+          { text: "B: In Moon Base Alpha with their parents", correct: true },
+          { text: "C: On an Earth orbital space station", correct: false }
+        ],
+        explanation: "Correct! The story says: 'Ivan and Nick live in Moon Base Alpha with their parents.'",
+        attempts: 0,
+        firstTrySuccess: false
+      },
+      {
+        id: 1,
+        question: "2. How do the boys drink their orange juice for breakfast?",
+        choices: [
+          { text: "A: Through straws", correct: true },
+          { text: "B: From floating ice balls", correct: false },
+          { text: "C: Out of ceramic cups", correct: false }
+        ],
+        explanation: "Spot on! They drink orange juice through straws because of low gravity.",
+        attempts: 0,
+        firstTrySuccess: false
+      },
+      {
+        id: 2,
+        question: "3. Who teaches the boys science and geography?",
+        choices: [
+          { text: "A: An astronaut from Earth", correct: false },
+          { text: "B: Nick's parents", correct: false },
+          { text: "C: A friendly robot named Unit-4", correct: true }
+        ],
+        explanation: "Exactly! 'A friendly robot teacher, Unit-4, teaches them science and geography.'",
+        attempts: 0,
+        firstTrySuccess: false
+      },
+      {
+        id: 3,
+        question: "4. What vegetables do Ivan and Nick grow in the dome garden?",
+        choices: [
+          { text: "A: Space apples and yellow bananas", correct: false },
+          { text: "B: Green potatoes and red carrots", correct: true },
+          { text: "C: Blue tomatoes and purple lettuce", correct: false }
+        ],
+        explanation: "Yes! They grow space vegetables like green potatoes and red carrots.",
+        attempts: 0,
+        firstTrySuccess: false
+      },
+      {
+        id: 4,
+        question: "5. What do the boys do with Unit-4 in the evening?",
+        choices: [
+          { text: "A: Play chess", correct: true },
+          { text: "B: Repair tiny space rovers", correct: false },
+          { text: "C: Watch movies on the big screen", correct: false }
+        ],
+        explanation: "Correct! In the evening they 'play chess with Unit-4, and talk about their dreams.'",
+        attempts: 0,
+        firstTrySuccess: false
+      }
+    ];
+
+    let s2Solved = 0;
+    const s2SolvedState = [false, false, false, false, false];
+
+    function buildStage2() {
+      const container = document.getElementById('comprehension-cards-container');
+      container.innerHTML = '';
+
+      stage2Questions.forEach((q, idx) => {
+        const card = document.createElement('div');
+        card.className = "p-4 bg-space-900 rounded-2xl border border-slate-800 space-y-3";
+        card.id = `s2-card-${idx}`;
+
+        const header = document.createElement('div');
+        header.className = "text-sm md:text-base font-bold text-slate-100 flex items-center justify-between";
+        header.innerText = q.question;
+
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = "grid grid-cols-1 md:grid-cols-3 gap-2";
+
+        q.choices.forEach(ch => {
+          const btn = document.createElement('button');
+          btn.className = "text-left text-xs md:text-sm p-3 rounded-xl border border-slate-700 bg-space-950 text-slate-200 hover:border-neon-purple hover:bg-space-800 transition font-medium";
+          btn.innerText = ch.text;
+          btn.onclick = () => selectS2Choice(idx, ch, btn, card, q);
+          optionsGrid.appendChild(btn);
+        });
+
+        const feedback = document.createElement('div');
+        feedback.className = "text-xs font-semibold hidden mt-1";
+        feedback.id = `s2-fb-${idx}`;
+
+        card.appendChild(header);
+        card.appendChild(optionsGrid);
+        card.appendChild(feedback);
+        container.appendChild(card);
+      });
+    }
+
+    function selectS2Choice(qIdx, choice, btn, card, qData) {
+      getAudioCtx();
+      const fb = document.getElementById(`s2-fb-${qIdx}`);
+      fb.classList.remove('hidden', 'text-emerald-400', 'text-rose-400');
+
+      qData.attempts++;
+
+      if (choice.correct) {
+        if (qData.attempts === 1) {
+          qData.firstTrySuccess = true;
+          playSynthesizerSound('coin');
+          triggerConfetti();
+          addCoins(10);
+        } else {
+          playSynthesizerSound('fanfare');
+        }
+
+        card.classList.add('border-emerald-500/80', 'bg-emerald-950/20');
+        fb.classList.add('text-emerald-400');
+        fb.innerHTML = `✓ ${qData.explanation} ${qData.firstTrySuccess ? '<strong>(+10 🪙)</strong>' : '<span class="text-amber-300">(Solved on retry - no coin)</span>'}`;
+
+        card.querySelectorAll('button').forEach(b => {
+          b.disabled = true;
+          b.classList.add('opacity-40');
+        });
+        btn.classList.remove('opacity-40');
+        btn.classList.add('bg-emerald-900/60', 'border-emerald-500', 'text-emerald-200');
+
+        s2SolvedState[qIdx] = true;
+        s2Solved = s2SolvedState.filter(Boolean).length;
+        document.getElementById('s2-score-display').innerText = `Score: ${s2Solved} / 5`;
+
+        if (s2Solved === 5) {
+          renderStage2Comment();
+        }
+      } else {
+        playSynthesizerSound('error');
+        card.classList.add('tile-shake');
+        setTimeout(() => card.classList.remove('tile-shake'), 400);
+        fb.classList.add('text-rose-400');
+        fb.innerText = `✗ Not quite! Review the story text in Stage 1 and try again. (Attempt ${qData.attempts})`;
+        btn.classList.add('border-rose-500', 'text-rose-300');
+      }
+    }
+
+    function renderStage2Comment() {
+      const card = document.getElementById('stage2-comment-card');
+      card.classList.remove('hidden');
+
+      const firstTryCount = stage2Questions.filter(q => q.firstTrySuccess).length;
+      const coinGain = firstTryCount * 10;
+
+      let title = "";
+      let note = "";
+
+      if (firstTryCount === 5) {
+        title = "🎯 Flawless Reading Comprehension!";
+        note = `Exceptional attention to textual details, Ivan! You scored a perfect 5/5 on your first attempts (+${coinGain} Space Coins). You accurately recalled the setting (Moon Base Alpha), daily breakfast routines (straws), subjects taught by Unit-4, the dome garden vegetables, and the evening chess sessions.`;
+      } else if (firstTryCount >= 3) {
+        title = "🔎 Good Textual Recall!";
+        note = `Well done, Ivan! You demonstrated strong overall comprehension with ${firstTryCount}/5 first-attempt answers (+${coinGain} Space Coins). Reading closely for specific nouns and facts will help you achieve 100% on the first try every time!`;
+      } else {
+        title = "📖 Review the Text Carefully!";
+        note = `You solved all 5 questions (+${coinGain} coins from first tries). For next time, re-read the story sentences slowly to spot key details like 'green potatoes' and 'straws' before clicking your answer.`;
+      }
+
+      card.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between border-b border-slate-700/80 pb-3 gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🛰️</span>
+            <div>
+              <div class="text-xs uppercase font-sci text-neon-purple font-bold">Teacher Debrief &bull; Stage 2</div>
+              <h4 class="text-base font-bold text-white">${title}</h4>
+            </div>
+          </div>
+          <div class="px-3.5 py-1 bg-amber-500/20 border border-amber-400 text-amber-300 font-sci text-xs md:text-sm font-bold rounded-full">
+            First-Try Accuracy: ${firstTryCount} / 5 (+${coinGain} 🪙)
+          </div>
+        </div>
+        <p class="text-xs md:text-sm text-slate-200 leading-relaxed">${note}</p>
+      `;
+    }
+
+    // STAGE 3 GRAMMAR LAB WITH ATTEMPT TRACKING
+    const stage3Attempts = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 };
+    const stage3FirstSuccess = { 0: false, 1: false, 2: false, 3: false, 4: false };
+    let s3VerifiedCount = 0;
+
+    function checkGrammarStage() {
+      getAudioCtx();
+      let currentVerified = 0;
+      let newCoinsAwarded = 0;
+
+      // 1. wake
+      const in0 = document.getElementById('g-input-0');
+      const fb0 = document.getElementById('g-feedback-0');
+      const val0 = in0.value.trim().toLowerCase();
+      fb0.classList.remove('hidden', 'text-emerald-400', 'text-rose-400');
+      stage3Attempts[0]++;
+
+      if (val0 === 'wake') {
+        currentVerified++;
+        if (stage3Attempts[0] === 1 && !stage3FirstSuccess[0]) {
+          stage3FirstSuccess[0] = true;
+          newCoinsAwarded += 10;
+        }
+        in0.className = "bg-space-950 border-2 border-emerald-500 rounded-lg px-3 py-1.5 text-emerald-300 font-bold w-32 text-center text-sm";
+        fb0.className = "text-xs font-semibold text-emerald-400";
+        fb0.innerHTML = `✓ Correct! 'Ivan and Nick' (they) -> 'wake'. ${stage3FirstSuccess[0] ? '(+10 🪙)' : ''}`;
+      } else {
+        in0.className = "bg-space-950 border-2 border-rose-500 rounded-lg px-3 py-1.5 text-rose-300 font-bold w-32 text-center text-sm";
+        fb0.className = "text-xs font-semibold text-rose-400";
+        fb0.innerText = val0 === 'wakes' 
+          ? "💡 'Ivan and Nick' are two people (plural). Do not add '-s'!" 
+          : "💡 Expected: base form 'wake'.";
+      }
+
+      // 2. loves
+      const in1 = document.getElementById('g-input-1');
+      const fb1 = document.getElementById('g-feedback-1');
+      const val1 = in1.value.trim().toLowerCase();
+      fb1.classList.remove('hidden', 'text-emerald-400', 'text-rose-400');
+      stage3Attempts[1]++;
+
+      if (val1 === 'loves') {
+        currentVerified++;
+        if (stage3Attempts[1] === 1 && !stage3FirstSuccess[1]) {
+          stage3FirstSuccess[1] = true;
+          newCoinsAwarded += 10;
+        }
+        in1.className = "bg-space-950 border-2 border-emerald-500 rounded-lg px-3 py-1.5 text-emerald-300 font-bold w-32 text-center text-sm";
+        fb1.className = "text-xs font-semibold text-emerald-400";
+        fb1.innerHTML = `✓ Correct! Nick is singular 3rd person (he) -> 'loves'. ${stage3FirstSuccess[1] ? '(+10 🪙)' : ''}`;
+      } else {
+        in1.className = "bg-space-950 border-2 border-rose-500 rounded-lg px-3 py-1.5 text-rose-300 font-bold w-32 text-center text-sm";
+        fb1.className = "text-xs font-semibold text-rose-400";
+        fb1.innerText = val1 === 'love'
+          ? "💡 Remember 3rd person singular! For 'Nick', add '-s' -> 'loves'."
+          : "💡 Expected: 'loves'.";
+      }
+
+      // 3. doesn't teach / does not teach
+      const in2 = document.getElementById('g-input-2');
+      const fb2 = document.getElementById('g-feedback-2');
+      const val2 = in2.value.trim().toLowerCase().replace(/\s+/g, ' ');
+      fb2.classList.remove('hidden', 'text-emerald-400', 'text-rose-400');
+      stage3Attempts[2]++;
+
+      if (val2 === "doesn't teach" || val2 === "does not teach" || val2 === "doesnt teach") {
+        currentVerified++;
+        if (stage3Attempts[2] === 1 && !stage3FirstSuccess[2]) {
+          stage3FirstSuccess[2] = true;
+          newCoinsAwarded += 10;
+        }
+        in2.className = "bg-space-950 border-2 border-emerald-500 rounded-lg px-3 py-1.5 text-emerald-300 font-bold w-44 text-center text-sm";
+        fb2.className = "text-xs font-semibold text-emerald-400";
+        fb2.innerHTML = `✓ Perfect! Negative 3rd person: 'doesn't teach' or 'does not teach'. ${stage3FirstSuccess[2] ? '(+10 🪙)' : ''}`;
+      } else {
+        in2.className = "bg-space-950 border-2 border-rose-500 rounded-lg px-3 py-1.5 text-rose-300 font-bold w-44 text-center text-sm";
+        fb2.className = "text-xs font-semibold text-rose-400";
+        if (val2.includes("don't") || val2.includes("do not")) {
+          fb2.innerText = "💡 Unit-4 is a robot (singular/it), so use 'does not' or 'doesn't', not 'don't'!";
+        } else {
+          fb2.innerText = "💡 Expected: 'doesn't teach' or 'does not teach'.";
+        }
+      }
+
+      // 4. Do ... wear
+      const in3a = document.getElementById('g-input-3a');
+      const in3b = document.getElementById('g-input-3b');
+      const fb3 = document.getElementById('g-feedback-3');
+      const val3a = in3a.value.trim().toLowerCase();
+      const val3b = in3b.value.trim().toLowerCase();
+      fb3.classList.remove('hidden', 'text-emerald-400', 'text-rose-400');
+      stage3Attempts[3]++;
+
+      const isA_ok = (val3a === 'do');
+      const isB_ok = (val3b === 'wear');
+
+      if (isA_ok && isB_ok) {
+        currentVerified++;
+        if (stage3Attempts[3] === 1 && !stage3FirstSuccess[3]) {
+          stage3FirstSuccess[3] = true;
+          newCoinsAwarded += 10;
+        }
+        in3a.className = "bg-space-950 border-2 border-emerald-500 rounded-lg px-2.5 py-1.5 text-emerald-300 font-bold w-24 text-center text-sm";
+        in3b.className = "bg-space-950 border-2 border-emerald-500 rounded-lg px-3 py-1.5 text-emerald-300 font-bold w-28 text-center text-sm";
+        fb3.className = "text-xs font-semibold text-emerald-400";
+        fb3.innerHTML = `✓ Correct question form! 'Do the boys wear...?' ${stage3FirstSuccess[3] ? '(+10 🪙)' : ''}`;
+      } else {
+        if (!isA_ok) in3a.className = "bg-space-950 border-2 border-rose-500 rounded-lg px-2.5 py-1.5 text-rose-300 font-bold w-24 text-center text-sm";
+        if (!isB_ok) in3b.className = "bg-space-950 border-2 border-rose-500 rounded-lg px-3 py-1.5 text-rose-300 font-bold w-28 text-center text-sm";
+        fb3.className = "text-xs font-semibold text-rose-400";
+        fb3.innerText = val3a === 'does'
+          ? "💡 'The boys' is plural! Use auxiliary 'Do', followed by base verb 'wear'."
+          : "💡 Expected: 'Do' ... 'wear'.";
+      }
+
+      // 5. collects
+      const in4 = document.getElementById('g-input-4');
+      const fb4 = document.getElementById('g-feedback-4');
+      const val4 = in4.value.trim().toLowerCase();
+      fb4.classList.remove('hidden', 'text-emerald-400', 'text-rose-400');
+      stage3Attempts[4]++;
+
+      if (val4 === 'collects') {
+        currentVerified++;
+        if (stage3Attempts[4] === 1 && !stage3FirstSuccess[4]) {
+          stage3FirstSuccess[4] = true;
+          newCoinsAwarded += 10;
+        }
+        in4.className = "bg-space-950 border-2 border-emerald-500 rounded-lg px-3 py-1.5 text-emerald-300 font-bold w-32 text-center text-sm";
+        fb4.className = "text-xs font-semibold text-emerald-400";
+        fb4.innerHTML = `✓ Correct! Ivan (he) -> 'collects'. ${stage3FirstSuccess[4] ? '(+10 🪙)' : ''}`;
+      } else {
+        in4.className = "bg-space-950 border-2 border-rose-500 rounded-lg px-3 py-1.5 text-rose-300 font-bold w-32 text-center text-sm";
+        fb4.className = "text-xs font-semibold text-rose-400";
+        fb4.innerText = val4 === 'collect'
+          ? "💡 Ivan is singular (he) -> add '-s' to make 'collects'!"
+          : "💡 Expected: 'collects'.";
+      }
+
+      if (newCoinsAwarded > 0) {
+        addCoins(newCoinsAwarded);
+        playSynthesizerSound('coin');
+        triggerConfetti();
+      }
+
+      s3VerifiedCount = currentVerified;
+      document.getElementById('s3-score-display').innerText = `Verified: ${currentVerified} / 5`;
+      const summaryMsg = document.getElementById('g-summary-msg');
+
+      if (currentVerified === 5) {
+        playSynthesizerSound('fanfare');
+        triggerConfetti();
+        summaryMsg.className = "text-xs md:text-sm font-bold text-neon-emerald";
+        summaryMsg.innerText = `🌟 Outstanding, Ivan! All 5 syntax prompts verified!`;
+        renderStage3Comment();
+      } else {
+        playSynthesizerSound('error');
+        summaryMsg.className = "text-xs md:text-sm font-bold text-amber-400";
+        summaryMsg.innerText = `Verified ${currentVerified}/5. Review the highlighted clues above to fix any errors!`;
+      }
+    }
+
+    function renderStage3Comment() {
+      const card = document.getElementById('stage3-comment-card');
+      card.classList.remove('hidden');
+
+      const firstTryCount = Object.values(stage3FirstSuccess).filter(Boolean).length;
+      const coinGain = firstTryCount * 10;
+
+      let title = "";
+      let analysis = "";
+
+      if (firstTryCount === 5) {
+        title = "⚡ Master Syntactician!";
+        analysis = `Flawless execution on the first submission, Ivan! You demonstrated complete command over all three Present Simple forms: affirmative 3rd person singular (-s on 'loves' and 'collects'), negative auxiliary ('doesn't teach'), and question formation ('Do ... wear'). You earned +${coinGain} Space Coins!`;
+      } else if (firstTryCount >= 3) {
+        title = "🛠️ Solid Structural Competence!";
+        analysis = `Well done, Ivan! You mastered the syntax patterns with ${firstTryCount}/5 first-try validations (+${coinGain} Space Coins). Continue watching the auxiliary selection: remember 'does / doesn't' is strictly for he/she/it, while 'do / don't' is for I/you/we/they.`;
+      } else {
+        title = "📝 Great Persistence & Revision!";
+        analysis = `You successfully corrected all 5 sentences (+${coinGain} coins from first tries). The ability to debug your own grammar is a valuable learning skill. Keep practicing the rule: singular subjects always trigger 'does / doesn't / verb-s'!`;
+      }
+
+      card.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between border-b border-slate-700/80 pb-3 gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🤖</span>
+            <div>
+              <div class="text-xs uppercase font-sci text-neon-emerald font-bold">Teacher Debrief &bull; Stage 3</div>
+              <h4 class="text-base font-bold text-white">${title}</h4>
+            </div>
+          </div>
+          <div class="px-3.5 py-1 bg-amber-500/20 border border-amber-400 text-amber-300 font-sci text-xs md:text-sm font-bold rounded-full">
+            First-Try Accuracy: ${firstTryCount} / 5 (+${coinGain} 🪙)
+          </div>
+        </div>
+        <p class="text-xs md:text-sm text-slate-200 leading-relaxed">${analysis}</p>
+      `;
+    }
+
+    const logTextarea = document.getElementById('space-log-input');
+    const wordCounterLabel = document.getElementById('log-word-counter');
+
+    logTextarea.addEventListener('input', () => {
+      const text = logTextarea.value.trim();
+      const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+
+      if (words === 0) {
+        wordCounterLabel.innerText = "0 / 40–50 words (Too short)";
+        wordCounterLabel.className = "text-amber-400 font-bold";
+      } else if (words < 40) {
+        const remaining = 40 - words;
+        wordCounterLabel.innerText = `${words} / 40–50 words (${remaining} more word${remaining > 1 ? 's' : ''} needed)`;
+        wordCounterLabel.className = "text-amber-400 font-bold";
+      } else if (words <= 50) {
+        wordCounterLabel.innerText = `✓ ${words} / 40–50 words (Optimal Length!)`;
+        wordCounterLabel.className = "text-emerald-400 font-bold";
+      } else {
+        const excess = words - 50;
+        wordCounterLabel.innerText = `${words} / 40–50 words (${excess} word${excess > 1 ? 's' : ''} over limit)`;
+        wordCounterLabel.className = "text-rose-400 font-bold";
+      }
+    });
+
+    function toggleModelAnswer() {
+      const p = document.getElementById('model-log-panel');
+      const btn = document.getElementById('btn-toggle-model');
+      if (p.classList.contains('hidden')) {
+        p.classList.remove('hidden');
+        btn.innerText = "Hide Model Log";
+      } else {
+        p.classList.add('hidden');
+        btn.innerText = "Show Model Log";
+      }
+    }
+
+    let lastValuationMark = null;
+
+    function evaluateSpaceLog() {
+      getAudioCtx();
+      const text = logTextarea.value.trim();
+      const resultsCard = document.getElementById('valuation-results-card');
+
+      if (!text) {
+        alert("Ivan, write your Moon Base log before requesting valuation!");
+        logTextarea.focus();
+        return;
+      }
+
+      resultsCard.classList.remove('hidden');
+      const words = text.split(/\s+/).filter(Boolean);
+      const count = words.length;
+
+      let score = 5;
+      let vocabGood = [];
+      let vocabBad = [];
+      let grammarGood = [];
+      let grammarBad = [];
+      let contentGood = [];
+      let contentBad = [];
+      let recommendations = [];
+
+      // 1. Strict 40–50 Words Requirement
+      if (count >= 40 && count <= 50) {
+        score += 2;
+        contentGood.push(`Precise length constraint adhered to (${count} words matches the 40–50 words target range).`);
+      } else if (count < 40) {
+        const diff = 40 - count;
+        score -= (count < 25 ? 3 : 1);
+        contentBad.push(`Under the 40-word minimum (${count} words). You need ${diff} more words.`);
+        recommendations.push(`Expand your log by describing another activity (e.g. what you eat, playing chess with Unit-4, or watering dome plants).`);
+      } else {
+        const over = count - 50;
+        score -= 1;
+        contentBad.push(`Slightly over the 50-word ceiling (${count} words, which is ${over} word${over > 1 ? 's' : ''} over limit).`);
+        recommendations.push(`Trim a few extra words to keep your space log strictly between 40 and 50 words.`);
+      }
+
+      // 2. Present Simple Verbs & Frequency Adverbs
+      const verbMatches = text.match(/\b(wake|wakes|eat|eats|drink|drinks|study|studies|teach|teaches|jump|jumps|play|plays|water|waters|grow|grows|live|lives|watch|watches|clean|cleans)\b/gi) || [];
+      const uniqueVerbs = [...new Set(verbMatches.map(v => v.toLowerCase()))];
+
+      if (uniqueVerbs.length >= 3) {
+        score += 2;
+        grammarGood.push(`Great variety of Present Simple verbs used (${uniqueVerbs.length} verbs: ${uniqueVerbs.slice(0, 4).join(', ')}).`);
+      } else if (uniqueVerbs.length >= 1) {
+        score += 1;
+        grammarGood.push(`Detected Present Simple verbs (${uniqueVerbs.join(', ')}).`);
+        grammarBad.push("Try to incorporate at least 3 distinct daily routine verbs.");
+        recommendations.push("Add more routine action verbs like 'study', 'water', 'jump', or 'play'.");
+      } else {
+        score -= 1;
+        grammarBad.push("Lacks clear Present Simple routine verbs.");
+        recommendations.push("Use Present Simple verbs to describe what you do every day on the Moon.");
+      }
+
+      // Frequency Adverbs
+      const freqMatches = text.match(/\b(always|usually|often|sometimes|never|rarely|every day|every morning)\b/gi) || [];
+      if (freqMatches.length >= 2) {
+        score += 1;
+        grammarGood.push(`Excellent use of frequency adverbs (${[...new Set(freqMatches.map(f => f.toLowerCase()))].join(', ')}).`);
+      } else if (freqMatches.length === 1) {
+        grammarGood.push(`Good use of frequency adverb ('${freqMatches[0]}').`);
+        recommendations.push("Try to add one more frequency adverb (e.g. 'often', 'sometimes', or 'never').");
+      } else {
+        grammarBad.push("No adverbs of frequency found.");
+        recommendations.push("Include adverbs of frequency such as 'always', 'often', or 'sometimes'.");
+      }
+
+      // 3. Moon / Space Theme Vocabulary
+      const spaceTerms = /\b(moon|base|alpha|space|porridge|straw|straws|gravity|dome|garden|rover|unit-4|earth|astronaut|stars|crater|suit|spacesuit|vegetables|potatoes|carrots)\b/i;
+      if (spaceTerms.test(text)) {
+        score += 1;
+        vocabGood.push("Authentic Moon Base Alpha vocabulary incorporated.");
+      } else {
+        vocabBad.push("Could include more space nouns (e.g., Moon, dome, Unit-4, space porridge).");
+        recommendations.push("Mention specific lunar items like 'spacesuits', 'dome garden', or 'robot teacher'.");
+      }
+
+      // 4. Grammar Mechanics (Capitalization, Punctuation, 'I')
+      if (/^[A-Z]/.test(text) && /[.!?]$/.test(text)) {
+        grammarGood.push("Sentences start with capital letters and conclude with proper punctuation.");
+      } else {
+        score -= 1;
+        grammarBad.push("Check that every sentence starts with a capital letter and ends with a full stop.");
+        recommendations.push("Verify punctuation: capitalize the start and end thoughts with a period (.).");
+      }
+
+      if (/\bi\s/g.test(text)) {
+        score -= 1;
+        grammarBad.push("Lowercase 'i' detected. The personal pronoun 'I' must always be capitalized.");
+        recommendations.push("Always capitalize 'I' when writing about yourself.");
+      }
+
+      score = Math.max(1, Math.min(10, score));
+      lastValuationMark = score;
+
+      if (score >= 8) {
+        playSynthesizerSound('fanfare');
+        triggerConfetti();
+        addCoins(20);
+      } else {
+        playSynthesizerSound('error');
+      }
+
+      // Pedagogical Stage 4 Teacher Assessment Comment
+      let stage4TeacherComment = "";
+      if (score >= 9) {
+        stage4TeacherComment = "Outstanding written expression, Ivan! You demonstrated exceptional control over the 40–50 word boundary, seamlessly integrated Present Simple action verbs, and placed frequency adverbs naturally. Your sci-fi descriptions feel vibrant and authentic!";
+      } else if (score >= 7) {
+        stage4TeacherComment = "Very good space log, Ivan! You clearly communicated your daily Moon Base routine. Review the recommendations below to fine-tune punctuation, frequency adverb placement, and target word counts for full marks.";
+      } else {
+        stage4TeacherComment = "Good creative start, Ivan. Focus on meeting the strict 40–50 word count and integrating at least three action verbs (wake, eat, play) with adverbs like 'always' or 'sometimes' before final submission.";
+      }
+
+      // Render Valuation Card & Stage 4 Comment
+      resultsCard.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
+          <div>
+            <span class="text-xs uppercase tracking-wider text-neon-cyan font-bold font-sci">Diagnostic Log Valuation</span>
+            <div class="text-base font-bold text-white">Evaluation for Ivan (${count} words written)</div>
+          </div>
+          <div class="px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 font-sci font-extrabold text-lg md:text-xl">
+            Score: ${score} / 10 Marks
+          </div>
+        </div>
+
+        <div class="space-y-2.5 text-xs md:text-sm">
+          <div>
+            <strong class="text-slate-300">📏 Word Count &amp; Content (40–50 words):</strong>
+            ${contentGood.length ? `<div class="text-emerald-400">✓ ${contentGood.join(' ')}</div>` : ''}
+            ${contentBad.length ? `<div class="text-rose-400">✗ ${contentBad.join(' ')}</div>` : ''}
+          </div>
+
+          <div>
+            <strong class="text-slate-300">⚙️ Grammar &amp; Present Simple Verbs:</strong>
+            ${grammarGood.length ? `<div class="text-emerald-400">✓ ${grammarGood.join(' ')}</div>` : ''}
+            ${grammarBad.length ? `<div class="text-rose-400">✗ ${grammarBad.join(' ')}</div>` : ''}
+          </div>
+
+          <div>
+            <strong class="text-slate-300">🚀 Lunar &amp; Daily Routine Vocabulary:</strong>
+            ${vocabGood.length ? `<div class="text-emerald-400">✓ ${vocabGood.join(' ')}</div>` : ''}
+            ${vocabBad.length ? `<div class="text-amber-400">✗ ${vocabBad.join(' ')}</div>` : ''}
+          </div>
+
+          <div class="bg-space-950 p-3.5 rounded-xl border border-slate-800 text-slate-200 mt-2">
+            <strong class="text-neon-cyan">💡 Unit-4 Tactical Recommendations:</strong>
+            <ul class="list-disc ml-5 mt-1 space-y-1 text-xs">
+              ${recommendations.map(r => `<li>${r}</li>`).join('')}
+            </ul>
+          </div>
+
+          <!-- TEACHER STAGE 4 COMMENT -->
+          <div class="p-3.5 bg-space-950/80 border border-neon-rose/40 rounded-xl mt-3">
+            <div class="flex items-center gap-2 text-neon-rose font-bold text-xs uppercase font-sci mb-1">
+              <span>👨‍🏫 Teacher Review &bull; Stage 4 Creative Log</span>
+            </div>
+            <p class="text-xs text-slate-200 leading-relaxed">${stage4TeacherComment}</p>
+          </div>
+
+          <div class="pt-2">
+            <button onclick="speakText('${text.replace(/'/g, "\\'")}')" class="px-3 py-1.5 bg-space-800 hover:bg-space-700 text-slate-200 rounded-lg text-xs font-bold border border-slate-700 flex items-center gap-1.5">
+              <span>🔊 Listen to Your Written Log</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function submitMissionToSheet() {
+      const nameInput = document.getElementById('student-name-input');
+      const studentName = nameInput.value.trim();
+      const statusEl = document.getElementById('submit-status-msg');
+      const submitBtn = document.getElementById('btn-submit-mission');
+      const logText = logTextarea.value.trim();
+
+      if (!studentName) {
+        alert("Please enter your name before transmitting!");
+        nameInput.focus();
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-50');
+      submitBtn.innerText = "Transmitting to Moon Command...";
+      statusEl.className = "text-xs md:text-sm font-semibold text-amber-400";
+      statusEl.innerText = "Beaming data packets to teacher's spreadsheet...";
+
+      const vMark = lastValuationMark !== null ? `${lastValuationMark}/10` : "Not evaluated yet";
+
+      const s1FirstTries = stage1Sentences.filter(s => s.firstTrySuccess).length;
+      const s2FirstTries = stage2Questions.filter(q => q.firstTrySuccess).length;
+      const s3FirstTries = Object.values(stage3FirstSuccess).filter(Boolean).length;
+
+      const grammarAnswersSummary = [
+        `Q1: ${document.getElementById('g-input-0').value.trim()}`,
+        `Q2: ${document.getElementById('g-input-1').value.trim()}`,
+        `Q3: ${document.getElementById('g-input-2').value.trim()}`,
+        `Q4: ${document.getElementById('g-input-3a').value.trim()} ... ${document.getElementById('g-input-3b').value.trim()}`,
+        `Q5: ${document.getElementById('g-input-4').value.trim()}`
+      ].join(' | ');
+
+      const payload = {
+        name: studentName,
+        scores: `Coins: ${spaceCoins} | S1 (1st Try): ${s1FirstTries}/10 | S2 (1st Try): ${s2FirstTries}/5 | S3 (1st Try): ${s3FirstTries}/5 | Valuation Mark: ${vMark}`,
+        answers: `Grammar Inputs: [${grammarAnswersSummary}] || Space Log (${logText ? logText.split(/\s+/).filter(Boolean).length : 0} words): "${logText || 'None'}"`
+      };
+
+      fetch(GOOGLE_SHEET_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        playSynthesizerSound('fanfare');
+        triggerConfetti();
+        submitBtn.innerText = "✓ Mission Report Transmitted!";
+        submitBtn.className = "w-full py-3.5 bg-emerald-600 text-white font-sci font-bold rounded-xl shadow-lg";
+        statusEl.className = "text-xs md:text-sm font-semibold text-emerald-400";
+        statusEl.innerText = `Transmission confirmed, ${studentName}! Your Space Coins (${spaceCoins}), first-attempt scores, and Valuation Mark (${vMark}) were recorded in your teacher's Google Sheet.`;
+      }).catch(err => {
+        console.error(err);
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50');
+        submitBtn.innerText = "🚀 Transmit Mission Report";
+        statusEl.className = "text-xs md:text-sm font-semibold text-rose-400";
+        statusEl.innerText = "Transmission interrupted. Check connection and re-try.";
+      });
+    }
+
+    // Initialize all components on load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderActiveSentence();
+      buildStage2();
+    });
+  </script>
+</body>
+</html>
