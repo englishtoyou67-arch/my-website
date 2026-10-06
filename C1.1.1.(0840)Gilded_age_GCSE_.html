@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Gilded Age: GCSE English Mastery Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gilded: {
+              DEFAULT: '#d97706',
+              light: '#f59e0b',
+              glow: '#fbbf24',
+              dark: '#78350f',
+            },
+            victorian: '#1e293b',
+            estate: '#0f172a'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+    h1, h2, h3, h4, .font-serif-gilded {
+      font-family: 'Cinzel', Georgia, serif;
+    }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #0b1120;
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+
+    @keyframes flyToChest {
+      0% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        opacity: 1;
+      }
+      50% {
+        transform: translate(calc(var(--target-x) * 0.5), calc(var(--target-y) - 60px)) scale(1.3) rotate(180deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--target-x), var(--target-y)) scale(0.35) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    .flying-coin {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      animation: flyToChest 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes chestShake {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      20% { transform: scale(1.18) rotate(-4deg); }
+      40% { transform: scale(1.22) rotate(4deg); }
+      60% { transform: scale(1.15) rotate(-2deg); }
+      80% { transform: scale(1.08) rotate(1deg); }
+    }
+
+    .chest-hit {
+      animation: chestShake 0.6s ease;
+    }
+
+    .glow-gold {
+      box-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
+    }
+    
+    .glow-gold-lg {
+      box-shadow: 0 0 45px rgba(245, 158, 11, 0.6);
+    }
+
+    .card-block {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-block.selected {
+      border-color: #f59e0b;
+      background-color: #1e293b;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(217, 119, 6, 0.25);
+    }
+    .card-block.matched {
+      border-color: #10b981;
+      background-color: rgba(6, 78, 59, 0.6);
+      color: #6ee7b7;
+      cursor: default;
+      pointer-events: none;
+      transform: none;
+      box-shadow: none;
+    }
+    .card-block.shake, .select-shake {
+      animation: shake 0.4s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    .cloze-select {
+      transition: all 0.25s ease;
+    }
+    .cloze-select.is-correct {
+      border-color: #10b981 !important;
+      background-color: #064e3b !important;
+      color: #a7f3d0 !important;
+    }
+    .cloze-select.is-incorrect {
+      border-color: #ef4444 !important;
+      background-color: #7f1d1d !important;
+      color: #fecaca !important;
+    }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 0.3; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .recording-pulse {
+      animation: pulse-ring 1.5s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-gilded selection:text-white">
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-3 sm:py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center space-x-3 text-center md:text-left">
+        <div class="w-10 h-10 rounded-full border-2 border-gilded flex items-center justify-center bg-slate-950 text-gilded font-serif-gilded font-bold text-lg shadow-md">
+          GA
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold tracking-wide text-amber-400 font-serif-gilded">
+            The Gilded Age : GCSE English Studio
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-400">
+            Season 1 Episode 1 • GCSE Spoken Language & AO1/AO2/AO4 Evaluation Suite
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3 bg-slate-950/80 border border-amber-600/40 px-4 py-2 rounded-xl shadow-inner">
+        <div class="flex flex-col text-right">
+          <span class="text-xs uppercase tracking-wider text-slate-400">GCSE Academic Points</span>
+          <span class="text-lg font-bold text-amber-300 font-mono tracking-tight" id="global-score">0</span>
+        </div>
+        <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+          ★
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="max-w-6xl mx-auto px-4 mt-2 flex gap-2 overflow-x-auto pb-2 scrollbar-none text-sm font-medium">
+      <button onclick="navigateToTab('tab-stage1')" id="btn-tab-stage1" class="tab-button whitespace-nowrap px-4 py-2.5 rounded-lg border border-amber-500/30 text-amber-300 bg-slate-800/90 hover:bg-slate-800 transition flex items-center gap-2">
+        <span>👗</span> Stage 1: Appearance Upgrade
+      </button>
+      <button onclick="navigateToTab('tab-stage2')" id="btn-tab-stage2" class="tab-button whitespace-nowrap px-4 py-2.5 rounded-lg border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition flex items-center gap-2">
+        <span>🎬</span> Stage 2: Scene Extraction
+      </button>
+      <button onclick="navigateToTab('tab-stage3')" id="btn-tab-stage3" class="tab-button whitespace-nowrap px-4 py-2.5 rounded-lg border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition flex items-center gap-2">
+        <span>🪙</span> Stage 3: The 7-Idiom Lab
+      </button>
+      <button onclick="navigateToTab('tab-stage4')" id="btn-tab-stage4" class="tab-button whitespace-nowrap px-4 py-2.5 rounded-lg border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition flex items-center gap-2">
+        <span>🎙️</span> Stage 4: Oral Lab & Writing
+      </button>
+    </nav>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
+
+    <!-- STAGE 1: APPEARANCE UPGRADE -->
+    <section id="tab-stage1" class="stage-section block">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-slate-800 gap-3">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-bold text-amber-400 font-serif-gilded">
+              Stage 1: Elevating Appearance (Band 2–3 ➔ Band 4–5)
+            </h2>
+            <p class="text-slate-400 text-sm mt-1">
+              GCSE AO2/AO4: Upgrade generic, low-band character descriptions to precise, evocative Victorian portraiture.
+            </p>
+          </div>
+          <span class="text-xs bg-amber-950 text-amber-300 border border-amber-800/60 px-3 py-1 rounded-full font-semibold">
+            3 Matches • +300 Pts
+          </span>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 mt-6">
+          <div>
+            <h3 class="text-sm font-semibold tracking-wider text-rose-300 uppercase mb-3 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Band 2–3 (Ordinary / Vague)
+            </h3>
+            <div class="space-y-3" id="stage1-basic-group">
+              <div onclick="handleStage1Click(this, 'basic', 'marian')" data-character="marian" class="card-block cursor-pointer bg-slate-950 border border-slate-800 p-4 rounded-xl hover:border-slate-700">
+                <div class="text-xs text-amber-500 font-bold uppercase mb-1">Marian Brook</div>
+                <p class="text-sm text-slate-300">"Marian wears simple clothes and has nice blonde hair and pretty eyes, looking normal."</p>
+              </div>
+
+              <div onclick="handleStage1Click(this, 'basic', 'raikes')" data-character="raikes" class="card-block cursor-pointer bg-slate-950 border border-slate-800 p-4 rounded-xl hover:border-slate-700">
+                <div class="text-xs text-amber-500 font-bold uppercase mb-1">Mr. Tom Raikes</div>
+                <p class="text-sm text-slate-300">"Tom is a tall, good-looking man with a brown moustache, wearing a smart dark suit like an everyday lawyer."</p>
+              </div>
+
+              <div onclick="handleStage1Click(this, 'basic', 'peggy')" data-character="peggy" class="card-block cursor-pointer bg-slate-950 border border-slate-800 p-4 rounded-xl hover:border-slate-700">
+                <div class="text-xs text-amber-500 font-bold uppercase mb-1">Peggy Scott</div>
+                <p class="text-sm text-slate-300">"Peggy is a young Black woman in a coat and hat. She looks serious, clever, and stands straight."</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-sm font-semibold tracking-wider text-emerald-300 uppercase mb-3 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Band 4–5 (GCSE Grade 8–9 Nuance)
+            </h3>
+            <div class="space-y-3" id="stage1-advanced-group">
+              <div onclick="handleStage1Click(this, 'advanced', 'raikes')" data-character="raikes" class="card-block cursor-pointer bg-slate-950 border border-slate-800 p-4 rounded-xl hover:border-slate-700">
+                <div class="text-xs text-emerald-400 font-bold uppercase mb-1">Professional Ambition</div>
+                <p class="text-sm text-slate-300">"A dashing, broad-shouldered gentleman with a meticulously groomed moustache; his tailored three-piece suit conveys crisp professionalism."</p>
+              </div>
+
+              <div onclick="handleStage1Click(this, 'advanced', 'peggy')" data-character="peggy" class="card-block cursor-pointer bg-slate-950 border border-slate-800 p-4 rounded-xl hover:border-slate-700">
+                <div class="text-xs text-emerald-400 font-bold uppercase mb-1">Intellectual Fortitude</div>
+                <p class="text-sm text-slate-300">"An articulate, composed woman with refined, dignified posture; her practical wool travelling coat and poised demeanor signal quiet resilience."</p>
+              </div>
+
+              <div onclick="handleStage1Click(this, 'advanced', 'marian')" data-character="marian" class="card-block cursor-pointer bg-slate-950 border border-slate-800 p-4 rounded-xl hover:border-slate-700">
+                <div class="text-xs text-emerald-400 font-bold uppercase mb-1">Understated Elegance</div>
+                <p class="text-sm text-slate-300">"A striking young woman in muted mourning attire, whose innocent yet resolute expression contrasts with the flamboyant society around her."</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="stage1-banner" class="hidden mt-6 p-4 bg-emerald-950/70 border border-emerald-500/50 rounded-xl flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">✨</span>
+            <p class="text-sm text-emerald-200">
+              <strong>Superb Lexical Awareness!</strong> Notice how sensory adjectives (<em>meticulously groomed</em>, <em>muted mourning attire</em>) reveal character psychology rather than just superficial appearance.
+            </p>
+          </div>
+          <button onclick="navigateToTab('tab-stage2')" class="px-4 py-2 bg-gilded hover:bg-gilded-light text-slate-950 font-bold text-sm rounded-lg transition">
+            Proceed to Stage 2 →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STAGE 2: CINEMATIC EXTRACTION -->
+    <section id="tab-stage2" class="stage-section hidden">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-slate-800 gap-3">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-bold text-amber-400 font-serif-gilded">
+              Stage 2: Cinematic Extraction (00:00 – 08:20)
+            </h2>
+            <p class="text-slate-400 text-sm mt-1">
+              GCSE AO1: Identify explicit details and deduce implicit social status attitudes from the pilot excerpt.
+            </p>
+          </div>
+          <span class="text-xs bg-amber-950 text-amber-300 border border-amber-800/60 px-3 py-1 rounded-full font-semibold">
+            3 Key Moments • +450 Pts
+          </span>
+        </div>
+
+        <div class="space-y-6 mt-6">
+          <!-- Question 1 -->
+          <div class="bg-slate-950/80 border border-slate-800 p-5 rounded-xl" id="q-block-1">
+            <div class="flex justify-between items-center text-xs text-amber-400 font-semibold mb-2">
+              <span>Scene 1: Fifth Avenue Carriage Delivery (00:00:00 – 00:02:48)</span>
+              <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">150 Pts</span>
+            </div>
+            <p class="text-base text-slate-100 font-medium mb-3">
+              1. Which precise instruction uttered by a supervisor while handling cargo emphasizes the immense financial value and vulnerable luxury of the Russells' imported European artifacts?
+            </p>
+            <div class="space-y-2 options-container">
+              <button onclick="evaluateMCQ(this, 1, false, 'Option A is an ordinary speed command that does not specify vulnerability.')" class="w-full text-left p-3.5 rounded-lg bg-slate-900 border border-slate-800 text-sm text-slate-300 hover:bg-slate-800 hover:border-slate-700 transition">
+                A) "Go slow!"
+              </button>
+              <button onclick="evaluateMCQ(this, 1, true, 'Spot on! At 00:01:15, the supervisor directly warns: \'Careful with those. They\'re fragile.\' This foreshadows the immense, delicate wealth entering the street.')" class="w-full text-left p-3.5 rounded-lg bg-slate-900 border border-slate-800 text-sm text-slate-300 hover:bg-slate-800 hover:border-slate-700 transition">
+                B) "Careful with those. They're fragile."
+              </button>
+              <button onclick="evaluateMCQ(this, 1, false, 'Option C is merely directional routing regarding delivery, not fragility.')" class="w-full text-left p-3.5 rounded-lg bg-slate-900 border border-slate-800 text-sm text-slate-300 hover:bg-slate-800 hover:border-slate-700 transition">
+                C) "Take those packages to Mr. Prue."
+              </button>
+            </div>
+            <div class="feedback-area hidden mt-3 p-3 rounded-lg text-sm"></div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="bg-slate-950/80 border border-slate-800 p-5 rounded-xl" id="q-block-2">
+            <div class="flex justify-between items-center text-xs text-amber-400 font-semibold mb-2">
+              <span>Scene 2: Financial Insolvency in Doylestown (00:02:49 – 00:05:16)</span>
+              <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">150 Pts</span>
+            </div>
+            <p class="text-base text-slate-100 font-medium mb-3">
+              2. Following the settlement of General Brook's funeral expenses and debt discharges, what exact sum does attorney Tom Raikes reveal Marian will retain?
+            </p>
+            <div class="space-y-2 options-container">
+              <button onclick="evaluateMCQ(this, 2, false, 'Option A is an enormous overestimation; General Brook spent all liquid capital on defunct railroad shares.')" class="w-full text-left p-3.5 rounded-lg bg-slate-900 border border-slate-800 text-sm text-slate-300 hover:bg-slate-800 hover:border-slate-700 transition">
+                A) Approximately $3,000
+              </button>
+              <button onclick="evaluateMCQ(this, 2, true, 'Accurate! At 00:04:01, Raikes affirms Marian holds \'somewhere in the region of $30\', forcing her total reliance on distant family.')" class="w-full text-left p-3.5 rounded-lg bg-slate-900 border border-slate-800 text-sm text-slate-300 hover:bg-slate-800 hover:border-slate-700 transition">
+                B) Somewhere in the region of $30
+              </button>
+              <button onclick="evaluateMCQ(this, 2, false, 'Option C is inaccurate because Raikes generously waived his legal fees, leaving exactly $30.')" class="w-full text-left p-3.5 rounded-lg bg-slate-900 border border-slate-800 text-sm text-slate-300 hover:bg-slate-800 hover:border-slate-700 transition">
+                C) Absolutely nothing, leaving her in total debt
+              </button>
+            </div>
+            <div class="feedback-area hidden mt-3 p-3 rounded-lg text-sm"></div>
+          </div>
+
+          <!-- Question 3 -->
+          <div class="bg-slate-950/80 border border-slate-800 p-5 rounded-xl" id="q-block-3">
+            <div class="flex justify-between items-center text-xs text-amber-400 font-semibold mb-2">
+              <span>Scene 3: The Van Rhijn Drawing Room (00:05:17 – 00:08:20)</span>
+              <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">150 Pts</span>
+            </div>
+            <p class="text-base text-slate-100 font-medium mb-3">
+              3. When Aunt Ada tentatively suggests an occupation for Marian to earn an independent living, what role does she name, and how does Aunt Agnes react?
+            </p>
+            <div class="space-y-2 options-container">
+              <button onclick="evaluateMCQ(this, 3, false, 'Option A is incorrect; seamstress work was never suggested for an aristocratic niece.')" class="w-full text-left p-3.5 rounded-lg bg-slate-900 border border-slate-800 text-sm text-slate-300 hover:bg-slate-800 hover:border-slate-700 transition">
+                A) Ada suggests Marian work as a seamstress; Agnes approves of the quiet trade.
+              </button>
+              <button onclick="evaluateMCQ(this, 3, true, 'Correct! At 00:07:28, Ada timidly proposes: \'Maybe she could be a governess\', provoking Agnes\'s outraged snarl: \'A niece of mine a governess?\' indicating severe caste stigma.')" class="w-full text-left p-3.5 rounded-lg bg-slate-900 border border-slate-800 text-sm text-slate-300 hover:bg-slate-800 hover:border-slate-700 transition">
+                B) Ada suggests Marian could become a governess, but Agnes fiercely rejects it as socially unacceptable.
+              </button>
+              <button onclick="evaluateMCQ(this, 3, false, 'Option C mistakenly anticipates Peggy Scott\'s eventual role as Agnes\'s private secretary.')" class="w-full text-left p-3.5 rounded-lg bg-slate-900 border border-slate-800 text-sm text-slate-300 hover:bg-slate-800 hover:border-slate-700 transition">
+                C) Ada suggests Marian become a secretary, and Agnes immediately offers her own post.
+              </button>
+            </div>
+            <div class="feedback-area hidden mt-3 p-3 rounded-lg text-sm"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STAGE 3: THE 7-IDIOM LAB (COIN & CHEST ANIMATION) -->
+    <section id="tab-stage3" class="stage-section hidden">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl relative overflow-hidden">
+        
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center pb-5 border-b border-slate-800 gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded text-xs font-bold uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                Core Interactive Lab
+              </span>
+              <span class="text-xs text-slate-400">GCSE AO2 Figurative Analysis</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-bold text-amber-400 font-serif-gilded mt-1">
+              Stage 3: The 7-Idiom Lab & Treasure Vault
+            </h2>
+            <p class="text-slate-400 text-sm">
+              Pair each cinematic quote in <strong>Group A</strong> with its communicative purpose in <strong>Group B</strong>. Watch your coins fly into the vault!
+            </p>
+          </div>
+
+          <!-- THE TREASURE CHEST DISPLAY -->
+          <div id="treasure-chest-container" class="flex items-center gap-4 bg-slate-950 border border-amber-500/40 p-3 rounded-2xl shadow-lg self-center sm:self-end">
+            <div id="chest-graphic" class="relative w-16 h-16 flex items-center justify-center cursor-pointer transition-transform" onclick="triggerChestCheer()">
+              <svg id="chest-closed-svg" class="w-14 h-14 drop-shadow-md text-amber-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M4 4h16a2 2 0 012 2v2H2V6a2 2 0 012-2zm-2 6h20v10a2 2 0 01-2 2H4a2 2 0 01-2-2V10zm9 2v3h2v-3h-2z" />
+              </svg>
+              <svg id="chest-open-svg" class="w-14 h-14 drop-shadow-lg text-amber-400 hidden animate-pulse" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 3H5a2 2 0 00-2 2v2h18V5a2 2 0 00-2-2zm2 6H3v10a2 2 0 002 2h14a2 2 0 002-2V9zm-9 3a2 2 0 110 4 2 2 0 010-4z" />
+              </svg>
+              <div id="chest-glow" class="absolute inset-0 rounded-full bg-amber-400/10 blur-md pointer-events-none"></div>
+            </div>
+
+            <div class="flex flex-col">
+              <span class="text-xs uppercase tracking-wider text-amber-400/80 font-bold">Chest Vault</span>
+              <div class="flex items-baseline space-x-1">
+                <span id="collected-coins" class="text-2xl font-black text-amber-300 font-mono">0</span>
+                <span class="text-slate-500 font-bold text-sm">/ 7 Coins</span>
+              </div>
+              <span id="chest-status-text" class="text-[11px] text-slate-400">Match blocks to fill</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Matching Board Columns -->
+        <div class="grid md:grid-cols-2 gap-6 mt-6">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-semibold tracking-wider text-amber-300 uppercase flex items-center gap-2">
+                <span>💬</span> Group A: Cinematic Idiom
+              </h3>
+              <span class="text-xs text-slate-500">Tap expression</span>
+            </div>
+            <div class="space-y-2.5" id="group-a-container"></div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-semibold tracking-wider text-emerald-300 uppercase flex items-center gap-2">
+                <span>📖</span> Group B: Figurative Nuance & Tone
+              </h3>
+              <span class="text-xs text-slate-500">Tap matching meaning</span>
+            </div>
+            <div class="space-y-2.5" id="group-b-container"></div>
+          </div>
+        </div>
+
+        <!-- Vault Celebration Banner -->
+        <div id="vault-celebration-banner" class="hidden mt-8 p-6 bg-gradient-to-r from-amber-950 via-slate-900 to-amber-950 border-2 border-amber-500 rounded-2xl text-center glow-gold-lg animate-fadeIn">
+          <div class="text-4xl mb-2">🏆 🪙 👑</div>
+          <h3 class="text-2xl font-bold text-amber-300 font-serif-gilded mb-1">
+            Gilded Vault Unlocked: 7 / 7 Sovereign Coins Collected!
+          </h3>
+          <p class="text-slate-300 text-sm max-w-xl mx-auto mb-4">
+            Outstanding mastery. You have decoded all 7 nuanced expressions from Episode 1. Proceed to record your oral response and synthesize your Band-9 creative piece.
+          </p>
+          <div class="flex justify-center gap-3">
+            <button onclick="resetIdiomLab()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold uppercase tracking-wider transition">
+              Replay Lab
+            </button>
+            <button onclick="navigateToTab('tab-stage4')" class="px-5 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm tracking-wide transition shadow-lg">
+              Advance to Stage 4 →
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- STAGE 4: WRITING & ORAL EVALUATION SUITE -->
+    <section id="tab-stage4" class="stage-section hidden">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl space-y-8">
+        
+        <div class="pb-4 border-b border-slate-800">
+          <h2 class="text-xl sm:text-2xl font-bold text-amber-400 font-serif-gilded">
+            Stage 4: GCSE Spoken Language & Band-9 Writing Suite
+          </h2>
+          <p class="text-slate-400 text-sm mt-1">
+            Live audio recording with automated GCSE Spoken Endorsement evaluation and narrative synthesis cloze.
+          </p>
+        </div>
+
+        <!-- PART A: VOICE RECORDING & LIVE ORAL EVALUATION -->
+        <div class="bg-slate-950 border border-amber-500/30 p-5 sm:p-6 rounded-2xl space-y-5">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                Part A: GCSE Spoken Language Studio
+              </span>
+              <h3 class="text-lg sm:text-xl font-bold text-slate-100 mt-1 font-serif-gilded">
+                Live Voice Recorder & Automated Oral Evaluator
+              </h3>
+            </div>
+            <!-- Timer Clock -->
+            <div class="flex items-center gap-3 bg-slate-900 border border-slate-700 px-4 py-2 rounded-xl">
+              <span class="text-xs text-slate-400 uppercase font-semibold">Speaking Clock:</span>
+              <span id="speech-timer-display" class="text-2xl font-mono font-bold text-amber-400">00:45</span>
+            </div>
+          </div>
+
+          <!-- Prompt Box -->
+          <div class="bg-slate-900/90 border-l-4 border-amber-500 p-4 rounded-xl text-sm text-slate-300 leading-relaxed">
+            <p class="font-bold text-amber-300 mb-1">GCSE Oral Examination Task (45 Seconds):</p>
+            <p>
+              <em>"Explain how Marian Brook's sudden destitution in Doylestown mirrors a student opening a disastrous mock exam envelope. How does language demonstrate defiance rather than defeat?"</em>
+            </p>
+            <div class="mt-2 text-xs text-slate-400">
+              💡 <strong>Examiner Target:</strong> Weave in target idioms (<em>"fragile"</em>, <em>"not worth the paper"</em>, <em>"go under"</em>, <em>"beaten"</em>) and higher discourse markers (<em>"however"</em>, <em>"whereas"</em>, <em>"despite"</em>).
+            </div>
+          </div>
+
+          <!-- Audio Waveform Visualizer & Recording Status -->
+          <div class="bg-slate-900 rounded-xl p-4 border border-slate-800 flex flex-col items-center justify-center space-y-3">
+            <div class="w-full flex items-center justify-between text-xs text-slate-400 px-2">
+              <div class="flex items-center gap-2">
+                <span id="recording-pulse-dot" class="w-3 h-3 rounded-full bg-slate-600"></span>
+                <span id="recording-status-text" class="font-semibold text-slate-400">Microphone Ready</span>
+              </div>
+              <span id="rec-duration" class="font-mono text-amber-400 font-bold">00:00</span>
+            </div>
+
+            <!-- Waveform Canvas -->
+            <canvas id="waveform-canvas" width="600" height="75" class="w-full h-16 bg-slate-950 rounded-lg border border-slate-800"></canvas>
+
+            <!-- Recording & Action Buttons -->
+            <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <button id="btn-start-record" onclick="toggleRecording()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-sm shadow-lg transition flex items-center gap-2">
+                <span id="rec-icon">🎙️</span> <span id="rec-btn-label">Record Spoken Answer</span>
+              </button>
+
+              <button onclick="evaluateOralTranscript()" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm shadow-md transition flex items-center gap-2">
+                <span>⚡</span> Evaluate Oral Answer
+              </button>
+
+              <button onclick="readAloudPrompt()" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 text-sm border border-slate-700 transition flex items-center gap-1.5">
+                <span>🔊</span> Listen to Task
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Transcript Box & Audio Playback -->
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between text-xs font-semibold uppercase text-slate-400 mb-1.5">
+                  <span>Live Speech-to-Text Transcript</span>
+                  <span class="text-[10px] text-amber-400 font-normal">Editable if words missed</span>
+                </div>
+                <textarea id="live-speech-transcript" rows="4" placeholder="Your spoken response will be transcribed here in real-time as you speak into the microphone..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs sm:text-sm text-slate-200 focus:border-amber-500 focus:outline-none resize-none leading-relaxed"></textarea>
+              </div>
+              <div class="flex justify-between items-center text-xs text-slate-500 mt-2">
+                <span>Word Count: <strong id="transcript-word-count" class="text-amber-400 font-mono">0</strong> words</span>
+                <button onclick="clearTranscript()" class="text-slate-400 hover:text-rose-400">Clear</button>
+              </div>
+            </div>
+
+            <!-- Instant Playback Widget -->
+            <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 flex flex-col justify-between">
+              <div>
+                <span class="text-xs font-semibold uppercase text-slate-400 block mb-1.5">
+                  Candidate Audio Playback
+                </span>
+                <p class="text-xs text-slate-400 mb-3">
+                  Once your recording finishes, your voice take appears below. Listen back to evaluate pace, emphasis, and articulation.
+                </p>
+                <audio id="audio-playback" controls class="w-full bg-slate-950 rounded-lg"></audio>
+              </div>
+              <div class="text-[11px] text-slate-500 italic mt-2">
+                Tip: GCSE Spoken Endorsement tests clarity, register, and sophisticated word choices.
+              </div>
+            </div>
+          </div>
+
+          <!-- AUTOMATED GCSE ORAL EVALUATION RESULTS CARD -->
+          <div id="oral-evaluation-card" class="hidden bg-slate-900 border-2 border-amber-500/50 rounded-2xl p-5 sm:p-6 space-y-5 animate-fadeIn">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-slate-800 gap-3">
+              <div>
+                <span class="text-xs uppercase font-bold tracking-widest text-slate-400">GCSE Spoken Language Assessment</span>
+                <h4 class="text-xl font-bold font-serif-gilded text-amber-400" id="oral-grade-title">
+                  Performance Diagnostic
+                </h4>
+              </div>
+              <!-- Grade Badge -->
+              <div class="flex items-center gap-3 bg-slate-950 px-4 py-2 rounded-xl border border-slate-800">
+                <div class="text-right">
+                  <div class="text-[10px] uppercase text-slate-400">Awarded Endorsement</div>
+                  <div class="text-lg font-black" id="oral-endorsement-badge">Merit</div>
+                </div>
+                <div class="h-8 w-px bg-slate-800"></div>
+                <div class="text-left">
+                  <div class="text-[10px] uppercase text-slate-400">Speaking Score</div>
+                  <div class="text-base font-bold font-mono text-amber-300" id="oral-score-num">0 / 100</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Metric Cards Grid -->
+            <div class="grid sm:grid-cols-3 gap-3">
+              <!-- Lexis Card -->
+              <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-xl">
+                <span class="text-xs uppercase text-slate-400 font-bold block mb-1">Target Lexis & Idioms</span>
+                <div class="text-xl font-bold text-amber-400 font-mono" id="oral-lexis-count">0 Detected</div>
+                <div class="text-[11px] text-slate-400 mt-1" id="oral-lexis-detail">No target phrases detected yet</div>
+              </div>
+
+              <!-- Discourse Markers Card -->
+              <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-xl">
+                <span class="text-xs uppercase text-slate-400 font-bold block mb-1">Discourse Markers</span>
+                <div class="text-xl font-bold text-emerald-400 font-mono" id="oral-markers-count">0 Detected</div>
+                <div class="text-[11px] text-slate-400 mt-1" id="oral-markers-detail">Add contrastive linkers</div>
+              </div>
+
+              <!-- Pacing & Volume -->
+              <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-xl">
+                <span class="text-xs uppercase text-slate-400 font-bold block mb-1">Fluency & Volume</span>
+                <div class="text-xl font-bold text-cyan-400 font-mono" id="oral-fluency-status">Underdeveloped</div>
+                <div class="text-[11px] text-slate-400 mt-1" id="oral-fluency-detail">Target 40–80 words</div>
+              </div>
+            </div>
+
+            <!-- Highlighted Detected Phrases Tags -->
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <span class="text-xs uppercase font-bold text-slate-400 block mb-2">Detected Lexical Assets:</span>
+              <div id="oral-tags-container" class="flex flex-wrap gap-2">
+                <!-- Tags rendered via JS -->
+              </div>
+            </div>
+
+            <!-- Examiner Notes -->
+            <div class="bg-slate-950/70 border border-amber-500/30 p-4 rounded-xl text-xs sm:text-sm text-slate-300 space-y-2">
+              <div class="font-bold uppercase tracking-wider text-amber-300 text-xs flex items-center gap-1.5">
+                <span>📋</span> Official Examiner Feedback & Progression Advice:
+              </div>
+              <div id="oral-feedback-text" class="space-y-1 leading-relaxed">
+                <!-- Advice rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PART B: BAND-9 CLOZE DRILL WITH EXPLICIT EVALUATION -->
+        <div class="bg-slate-950 border border-slate-800 p-5 sm:p-6 rounded-2xl">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                Part B: GCSE AO4 Narrative Synthesis
+              </span>
+              <h3 class="text-lg sm:text-xl font-bold text-slate-100 mt-1 font-serif-gilded">
+                The Verdict (Exemplar Narrative Drill)
+              </h3>
+            </div>
+            <span class="text-xs text-slate-400">Embed all 7 target idioms seamlessly</span>
+          </div>
+
+          <div class="bg-slate-900 border-l-4 border-amber-500 p-5 rounded-xl text-slate-300 text-sm sm:text-base leading-relaxed space-y-4">
+            <p>
+              The atmosphere in the grand assembly hall was suffocating. Rows of polished mahogany desks sat under the cold glare of chandelier lights. I reached for my mock examination envelope with trembling fingers, but Mr. Sterling, the deputy headmaster, hovered over my shoulder and barked,
+              <select id="cloze-1" data-key="fragile" class="cloze-select mx-1 bg-slate-950 border border-amber-500/40 text-amber-300 text-xs sm:text-sm font-semibold rounded px-2 py-1">
+                <option value="">[Select Idiom]</option>
+                <option value="fragile">"Careful with those. They're fragile."</option>
+                <option value="disturb">"Disturb our peace."</option>
+                <option value="beaten">"A long way from being beaten."</option>
+              </select>
+              His stern voice warned us that our academic futures hung by a thread.
+            </p>
+
+            <p>
+              I tore open the paper seal. Grade 3s across the board. In terms of securing my university placement, this official transcript was
+              <select id="cloze-2" data-key="paper" class="cloze-select mx-1 bg-slate-950 border border-amber-500/40 text-amber-300 text-xs sm:text-sm font-semibold rounded px-2 py-1">
+                <option value="">[Select Idiom]</option>
+                <option value="heart">you're all heart</option>
+                <option value="paper">not worth the paper it was printed on.</option>
+                <option value="beggars">beggars can't be choosers</option>
+              </select>
+              Mr. Sterling murmured, "If your academic momentum continues to
+              <select id="cloze-3" data-key="gounder" class="cloze-select mx-1 bg-slate-950 border border-amber-500/40 text-amber-300 text-xs sm:text-sm font-semibold rounded px-2 py-1">
+                <option value="">[Select Idiom]</option>
+                <option value="gounder">go under</option>
+                <option value="fragile">be fragile</option>
+                <option value="disturb">disturb our peace</option>
+              </select>
+              at this rate, the governors will reconsider your enrolment."
+            </p>
+
+            <p>
+              "Thank you for the compassion—
+              <select id="cloze-4" data-key="heart" class="cloze-select mx-1 bg-slate-950 border border-amber-500/40 text-amber-300 text-xs sm:text-sm font-semibold rounded px-2 py-1">
+                <option value="">[Select Idiom]</option>
+                <option value="beaten">a long way from being beaten</option>
+                <option value="heart">you're all heart</option>
+                <option value="paper">not worth the paper</option>
+              </select>
+              ," I replied bitterly under my breath. He narrowed his eyes: "Do not adopt an attitude with me. Your poor performance will not be allowed to
+              <select id="cloze-5" data-key="disturb" class="cloze-select mx-1 bg-slate-950 border border-amber-500/40 text-amber-300 text-xs sm:text-sm font-semibold rounded px-2 py-1">
+                <option value="">[Select Idiom]</option>
+                <option value="gounder">go under</option>
+                <option value="disturb">disturb our peace</option>
+                <option value="fragile">be fragile</option>
+              </select>
+              or tarnish the school's reputation. You will attend mandatory weekend revision."
+            </p>
+
+            <p>
+              Part of me wanted to reject the humiliation, but
+              <select id="cloze-6" data-key="beggars" class="cloze-select mx-1 bg-slate-950 border border-amber-500/40 text-amber-300 text-xs sm:text-sm font-semibold rounded px-2 py-1">
+                <option value="">[Select Idiom]</option>
+                <option value="beggars">beggars can't be choosers</option>
+                <option value="heart">you're all heart</option>
+                <option value="paper">not worth the paper</option>
+              </select>
+              , and without his signature, I had nowhere else to go. I took a deep breath, straightened my tie, and signed the contract, knowing inside that I was still
+              <select id="cloze-7" data-key="beaten" class="cloze-select mx-1 bg-slate-950 border border-amber-500/40 text-amber-300 text-xs sm:text-sm font-semibold rounded px-2 py-1">
+                <option value="">[Select Idiom]</option>
+                <option value="gounder">going under</option>
+                <option value="disturb">disturbing peace</option>
+                <option value="beaten">a long way from being beaten.</option>
+              </select>
+            </p>
+          </div>
+
+          <!-- Cloze Actions -->
+          <div class="flex flex-wrap items-center gap-3 mt-5">
+            <button onclick="checkNarrativeResponses()" class="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm rounded-xl shadow-lg transition transform active:scale-95 flex items-center gap-2">
+              <span>🔍</span> Check My Responses
+            </button>
+            <button onclick="resetNarrativeDrill()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm rounded-xl border border-slate-700 transition">
+              Reset / Try Again
+            </button>
+            <button onclick="readAloudStory()" class="px-4 py-2.5 bg-slate-800 border border-amber-500/40 text-amber-300 hover:bg-slate-700 text-sm rounded-xl transition flex items-center gap-1.5 ml-auto">
+              🔊 Model Audio Delivery
+            </button>
+          </div>
+
+          <!-- Cloze Diagnostic Card -->
+          <div id="narrative-results-card" class="hidden mt-6 bg-slate-900/90 border-2 border-slate-700 rounded-2xl p-6 shadow-2xl space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-slate-800 gap-4">
+              <div>
+                <span class="text-xs uppercase font-bold tracking-widest text-slate-400">Diagnostic Evaluation</span>
+                <h4 class="text-xl sm:text-2xl font-bold font-serif-gilded text-amber-400" id="results-headline">
+                  Evaluation Summary
+                </h4>
+              </div>
+              <div class="flex items-center gap-4 bg-slate-950 px-4 py-2.5 rounded-xl border border-slate-800">
+                <div class="text-right">
+                  <div class="text-[11px] uppercase tracking-wider text-slate-400">Accuracy Score</div>
+                  <div class="text-2xl font-black font-mono" id="results-score-display">0 / 7</div>
+                </div>
+                <div class="h-9 w-px bg-slate-800"></div>
+                <div class="text-left">
+                  <div class="text-[11px] uppercase tracking-wider text-slate-400">GCSE Benchmark</div>
+                  <div class="text-sm font-bold" id="results-band-badge">Band --</div>
+                </div>
+              </div>
+            </div>
+
+            <div id="diagnostic-breakdown-container" class="space-y-3"></div>
+
+            <div class="bg-slate-950/70 border border-amber-500/30 rounded-xl p-5">
+              <h5 class="text-sm font-bold text-amber-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <span>📋</span> Examiner Recommendations (GCSE English Language AO4)
+              </h5>
+              <div class="text-xs sm:text-sm text-slate-300 space-y-2 leading-relaxed" id="recommendations-content"></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-slate-800 bg-slate-950/80 py-4 mt-8">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-2">
+      <div>GCSE English Language & Literature Preparation Studio • Pedagogical Game Engine</div>
+      <div class="flex items-center space-x-4">
+        <span>B2 Vantage ➔ C1 Advanced Progression</span>
+        <button onclick="resetEntireApp()" class="text-amber-400 hover:underline">Reset All Progress</button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* ==========================================================
+       1. WEB AUDIO SYNTHESIZER (No external audio file dependencies)
+       ========================================================== */
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playCoinChime() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        osc1.type = 'sine';
+        osc2.type = 'triangle';
+        osc1.frequency.setValueAtTime(987.77, now);
+        osc1.frequency.exponentialRampToValueAtTime(1318.51, now + 0.08);
+
+        osc2.frequency.setValueAtTime(1975.53, now);
+        osc2.frequency.exponentialRampToValueAtTime(2637.02, now + 0.1);
+
+        gainNode.gain.setValueAtTime(0.3, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+
+        osc1.connect(gainNode);
+        osc2.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + 0.6);
+        osc2.stop(now + 0.6);
+      } catch (e) {}
+    }
+
+    function playErrorTone() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      } catch (e) {}
+    }
+
+    function playFanfare() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + (idx * 0.12));
+          gain.gain.setValueAtTime(0.25, now + (idx * 0.12));
+          gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.12) + 0.6);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + (idx * 0.12));
+          osc.stop(now + (idx * 0.12) + 0.65);
+        });
+      } catch (e) {}
+    }
+
+    function speakText(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.95;
+        utterance.pitch = 1.0;
+        const voices = window.speechSynthesis.getVoices();
+        const enVoice = voices.find(v => v.lang.includes('en-GB')) || voices.find(v => v.lang.includes('en'));
+        if (enVoice) utterance.voice = enVoice;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    /* ==========================================================
+       2. GLOBAL SCORE SYSTEM & TAB SWITCHER
+       ========================================================== */
+    let globalScore = 0;
+    function addGlobalScore(pts) {
+      globalScore += pts;
+      const scoreElem = document.getElementById('global-score');
+      scoreElem.innerText = globalScore;
+      scoreElem.classList.add('text-amber-300');
+      setTimeout(() => scoreElem.classList.remove('text-amber-300'), 400);
+    }
+
+    function navigateToTab(tabId) {
+      document.querySelectorAll('.stage-section').forEach(sec => sec.classList.add('hidden'));
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('border-amber-500/30', 'text-amber-300', 'bg-slate-800/90');
+        btn.classList.add('border-transparent', 'text-slate-400');
+      });
+
+      const activeSection = document.getElementById(tabId);
+      if (activeSection) activeSection.classList.remove('hidden');
+
+      const activeBtn = document.getElementById('btn-' + tabId);
+      if (activeBtn) {
+        activeBtn.classList.add('border-amber-500/30', 'text-amber-300', 'bg-slate-800/90');
+        activeBtn.classList.remove('border-transparent', 'text-slate-400');
+      }
+    }
+
+    /* STAGE 1: APPEARANCE UPGRADE LOGIC */
+    let stage1SelectedBasic = null;
+    let stage1SelectedAdvanced = null;
+    let stage1MatchesCount = 0;
+
+    function handleStage1Click(elem, type, characterKey) {
+      if (elem.classList.contains('matched')) return;
+
+      if (type === 'basic') {
+        if (stage1SelectedBasic) stage1SelectedBasic.classList.remove('selected');
+        stage1SelectedBasic = elem;
+        elem.classList.add('selected');
+      } else {
+        if (stage1SelectedAdvanced) stage1SelectedAdvanced.classList.remove('selected');
+        stage1SelectedAdvanced = elem;
+        elem.classList.add('selected');
+      }
+
+      if (stage1SelectedBasic && stage1SelectedAdvanced) {
+        const charA = stage1SelectedBasic.getAttribute('data-character');
+        const charB = stage1SelectedAdvanced.getAttribute('data-character');
+
+        if (charA === charB) {
+          stage1SelectedBasic.classList.remove('selected');
+          stage1SelectedAdvanced.classList.remove('selected');
+          stage1SelectedBasic.classList.add('matched');
+          stage1SelectedAdvanced.classList.add('matched');
+          playCoinChime();
+          addGlobalScore(100);
+          stage1MatchesCount++;
+          stage1SelectedBasic = null;
+          stage1SelectedAdvanced = null;
+
+          if (stage1MatchesCount === 3) {
+            document.getElementById('stage1-banner').classList.remove('hidden');
+          }
+        } else {
+          playErrorTone();
+          stage1SelectedBasic.classList.add('shake');
+          stage1SelectedAdvanced.classList.add('shake');
+          const b = stage1SelectedBasic;
+          const a = stage1SelectedAdvanced;
+          setTimeout(() => {
+            b.classList.remove('selected', 'shake');
+            a.classList.remove('selected', 'shake');
+          }, 450);
+          stage1SelectedBasic = null;
+          stage1SelectedAdvanced = null;
+        }
+      }
+    }
+
+    /* STAGE 2: MCQ EXERCISES */
+    const answeredMCQ = {};
+
+    function evaluateMCQ(btn, qNum, isCorrect, feedbackText) {
+      if (answeredMCQ[qNum]) return;
+      answeredMCQ[qNum] = true;
+
+      const container = document.getElementById('q-block-' + qNum);
+      const feedback = container.querySelector('.feedback-area');
+      const allBtns = container.querySelectorAll('.options-container button');
+
+      allBtns.forEach(b => {
+        b.classList.add('cursor-default');
+        b.classList.remove('hover:bg-slate-800', 'hover:border-slate-700');
+      });
+
+      if (isCorrect) {
+        btn.classList.add('bg-emerald-950/80', 'border-emerald-500', 'text-emerald-300', 'font-semibold');
+        feedback.classList.remove('hidden');
+        feedback.classList.add('bg-emerald-950/70', 'border', 'border-emerald-500/50', 'text-emerald-200');
+        feedback.innerHTML = `<strong>Correct:</strong> ${feedbackText}`;
+        playCoinChime();
+        addGlobalScore(150);
+      } else {
+        btn.classList.add('bg-rose-950/80', 'border-rose-500', 'text-rose-300');
+        feedback.classList.remove('hidden');
+        feedback.classList.add('bg-rose-950/70', 'border', 'border-rose-500/50', 'text-rose-200');
+        feedback.innerHTML = `<strong>Not quite:</strong> ${feedbackText}`;
+        playErrorTone();
+      }
+    }
+
+    /* STAGE 3: THE 7-IDIOM LAB (MATCHING, COIN FLIGHT & CHEST) */
+    const idiomsData = [
+      {
+        id: 1,
+        expression: "Careful with those. They're fragile.",
+        contextNote: "Supervisor handling delicate luxury crates (00:01:15)",
+        meaning: "Denotes delicate physical handling; symbolically warns that aristocratic luxury and social fortunes are easily fractured.",
+        tone: "Literal caution & symbolic fragility"
+      },
+      {
+        id: 2,
+        expression: "You're all heart.",
+        contextNote: "Servant Mr. Griffin reacting to an unfeeling peer (00:02:15)",
+        meaning: "A sharp, sarcastic idiom deployed to scold someone for complete lack of empathy or emotional warmth.",
+        tone: "Irony / Sarcastic rebuke"
+      },
+      {
+        id: 3,
+        expression: "Not worth the paper they're printed on.",
+        contextNote: "Attorney Raikes explaining defunct railroad stock (00:03:02)",
+        meaning: "Signifies that formal financial certificates or promissory agreements possess zero practical monetary value.",
+        tone: "Insolvency / Complete devaluation"
+      },
+      {
+        id: 4,
+        expression: "Go under",
+        contextNote: "Discussing volatile commercial speculation (00:03:14)",
+        meaning: "Phrasal verb indicating business liquidation, commercial collapse, or total financial insolvency.",
+        tone: "Commercial bankruptcy"
+      },
+      {
+        id: 5,
+        expression: "Beggars can't be choosers.",
+        contextNote: "Marian resigning herself to Aunt Agnes's charity (00:04:41)",
+        meaning: "Proverb acknowledging that individuals in destitute circumstances must accept whatever rescue is granted.",
+        tone: "Pragmatic submission to reality"
+      },
+      {
+        id: 6,
+        expression: "A long way from being beaten.",
+        contextNote: "Attorney Raikes praising Marian's resilience (00:05:03)",
+        meaning: "An encouraging phrase conveying inner grit, defiance, and sustained stamina in the face of sudden crisis.",
+        tone: "Unyielding resilience"
+      },
+      {
+        id: 7,
+        expression: "Disturb our peace",
+        contextNote: "Aunt Agnes fretting over Marian's arrival (00:07:23)",
+        meaning: "Formal collocation meaning to upset an established domestic tranquility or introduce unwanted upheaval.",
+        tone: "Aristocratic exclusivity & friction"
+      }
+    ];
+
+    let idiomStageA = null;
+    let idiomStageB = null;
+    let collectedCoinsCount = 0;
+
+    function renderIdiomLab() {
+      const colA = document.getElementById('group-a-container');
+      const colB = document.getElementById('group-b-container');
+      colA.innerHTML = '';
+      colB.innerHTML = '';
+
+      const shuffledA = [...idiomsData].sort(() => Math.random() - 0.5);
+      const shuffledB = [...idiomsData].sort(() => Math.random() - 0.5);
+
+      shuffledA.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'card-block bg-slate-950 border border-slate-800 p-3.5 rounded-xl cursor-pointer hover:border-amber-500/40 relative';
+        div.dataset.id = item.id;
+        div.onclick = (e) => handleIdiomBlockClick(div, 'A', item.id);
+
+        div.innerHTML = `
+          <div class="flex justify-between items-start gap-2">
+            <span class="text-sm font-bold text-amber-300">"${item.expression}"</span>
+            <button onclick="event.stopPropagation(); speakText('${item.expression.replace(/'/g, "\\'")}')" title="Pronounce" class="text-slate-400 hover:text-amber-400 p-1 text-xs">
+              🔊
+            </button>
+          </div>
+          <div class="text-[11px] text-slate-500 mt-1">${item.contextNote}</div>
+        `;
+        colA.appendChild(div);
+      });
+
+      shuffledB.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'card-block bg-slate-950 border border-slate-800 p-3.5 rounded-xl cursor-pointer hover:border-emerald-500/40';
+        div.dataset.id = item.id;
+        div.onclick = () => handleIdiomBlockClick(div, 'B', item.id);
+
+        div.innerHTML = `
+          <div class="text-xs uppercase font-bold text-emerald-400 mb-1 tracking-wide">${item.tone}</div>
+          <p class="text-xs sm:text-sm text-slate-300">${item.meaning}</p>
+        `;
+        colB.appendChild(div);
+      });
+    }
+
+    function handleIdiomBlockClick(elem, group, id) {
+      if (elem.classList.contains('matched')) return;
+
+      if (group === 'A') {
+        if (idiomStageA) idiomStageA.classList.remove('selected');
+        idiomStageA = elem;
+        elem.classList.add('selected');
+      } else {
+        if (idiomStageB) idiomStageB.classList.remove('selected');
+        idiomStageB = elem;
+        elem.classList.add('selected');
+      }
+
+      if (idiomStageA && idiomStageB) {
+        const idA = idiomStageA.dataset.id;
+        const idB = idiomStageB.dataset.id;
+
+        if (idA === idB) {
+          const elemA = idiomStageA;
+          const elemB = idiomStageB;
+
+          elemA.classList.remove('selected');
+          elemB.classList.remove('selected');
+          elemA.classList.add('matched');
+          elemB.classList.add('matched');
+
+          launchCoinAnimation(elemA);
+          playCoinChime();
+          addGlobalScore(150);
+
+          collectedCoinsCount++;
+          updateChestCounter();
+
+          idiomStageA = null;
+          idiomStageB = null;
+
+          if (collectedCoinsCount === 7) {
+            handleAllCoinsCollected();
+          }
+        } else {
+          playErrorTone();
+          idiomStageA.classList.add('shake');
+          idiomStageB.classList.add('shake');
+          const a = idiomStageA;
+          const b = idiomStageB;
+          setTimeout(() => {
+            a.classList.remove('selected', 'shake');
+            b.classList.remove('selected', 'shake');
+          }, 450);
+          idiomStageA = null;
+          idiomStageB = null;
+        }
+      }
+    }
+
+    function updateChestCounter() {
+      const counter = document.getElementById('collected-coins');
+      counter.innerText = collectedCoinsCount;
+      const statusText = document.getElementById('chest-status-text');
+      statusText.innerText = `${collectedCoinsCount} of 7 Collected!`;
+    }
+
+    function launchCoinAnimation(sourceElement) {
+      const chest = document.getElementById('chest-graphic');
+      if (!chest) return;
+
+      const sourceRect = sourceElement.getBoundingClientRect();
+      const chestRect = chest.getBoundingClientRect();
+
+      const startX = sourceRect.left + sourceRect.width / 2;
+      const startY = sourceRect.top + sourceRect.height / 2;
+      const endX = chestRect.left + chestRect.width / 2;
+      const endY = chestRect.top + chestRect.height / 2;
+
+      const deltaX = endX - startX;
+      const deltaY = endY - startY;
+
+      const coin = document.createElement('div');
+      coin.className = 'flying-coin w-8 h-8 rounded-full border-2 border-yellow-300 bg-gradient-to-tr from-amber-600 via-yellow-400 to-amber-200 shadow-xl flex items-center justify-center text-xs font-black text-amber-950';
+      coin.style.left = `${startX - 16}px`;
+      coin.style.top = `${startY - 16}px`;
+      coin.style.setProperty('--target-x', `${deltaX}px`);
+      coin.style.setProperty('--target-y', `${deltaY}px`);
+      coin.innerHTML = '🪙';
+
+      document.body.appendChild(coin);
+
+      setTimeout(() => {
+        coin.remove();
+        chest.classList.remove('chest-hit');
+        void chest.offsetWidth;
+        chest.classList.add('chest-hit');
+      }, 850);
+    }
+
+    function handleAllCoinsCollected() {
+      playFanfare();
+      triggerConfettiBurst(70);
+      document.getElementById('chest-closed-svg').classList.add('hidden');
+      document.getElementById('chest-open-svg').classList.remove('hidden');
+      document.getElementById('chest-status-text').innerText = "Vault Complete! ★";
+      document.getElementById('chest-status-text').classList.add('text-amber-300', 'font-bold');
+      document.getElementById('vault-celebration-banner').classList.remove('hidden');
+    }
+
+    function triggerChestCheer() {
+      if (collectedCoinsCount === 7) {
+        triggerConfettiBurst(40);
+        playFanfare();
+      } else {
+        playCoinChime();
+      }
+    }
+
+    function resetIdiomLab() {
+      collectedCoinsCount = 0;
+      updateChestCounter();
+      document.getElementById('chest-closed-svg').classList.remove('hidden');
+      document.getElementById('chest-open-svg').classList.add('hidden');
+      document.getElementById('vault-celebration-banner').classList.add('hidden');
+      document.getElementById('chest-status-text').innerText = "Match blocks to fill";
+      document.getElementById('chest-status-text').classList.remove('text-amber-300', 'font-bold');
+      renderIdiomLab();
+    }
+
+    /* ==========================================================
+       4. STAGE 4 PART A: VOICE RECORDER & LIVE SPEECH ENGINE
+       ========================================================== */
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+    let speechRecognition = null;
+    let recordTimerInterval = null;
+    let recordSeconds = 0;
+
+    // Visualizer variables
+    let audioStream = null;
+    let visualizerSource = null;
+    let analyserNode = null;
+    let visualizerAnimationId = null;
+
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        console.warn("SpeechRecognition API not natively supported in this browser.");
+        return null;
+      }
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-GB';
+
+      recognition.onresult = (event) => {
+        let finalTranscript = '';
+        let interimTranscript = '';
+
+        for (let i = 0; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript + ' ';
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+        
+        const fullText = (finalTranscript + interimTranscript).trim();
+        const textarea = document.getElementById('live-speech-transcript');
+        textarea.value = fullText;
+        updateWordCount();
+      };
+
+      recognition.onerror = (e) => {
+        console.warn("Speech recognition error:", e.error);
+      };
+
+      return recognition;
+    }
+
+    function updateWordCount() {
+      const text = document.getElementById('live-speech-transcript').value.trim();
+      const words = text ? text.split(/\s+/).length : 0;
+      document.getElementById('transcript-word-count').innerText = words;
+    }
+
+    document.getElementById('live-speech-transcript').addEventListener('input', updateWordCount);
+
+    function clearTranscript() {
+      document.getElementById('live-speech-transcript').value = "";
+      updateWordCount();
+    }
+
+    async function toggleRecording() {
+      if (!isRecording) {
+        await startRecordingSession();
+      } else {
+        stopRecordingSession();
+      }
+    }
+
+    async function startRecordingSession() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioStream = stream;
+
+        // Setup MediaRecorder
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunks.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const playback = document.getElementById('audio-playback');
+          playback.src = audioUrl;
+        };
+
+        mediaRecorder.start();
+
+        // Setup Web Speech Recognition
+        speechRecognition = initSpeechRecognition();
+        if (speechRecognition) {
+          try {
+            speechRecognition.start();
+          } catch(err) {
+            console.warn(err);
+          }
+        }
+
+        // Setup Visualizer
+        setupAudioVisualizer(stream);
+
+        // UI Updates
+        isRecording = true;
+        recordSeconds = 0;
+        document.getElementById('rec-btn-label').innerText = "Stop Recording";
+        document.getElementById('rec-icon').innerText = "⏹️";
+        document.getElementById('recording-pulse-dot').classList.remove('bg-slate-600');
+        document.getElementById('recording-pulse-dot').classList.add('bg-rose-500', 'recording-pulse');
+        document.getElementById('recording-status-text').innerText = "Recording Candidate Speech...";
+        document.getElementById('recording-status-text').className = "font-semibold text-rose-400";
+
+        // Countup duration timer
+        clearInterval(recordTimerInterval);
+        recordTimerInterval = setInterval(() => {
+          recordSeconds++;
+          const mins = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
+          const secs = String(recordSeconds % 60).padStart(2, '0');
+          document.getElementById('rec-duration').innerText = `${mins}:${secs}`;
+          
+          // Countdown 45s exam clock
+          let timeLeft = Math.max(0, 45 - recordSeconds);
+          const cMins = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+          const cSecs = String(timeLeft % 60).padStart(2, '0');
+          document.getElementById('speech-timer-display').innerText = `${cMins}:${cSecs}`;
+
+          if (recordSeconds >= 45) {
+            stopRecordingSession();
+          }
+        }, 1000);
+
+      } catch (err) {
+        alert("Microphone permission was denied or not detected. You can still type your oral answer directly into the transcript box for automated grading.");
+        console.error("Microphone error:", err);
+      }
+    }
+
+    function stopRecordingSession() {
+      if (!isRecording) return;
+      isRecording = false;
+
+      clearInterval(recordTimerInterval);
+
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+
+      if (speechRecognition) {
+        try {
+          speechRecognition.stop();
+        } catch(e) {}
+      }
+
+      if (audioStream) {
+        audioStream.getTracks().forEach(track => track.stop());
+      }
+
+      cancelAnimationFrame(visualizerAnimationId);
+      drawStaticWaveform();
+
+      // UI Reset
+      document.getElementById('rec-btn-label').innerText = "Record Spoken Answer";
+      document.getElementById('rec-icon').innerText = "🎙️";
+      document.getElementById('recording-pulse-dot').classList.remove('bg-rose-500', 'recording-pulse');
+      document.getElementById('recording-pulse-dot').classList.add('bg-emerald-500');
+      document.getElementById('recording-status-text').innerText = "Take Complete • Ready for Evaluation";
+      document.getElementById('recording-status-text').className = "font-semibold text-emerald-400";
+      playFanfare();
+    }
+
+    function setupAudioVisualizer(stream) {
+      const ctx = getAudioContext();
+      analyserNode = ctx.createAnalyser();
+      analyserNode.fftSize = 64;
+      visualizerSource = ctx.createMediaStreamSource(stream);
+      visualizerSource.connect(analyserNode);
+
+      const canvas = document.getElementById('waveform-canvas');
+      const canvasCtx = canvas.getContext('2d');
+      const bufferLength = analyserNode.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      function renderFrame() {
+        visualizerAnimationId = requestAnimationFrame(renderFrame);
+        analyserNode.getByteFrequencyData(dataArray);
+
+        canvasCtx.fillStyle = '#020617';
+        canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const barWidth = (canvas.width / bufferLength) * 1.5;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+          const barHeight = (dataArray[i] / 255) * canvas.height;
+          
+          const gradient = canvasCtx.createLinearGradient(0, canvas.height, 0, 0);
+          gradient.addColorStop(0, '#d97706');
+          gradient.addColorStop(0.6, '#f59e0b');
+          gradient.addColorStop(1, '#fef08a');
+
+          canvasCtx.fillStyle = gradient;
+          canvasCtx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+
+          x += barWidth;
+        }
+      }
+      renderFrame();
+    }
+
+    function drawStaticWaveform() {
+      const canvas = document.getElementById('waveform-canvas');
+      const canvasCtx = canvas.getContext('2d');
+      canvasCtx.fillStyle = '#020617';
+      canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      canvasCtx.strokeStyle = '#334155';
+      canvasCtx.lineWidth = 2;
+      canvasCtx.beginPath();
+      canvasCtx.moveTo(0, canvas.height / 2);
+      canvasCtx.lineTo(canvas.width, canvas.height / 2);
+      canvasCtx.stroke();
+    }
+    drawStaticWaveform();
+
+    /* ==========================================================
+       5. AUTOMATED GCSE SPOKEN ENDORSEMENT EVALUATOR
+       ========================================================== */
+    const targetIdiomMatchers = [
+      { key: "fragile", label: "Careful / Fragile", patterns: [/careful with those/i, /they're fragile/i, /fragile/i] },
+      { key: "heart", label: "You're all heart", patterns: [/you're all heart/i, /all heart/i] },
+      { key: "paper", label: "Not worth the paper", patterns: [/not worth the paper/i, /printed on/i] },
+      { key: "gounder", label: "Go under", patterns: [/go under/i, /going under/i, /went under/i] },
+      { key: "beggars", label: "Beggars can't be choosers", patterns: [/beggars can't be choosers/i, /beggars cannot/i] },
+      { key: "beaten", label: "Long way from being beaten", patterns: [/long way from being beaten/i, /not beaten/i, /from being beaten/i] },
+      { key: "disturb", label: "Disturb our peace", patterns: [/disturb our peace/i, /disturb peace/i] }
+    ];
+
+    const elevatedVocabularyMatchers = [
+      { key: "understated", label: "Understated", pattern: /understated/i },
+      { key: "composed", label: "Composed", pattern: /composed/i },
+      { key: "dashing", label: "Dashing", pattern: /dashing/i },
+      { key: "resilience", label: "Resilience / Resolute", patterns: [/resilien/i, /resolute/i] },
+      { key: "adversity", label: "Adversity", pattern: /adversity/i },
+      { key: "demeanor", label: "Demeanor", pattern: /demeanor|demeanour/i },
+      { key: "indignation", label: "Indignation", pattern: /indignation/i },
+      { key: "ostentatious", label: "Ostentatious / Aristocratic", patterns: [/ostentatious/i, /aristocrat/i] }
+    ];
+
+    const discourseMarkersMatchers = [
+      { key: "contrast", label: "However / Whereas / In contrast", patterns: [/however/i, /whereas/i, /in contrast/i, /on the other hand/i, /while/i] },
+      { key: "concession", label: "Despite / Although", patterns: [/despite/i, /although/i, /even though/i, /in spite of/i] },
+      { key: "consequence", label: "Consequently / Furthermore", patterns: [/consequently/i, /furthermore/i, /therefore/i, /similarly/i, /as a result/i] }
+    ];
+
+    function evaluateOralTranscript() {
+      const transcript = document.getElementById('live-speech-transcript').value.trim();
+      
+      if (!transcript || transcript.length < 15) {
+        alert("Please speak into the microphone or type a response of at least 15 words before evaluating.");
+        return;
+      }
+
+      const words = transcript.split(/\s+/).filter(w => w.length > 0);
+      const wordCount = words.length;
+
+      // 1. Detect Idioms
+      const detectedIdioms = [];
+      targetIdiomMatchers.forEach(item => {
+        if (item.patterns.some(regex => regex.test(transcript))) {
+          detectedIdioms.push(item.label);
+        }
+      });
+
+      // 2. Detect Elevated Lexis
+      const detectedElevated = [];
+      elevatedVocabularyMatchers.forEach(item => {
+        if (item.patterns) {
+          if (item.patterns.some(p => p.test(transcript))) detectedElevated.push(item.label);
+        } else if (item.pattern && item.pattern.test(transcript)) {
+          detectedElevated.push(item.label);
+        }
+      });
+
+      // 3. Detect Discourse Markers
+      const detectedMarkers = [];
+      discourseMarkersMatchers.forEach(item => {
+        if (item.patterns.some(p => p.test(transcript))) {
+          detectedMarkers.push(item.label);
+        }
+      });
+
+      // Calculate Academic Speaking Score (0 - 100)
+      let score = 0;
+      score += Math.min(35, wordCount >= 60 ? 35 : Math.floor((wordCount / 60) * 35));
+      score += Math.min(40, detectedIdioms.length * 10);
+      score += Math.min(15, detectedElevated.length * 5);
+      score += Math.min(10, detectedMarkers.length * 5);
+
+      // Determine GCSE Spoken Endorsement
+      let endorsement = "Pass";
+      let bandTitle = "Band 3: Developing Oral Competence";
+      let badgeColor = "text-yellow-400";
+
+      if (score >= 80 && wordCount >= 50) {
+        endorsement = "Distinction (Grade 8–9 Standard)";
+        bandTitle = "Band 5: Sophisticated & Fluent Delivery";
+        badgeColor = "text-emerald-400";
+        playFanfare();
+        triggerConfettiBurst(50);
+      } else if (score >= 55) {
+        endorsement = "Merit (Grade 6–7 Standard)";
+        bandTitle = "Band 4: Clear & Sustained Analysis";
+        badgeColor = "text-amber-300";
+        playCoinChime();
+      } else {
+        endorsement = "Pass (Grade 4–5 Standard)";
+        bandTitle = "Band 3: Basic Communicative Competence";
+        badgeColor = "text-rose-400";
+        playErrorTone();
+      }
+
+      // Render Evaluation Card
+      const evalCard = document.getElementById('oral-evaluation-card');
+      evalCard.classList.remove('hidden');
+
+      document.getElementById('oral-grade-title').innerText = bandTitle;
+      const badgeElem = document.getElementById('oral-endorsement-badge');
+      badgeElem.innerText = endorsement;
+      badgeElem.className = `text-lg font-black ${badgeColor}`;
+      document.getElementById('oral-score-num').innerText = `${score} / 100`;
+
+      // Metrics
+      document.getElementById('oral-lexis-count').innerText = `${detectedIdioms.length + detectedElevated.length} Detected`;
+      document.getElementById('oral-lexis-detail').innerText = `${detectedIdioms.length} idioms, ${detectedElevated.length} elevated terms`;
+
+      document.getElementById('oral-markers-count').innerText = `${detectedMarkers.length} Active`;
+      document.getElementById('oral-markers-detail').innerText = detectedMarkers.length > 0 ? detectedMarkers.join(', ') : 'No linkers found';
+
+      document.getElementById('oral-fluency-status').innerText = `${wordCount} Words Spoken`;
+      document.getElementById('oral-fluency-detail').innerText = wordCount >= 60 ? 'Sustained delivery' : (wordCount >= 35 ? 'Moderate volume' : 'Too brief');
+
+      // Tags
+      const tagsContainer = document.getElementById('oral-tags-container');
+      tagsContainer.innerHTML = '';
+
+      if (detectedIdioms.length === 0 && detectedElevated.length === 0 && detectedMarkers.length === 0) {
+        tagsContainer.innerHTML = '<span class="text-xs text-slate-500 italic">None detected. Try using phrases like "long way from being beaten" or "whereas".</span>';
+      } else {
+        detectedIdioms.forEach(t => {
+          const tag = document.createElement('span');
+          tag.className = 'px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40';
+          tag.innerText = `✓ Idiom: ${t}`;
+          tagsContainer.appendChild(tag);
+        });
+
+        detectedElevated.forEach(t => {
+          const tag = document.createElement('span');
+          tag.className = 'px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+          tag.innerText = `★ Lexis: ${t}`;
+          tagsContainer.appendChild(tag);
+        });
+
+        detectedMarkers.forEach(t => {
+          const tag = document.createElement('span');
+          tag.className = 'px-2.5 py-1 rounded-md text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40';
+          tag.innerText = `🔗 Linker: ${t}`;
+          tagsContainer.appendChild(tag);
+        });
+      }
+
+      // Feedback Text
+      const feedbackContainer = document.getElementById('oral-feedback-text');
+      feedbackContainer.innerHTML = '';
+
+      if (score >= 80) {
+        feedbackContainer.innerHTML = `
+          <p>• <strong>Superb Lexical Integration:</strong> You seamlessly deployed authentic cinematic idioms alongside analytical contrastive markers.</p>
+          <p>• <strong>GCSE Criterion Met:</strong> Expresses sophisticated ideas with rhetorical confidence, nuanced comparison, and perceptive vocabulary.</p>
+        `;
+      } else if (score >= 55) {
+        feedbackContainer.innerHTML = `
+          <p>• <strong>Good Communicative Foundation:</strong> You developed a relevant parallel between Marian's loss of inheritance and academic disappointment.</p>
+          <p>• <strong>To Reach Distinction:</strong> Incorporate more contrastive connectors (e.g. <em>"In contrast to Marian's initial despair..."</em>) and weave in target phrases such as <em>"not worth the paper they're printed on"</em>.</p>
+        `;
+      } else {
+        feedbackContainer.innerHTML = `
+          <p>• <strong>Underdeveloped Response:</strong> Your current answer is too brief or lacks targeted vocabulary to satisfy upper GCSE bands.</p>
+          <p>• <strong>Action Plan:</strong> Speak for the full 45 seconds aiming for 50+ words. Use the provided sentence starters: <em>"On the surface, Marian Brook’s financial catastrophe is mirrored when a student realizes their results are not worth the paper..."</em></p>
+        `;
+      }
+
+      addGlobalScore(Math.floor(score * 2));
+      evalCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function readAloudPrompt() {
+      speakText("Explain how Marian Brook's sudden destitution in Doylestown mirrors a modern student unsealing catastrophic mock exam results. How does language demonstrate defiance rather than defeat?");
+    }
+
+    /* ==========================================================
+       6. STAGE 4 PART B: CLOZE NARRATIVE DRILL EVALUATOR
+       ========================================================== */
+    const clozeMetadata = [
+      {
+        id: 'cloze-1',
+        correctKey: 'fragile',
+        correctLabel: '"Careful with those. They\'re fragile."',
+        slotContext: 'Supervisor/Deputy stern command over vulnerable paper envelopes',
+        rationale: 'Creates dramatic tension and atmosphere by emphasizing that their academic futures and identities are brittle and vulnerable to complete ruin.'
+      },
+      {
+        id: 'cloze-2',
+        correctKey: 'paper',
+        correctLabel: 'not worth the paper it was printed on.',
+        slotContext: 'Evaluating the ruined official Grade 3s results sheet',
+        rationale: 'Echoes Tom Raikes evaluating worthless railroad stock certificates; establishes the theme of financial or academic collapse where formal documents hold zero value.'
+      },
+      {
+        id: 'cloze-3',
+        correctKey: 'gounder',
+        correctLabel: 'go under',
+        slotContext: 'Describing collapsing academic momentum or imminent institutional expulsion',
+        rationale: 'A commercial bankruptcy phrasal verb used here to metaphorically signal systemic academic liquidation and loss of status.'
+      },
+      {
+        id: 'cloze-4',
+        correctKey: 'heart',
+        correctLabel: 'you\'re all heart',
+        slotContext: 'Bitter response to an unfeeling authoritarian figure',
+        rationale: 'Deploys authentic British sarcastic irony to highlight the headmaster\'s lack of empathy, echoing the servant dialogue in Episode 1.'
+      },
+      {
+        id: 'cloze-5',
+        correctKey: 'disturb',
+        correctLabel: 'disturb our peace',
+        slotContext: 'Administrative concern about reputation and order during inspection week',
+        rationale: 'Reflects Aunt Agnes\'s aristocratic anxiety about preserving decorum and preventing chaotic scandal from disrupting established peace.'
+      },
+      {
+        id: 'cloze-6',
+        correctKey: 'beggars',
+        correctLabel: 'beggars can\'t be choosers',
+        slotContext: 'Forced acceptance of humiliating retake conditions',
+        rationale: 'Marks the psychological pivot of acknowledging harsh reality without leverage, identical to Marian accepting dependence on her estranged aunts.'
+      },
+      {
+        id: 'cloze-7',
+        correctKey: 'beaten',
+        correctLabel: 'a long way from being beaten.',
+        slotContext: 'The resolute concluding assertion of inner stamina and defiance',
+        rationale: 'Concludes the narrative arc on an emphatic note of resilience and personal agency, elevating the response to Band 5/Grade 9 criteria.'
+      }
+    ];
+
+    let hasCheckedCloze = false;
+
+    function checkNarrativeResponses() {
+      let correctCount = 0;
+      const diagnostics = [];
+
+      clozeMetadata.forEach((meta) => {
+        const selectElem = document.getElementById(meta.id);
+        const userValue = selectElem.value;
+        const isMatch = (userValue === meta.correctKey);
+
+        selectElem.classList.remove('is-correct', 'is-incorrect', 'select-shake');
+        void selectElem.offsetWidth;
+
+        if (isMatch) {
+          selectElem.classList.add('is-correct');
+          correctCount++;
+        } else {
+          selectElem.classList.add('is-incorrect', 'select-shake');
+          diagnostics.push({
+            id: meta.id,
+            slot: meta.slotContext,
+            correct: meta.correctLabel,
+            userChoice: selectElem.options[selectElem.selectedIndex].text,
+            rationale: meta.rationale
+          });
+        }
+      });
+
+      const resultsCard = document.getElementById('narrative-results-card');
+      resultsCard.classList.remove('hidden');
+
+      document.getElementById('results-score-display').innerText = `${correctCount} / 7`;
+      
+      const headline = document.getElementById('results-headline');
+      const bandBadge = document.getElementById('results-band-badge');
+      const recContainer = document.getElementById('recommendations-content');
+      const diagContainer = document.getElementById('diagnostic-breakdown-container');
+      diagContainer.innerHTML = '';
+
+      if (correctCount === 7) {
+        headline.innerText = "Exceptional Narrative Execution! 🌟";
+        headline.className = "text-xl sm:text-2xl font-bold font-serif-gilded text-emerald-400";
+        bandBadge.innerText = "Band 5 (Grade 8–9)";
+        bandBadge.className = "text-sm font-bold text-emerald-400";
+        
+        diagContainer.innerHTML = `
+          <div class="p-4 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 text-sm">
+            ✓ <strong>Flawless Lexical Synthesis:</strong> All 7 idiomatic expressions were integrated into appropriate syntactical positions without jarring register shifts or forced phrasing.
+          </div>
+        `;
+
+        recContainer.innerHTML = `
+          <p>• <strong>Sustained Tone (AO4 Band 5):</strong> Your narrative effectively mirrors the thematic tension between aristocratic appearances and sudden material ruin found in <em>The Gilded Age</em>.</p>
+          <p>• <strong>Examiner Tip:</strong> In your final GCSE exam, enhance this further by varying sentence starters with fronted adverbials (e.g. <em>"Clutching the ruined transcript in my fist..."</em>) and semi-colons for dramatic contrast.</p>
+        `;
+
+        if (!hasCheckedCloze) {
+          addGlobalScore(350);
+          hasCheckedCloze = true;
+        }
+        playFanfare();
+        triggerConfettiBurst(60);
+
+      } else {
+        headline.innerText = "Diagnostic Breakdown & Targeted Corrections";
+        headline.className = "text-xl sm:text-2xl font-bold font-serif-gilded text-amber-400";
+
+        if (correctCount >= 5) {
+          bandBadge.innerText = "Band 4 (Grade 6–7)";
+          bandBadge.className = "text-sm font-bold text-amber-300";
+        } else if (correctCount >= 3) {
+          bandBadge.innerText = "Band 3 (Grade 4–5)";
+          bandBadge.className = "text-sm font-bold text-yellow-500";
+        } else {
+          bandBadge.innerText = "Band 1–2 (Grade 2–3)";
+          bandBadge.className = "text-sm font-bold text-rose-400";
+        }
+
+        playErrorTone();
+
+        diagnostics.forEach(d => {
+          const item = document.createElement('div');
+          item.className = "p-3.5 rounded-xl bg-slate-950 border border-rose-500/40 text-xs sm:text-sm";
+          item.innerHTML = `
+            <div class="flex flex-wrap justify-between items-center gap-2 mb-1.5">
+              <span class="text-rose-400 font-bold uppercase tracking-wider text-[11px]">${d.slot}</span>
+              <span class="text-slate-400 text-xs">Selected: <strong class="text-rose-300">${d.userChoice === '[Select Idiom]' ? 'Empty' : d.userChoice}</strong></span>
+            </div>
+            <div class="text-amber-300 font-semibold mb-1">Target Idiom: ${d.correct}</div>
+            <div class="text-slate-300 leading-relaxed">${d.rationale}</div>
+          `;
+          diagContainer.appendChild(item);
+        });
+
+        recContainer.innerHTML = `
+          <p>• <strong>Contextual Nuance:</strong> Review the highlighted red gaps. Notice how specific idioms reflect social hierarchy and power dynamics between students and authoritarian school leaders.</p>
+          <p>• <strong>Register Consistency:</strong> Ensure ironic expressions (e.g. <em>"you're all heart"</em>) are reserved for spoken dialogue rather than descriptive exposition.</p>
+          <p>• <strong>Action Step:</strong> Adjust your selections based on the feedback above and click <em>"Check My Responses"</em> again to elevate your grade band.</p>
+        `;
+      }
+
+      resultsCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function resetNarrativeDrill() {
+      clozeMetadata.forEach(meta => {
+        const select = document.getElementById(meta.id);
+        select.value = "";
+        select.classList.remove('is-correct', 'is-incorrect', 'select-shake');
+      });
+      document.getElementById('narrative-results-card').classList.add('hidden');
+    }
+
+    function readAloudStory() {
+      const story = "The atmosphere in the grand assembly hall was suffocating. I reached for my results, but Mr. Sterling warned: Careful with those. They're fragile. The transcript was not worth the paper it was printed on. He warned my momentum would go under. I muttered: you're all heart. He replied: Your poor performance will not disturb our peace. Beggars can't be choosers, yet I knew inside I was still a long way from being beaten.";
+      speakText(story);
+    }
+
+    /* CONFETTI PARTICLE SYSTEM (Canvas Based) */
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function triggerConfettiBurst(count = 50) {
+      const colors = ['#f59e0b', '#d97706', '#fbbf24', '#fef08a', '#10b981', '#38bdf8'];
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: canvas.width * 0.5 + (Math.random() - 0.5) * 300,
+          y: canvas.height * 0.4 + (Math.random() - 0.5) * 100,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vx: (Math.random() - 0.5) * 12,
+          vy: Math.random() * -10 - 4,
+          rot: Math.random() * 360,
+          vrot: (Math.random() - 0.5) * 10,
+          life: 1.0
+        });
+      }
+    }
+
+    function renderConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.28;
+        p.rot += p.vrot;
+        p.life -= 0.012;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rot * Math.PI) / 180);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.7);
+        ctx.restore();
+
+        if (p.life <= 0 || p.y > canvas.height) {
+          particles.splice(i, 1);
+        }
+      }
+      requestAnimationFrame(renderConfetti);
+    }
+    requestAnimationFrame(renderConfetti);
+
+    function resetEntireApp() {
+      globalScore = 0;
+      document.getElementById('global-score').innerText = '0';
+      resetIdiomLab();
+      resetNarrativeDrill();
+      location.reload();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderIdiomLab();
+    });
+  </script>
+</body>
+</html>
