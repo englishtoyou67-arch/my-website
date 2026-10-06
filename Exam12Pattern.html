@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modular Neuro-Exam Game Hub Generator</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: #131b2e;
+      --card-alt: #1a2540;
+      --border: #2a3756;
+      --primary: #38bdf8;
+      --primary-hover: #0ea5e9;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; min-height: 100vh; }
+    .container { max-width: 1050px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 20px; padding: 18px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
+    h1 { font-size: 1.7rem; color: var(--primary); margin-bottom: 4px; }
+    p.lead { font-size: 0.88rem; color: var(--text-muted); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    @media(max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    .box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+    label { font-size: 0.82rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; }
+    .hint { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 2px; }
+    textarea { width: 100%; min-height: 140px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px; color: var(--text); font-size: 0.86rem; resize: vertical; outline: none; }
+    textarea:focus { border-color: var(--primary); }
+    input[type="file"], select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px; color: var(--text); font-size: 0.86rem; outline: none; }
+
+    .btn { background: var(--primary); color: #020617; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn:hover { background: var(--primary-hover); color: #fff; }
+    .btn.generated-active { background: var(--success) !important; color: #020617 !important; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+
+    .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-top: 10px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+    
+    #diagnostic-box { display: none; padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; margin-bottom: 12px; border: 1px solid transparent; }
+    #diagnostic-box.info { display: block; background: rgba(56, 189, 248, 0.1); border-color: var(--primary); color: var(--primary); }
+    #diagnostic-box.success { display: block; background: rgba(16, 185, 129, 0.1); border-color: var(--success); color: var(--success); }
+    #diagnostic-box.err { display: block; background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: var(--danger); }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🧠 Modular Neuro-Exam Game Hub Generator</h1>
+    <p class="lead">Independent Multilingual Matching • Metacognitive MC • 12-Sentence Cloze • Self-Eval Q&A • Validated Writing Task</p>
+  </header>
+
+  <div id="diagnostic-box"></div>
+
+  <!-- Row 1: Box 1 & Box 2 -->
+  <div class="grid-2">
+    <!-- BOX 1: SPEED MATCH -->
+    <div class="box">
+      <label>Box 1: Vocabulary & Russian / French Translations (Stage 1 Speed Match)</label>
+      <span class="hint">Format: <code>Word = Translation</code> (12 items for matching tiles)</span>
+      <textarea id="input-box1" placeholder="repeating patterns = повторяющиеся закономерности (motifs récurrents)
+consecutive element = последующий элемент
+chemical reactivity = химическая активность
+typographical solution = полиграфическое решение
+excessively wide = чрезмерно широкий
+enduring strength = стойкая сила
+predictive capability = прогностическая способность
+historical foundations = исторические основы
+atomic number = атомный номер
+electron shells = электронные оболочки
+noble gases = благородные газы
+isolated data points = разрозненные данные"></textarea>
+      
+      <label style="margin-top: 6px;">Audio Listening Track (Optional MP3)</label>
+      <input type="file" id="input-audio" accept="audio/*">
+    </div>
+
+    <!-- BOX 2 (Part A): METACOGNITIVE MC -->
+    <div class="box">
+      <label>Box 2 (Part A): Words & Definitions (Stage 2 Metacognitive MC)</label>
+      <span class="hint">Format: <code>Word : Definition</code> (12 target items for 4-option MC)</span>
+      <textarea id="input-box2-mc" placeholder="repeating patterns : regular events or shapes happening again and again
+consecutive element : the very next chemical substance in order
+chemical reactivity : how easily a substance interacts with others
+typographical solution : practical printed design choice to fit text
+excessively wide : much too broad to fit comfortably
+enduring strength : lasting power that stays effective over time
+predictive capability : ability to forecast future outcomes correctly
+historical foundations : original past events that build modern ideas
+atomic number : total count of protons inside a nucleus
+electron shells : layered regions around an atom holding electrons
+noble gases : stable, non-reactive elements in Group 18
+isolated data points : individual facts viewed without any broader pattern"></textarea>
+    </div>
+  </div>
+
+  <!-- Row 2: Box 3 & Box 4 -->
+  <div class="grid-2">
+    <!-- BOX 3: SUMMARY -->
+    <div class="box">
+      <label>Box 3: Summary Sentences (Stage 3 Context Fill-In)</label>
+      <span class="hint">Paste the 12 summary sentences containing your target expressions</span>
+      <textarea id="input-box3" placeholder="The Periodic Table’s historical foundations emerged in 1869 when Dmitri Mendeleev organized sixty-three known elements into a functional system.
+Rather than recording isolated measurements, he recognized that elements exhibit cyclical, repeating patterns in their physical and chemical behaviors.
+Along each horizontal row, each consecutive element possesses an additional nuclear proton that directly dictates its atomic number.
+These horizontal periods classify elements according to the total count of occupied electron shells surrounding their nuclei.
+In contrast, the vertical columns arrange substances by shared outer-orbital electrons, which ultimately determine their chemical reactivity.
+This grouping places the volatile alkali metals in Group 1, whereas stable noble gases occupy the far right column.
+The inner transition metals of Periods 6 and 7 were moved beneath the chart as a practical typographical solution.
+Without separating these elements, standard reference tables would become excessively wide to print legibly on a single page.
+This cohesive visual architecture prevents scientists from mistaking interrelated elements for arbitrary, isolated data points.
+The enduring strength of this framework lies in its capacity to unify disparate chemical principles within one logical matrix.
+By deliberately leaving vacant slots for unisolated elements, Mendeleev displayed unmatched predictive capability.
+Subsequent discoveries of these missing elements confirmed his calculated forecasts, solidifying the table as modern chemistry’s cornerstone."></textarea>
+    </div>
+
+    <!-- BOX 4: COMPREHENSION Q&A -->
+    <div class="box">
+      <label>Box 4: Comprehension Q&A (Stage 4 Self-Evaluation)</label>
+      <span class="hint">Format: <code>Question: ...</code> and <code>Answer: ...</code> (5 reading items)</span>
+      <textarea id="input-box4" placeholder="Question: What atomic property changes with each consecutive element across a horizontal period, and what does this number indicate?
+Answer: Each consecutive element adds a single proton to its nucleus, which defines the element's specific atomic number.
+
+Question: How does the structural criterion used to sort elements by electron shells differ from the factor determining their chemical reactivity?
+Answer: Horizontal periods organize elements by their total number of occupied electron shells, while vertical groups align elements by outer-shell valence electrons, which govern chemical reactivity.
+
+Question: Why are noble gases placed together on the far right of the table, rather than with volatile elements?
+Answer: Noble gases reside in Group 18 because their outer electron shells are completely filled, making them chemically inert compared to reactive groups.
+
+Question: Why was a typographical solution applied to the inner transition metals instead of leaving the layout continuous?
+Answer: Placing them inline would have made printed charts excessively wide and difficult to read on standard paper, so they were positioned below the main grid.
+
+Question: What proved the enduring strength and predictive capability of Mendeleev’s historical foundations?
+Answer: Later laboratory discoveries of unisolated elements matched the exact properties and weights Mendeleev had forecasted using the gaps in his periodic framework."></textarea>
+    </div>
+  </div>
+
+  <!-- Row 3: Box 2 (Part B): Creative Writing Prompt -->
+  <div class="box" style="margin-bottom: 16px;">
+    <label>Box 2 (Part B): Creative Academic Writing Prompt (Stage 5 Writing Task)</label>
+    <span class="hint">Instructions, role scenario, required collocations, and word limits</span>
+    <textarea id="input-box2-writing" style="min-height: 85px;" placeholder="Write a fictional, first-person historical journal entry (150–200 words) from the perspective of Dmitri Mendeleev in St. Petersburg, dated 1871—two years after publishing the initial table, as he formulates the properties of then-undiscovered elements.
+Integrate at least four collocations: repeating patterns, consecutive element, chemical reactivity, predictive capability, isolated data points, enduring strength."></textarea>
+  </div>
+
+  <div class="action-bar">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <label style="color:var(--text); margin:0;">Exam Target Profile:</label>
+      <select id="exam-format" style="width: auto;">
+        <option value="TOEFL C1 Reading & Vocabulary">TOEFL C1 Reading & Academic Collocations</option>
+        <option value="IELTS Academic C1 Synthesis">IELTS Academic C1 Lexical Resource</option>
+        <option value="GCSE Science & Advanced English">GCSE English & Chemistry Synthesis</option>
+      </select>
+    </div>
+
+    <div>
+      <button type="button" class="btn" id="generate-btn" onclick="executeGeneration()">⚡ Generate and Download HTML</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function setDiag(msg, type) {
+  var b = document.getElementById("diagnostic-box");
+  b.className = type;
+  b.innerText = msg;
+}
+
+// Parses Box 1: Term = Translation
+function parseBox1(raw) {
+  var lines = raw.split("\n").map(function(l){ return l.trim(); }).filter(Boolean);
+  var out = [];
+  lines.forEach(function(l){
+    var parts = l.split("=");
+    if (parts.length >= 2) {
+      out.push({
+        term: parts[0].replace(/^\d+[\.\)]\s*/, "").trim(),
+        trans: parts.slice(1).join("=").trim()
+      });
+    }
+  });
+  return out;
+}
+
+// Parses Box 2 (MC): Term : Definition
+function parseBox2MC(raw) {
+  var lines = raw.split("\n").map(function(l){ return l.trim(); }).filter(Boolean);
+  var out = [];
+  lines.forEach(function(l){
+    var parts = l.split(":");
+    if (parts.length >= 2) {
+      out.push({
+        term: parts[0].replace(/^\d+[\.\)]\s*/, "").trim(),
+        def: parts.slice(1).join(":").trim()
+      });
+    }
+  });
+  return out;
+}
+
+// Parses Box 3: 12 Sentences
+function parseBox3(raw, vocabList) {
+  var lines = raw.split("\n").map(function(l){ return l.trim(); }).filter(Boolean);
+  var out = [];
+  lines.forEach(function(line){
+    var matched = null;
+    for (var i = 0; i < vocabList.length; i++) {
+      var v = vocabList[i];
+      if (line.toLowerCase().indexOf(v.term.toLowerCase()) !== -1) {
+        matched = v.term;
+        break;
+      }
+    }
+    if (matched) {
+      var idx = line.toLowerCase().indexOf(matched.toLowerCase());
+      out.push({
+        prefix: line.slice(0, idx),
+        key: line.slice(idx, idx + matched.length),
+        suffix: line.slice(idx + matched.length)
+      });
+    }
+  });
+  return out;
+}
+
+// Parses Box 4: Comprehension Q&A
+function parseBox4(raw) {
+  var blocks = raw.split(/\n\s*\n/);
+  var out = [];
+  for (var i = 0; i < blocks.length; i++) {
+    var lines = blocks[i].split("\n").map(function(l) { return l.trim(); }).filter(Boolean);
+    var q = "", a = "";
+    for (var j = 0; j < lines.length; j++) {
+      var l = lines[j];
+      if (/^Question:/i.test(l)) q = l.replace(/^Question:\s*/i, "").trim();
+      else if (/^Answer:/i.test(l)) a = l.replace(/^Answer:\s*/i, "").trim();
+    }
+    if (q && a) out.push({ q: q, a: a });
+  }
+  return out;
+}
+
+async function executeGeneration() {
+  try {
+    var b1Raw = document.getElementById("input-box1").value.trim();
+    var b2MCRaw = document.getElementById("input-box2-mc").value.trim();
+    var b3Raw = document.getElementById("input-box3").value.trim();
+    var b4Raw = document.getElementById("input-box4").value.trim();
+    var b2Writing = document.getElementById("input-box2-writing").value.trim();
+    var examFormat = document.getElementById("exam-format").value;
+
+    if (!b1Raw || !b2MCRaw || !b3Raw) {
+      setDiag("Please ensure Box 1 (Translations), Box 2 (Definitions), and Box 3 (Summary) are filled out.", "err");
+      return;
+    }
+
+    setDiag("Synthesizing standalone game architecture...", "info");
+
+    var matchPool = parseBox1(b1Raw);
+    var mcItems = parseBox2MC(b2MCRaw);
+    var clozeList = parseBox3(b3Raw, mcItems.length ? mcItems : matchPool);
+    var qaList = parseBox4(b4Raw);
+
+    var audioBase64 = null;
+    var audioFile = document.getElementById("input-audio").files[0];
+    if (audioFile) {
+      audioBase64 = await new Promise(function(resolve) {
+        var reader = new FileReader();
+        reader.onload = function() { resolve(reader.result); };
+        reader.readAsDataURL(audioFile);
+      });
+    }
+
+    var htmlPayload = createGameFileString({
+      examFormat: examFormat,
+      matchPool: matchPool,
+      mcItems: mcItems,
+      clozeList: clozeList,
+      qaList: qaList,
+      writingPrompt: b2Writing,
+      audioBase64: audioBase64
+    });
+
+    var blob = new Blob([htmlPayload], { type: "text/html;charset=utf-8" });
+    var filename = "NeuroHub_" + examFormat.replace(/[^a-zA-Z0-9]/g, "_") + ".html";
+
+    var link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(function() {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+    }, 1500);
+
+    // Dynamic UI Button Color Transition to Green on success
+    var genBtn = document.getElementById("generate-btn");
+    genBtn.classList.add("generated-active");
+    genBtn.innerHTML = "✓ Game Generated & Downloaded!";
+    setTimeout(function() {
+      genBtn.classList.remove("generated-active");
+      genBtn.innerHTML = "⚡ Generate and Download HTML";
+    }, 4500);
+
+    setDiag("Success! '" + filename + "' has been generated and downloaded to your computer.", "success");
+  } catch(e) {
+    setDiag("Error during generation: " + e.message, "err");
+  }
+}
+
+function createGameFileString(cfg) {
+  var jsonConfig = JSON.stringify(cfg);
+  return '<!DOCTYPE html>\n' +
+'<html lang="en">\n' +
+'<head>\n' +
+'  <meta charset="UTF-8">\n' +
+'  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
+'  <title>' + cfg.examFormat + '</title>\n' +
+'  <style>\n' +
+'    :root {\n' +
+'      --bg: #090d16;\n' +
+'      --card: #131b2e;\n' +
+'      --card-alt: #1a2540;\n' +
+'      --primary: #38bdf8;\n' +
+'      --accent: #f59e0b;\n' +
+'      --success: #10b981;\n' +
+'      --danger: #ef4444;\n' +
+'      --text: #f8fafc;\n' +
+'      --text-muted: #94a3b8;\n' +
+'      --border: #273656;\n' +
+'    }\n' +
+'    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }\n' +
+'    body { background-color: var(--bg); color: var(--text); padding: 16px; min-height: 100vh; }\n' +
+'    .container { max-width: 950px; margin: 0 auto; }\n' +
+'    header { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 16px; }\n' +
+'    h1 { font-size: 1.55rem; color: var(--primary); margin-bottom: 4px; }\n' +
+'    .score-banner { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 10px; font-size: 0.85rem; background: #0a0e17; padding: 8px; border-radius: 8px; border: 1px solid var(--border); }\n' +
+'    .score-badge { color: var(--primary); font-weight: 700; }\n' +
+'    .score-card { background: var(--card-alt); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 14px; font-size: 0.88rem; }\n' +
+'    .recom-box { margin-top: 6px; font-weight: 600; color: var(--accent); }\n' +
+'    .tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 16px; }\n' +
+'    .tab-btn { background: var(--card); border: 1px solid var(--border); color: var(--text-muted); padding: 9px 14px; border-radius: 8px; cursor: pointer; font-size: 0.82rem; font-weight: 600; white-space: nowrap; }\n' +
+'    .tab-btn.active { background: var(--primary); color: #020617; border-color: var(--primary); }\n' +
+'    .panel { display: none; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }\n' +
+'    .panel.active { display: block; }\n' +
+'    .btn { background: var(--primary); color: #020617; border: none; padding: 9px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; }\n' +
+'    .btn-secondary { background: var(--card-alt); color: var(--text); border: 1px solid var(--border); }\n' +
+'    .btn-audio { background: transparent; border: 1px solid var(--border); color: var(--primary); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }\n' +
+'    .tile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 12px; }\n' +
+'    .tile { background: var(--card-alt); border: 1px solid var(--border); padding: 12px; border-radius: 8px; text-align: center; cursor: pointer; min-height: 60px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; user-select: none; }\n' +
+'    .tile.selected { border-color: var(--primary); background: #1c3b66; }\n' +
+'    .tile.matched { opacity: 0; pointer-events: none; }\n' +
+'    .calib-bar { display: flex; gap: 8px; justify-content: center; align-items: center; background: #0a0e17; padding: 8px; border-radius: 8px; margin: 15px 0; border: 1px solid var(--border); }\n' +
+'    .calib-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }\n' +
+'    .calib-btn.active { background: var(--primary); color: #000; font-weight: bold; border-color: var(--primary); }\n' +
+'    .mc-grid { display: grid; gap: 10px; margin-top: 12px; }\n' +
+'    .mc-option { background: var(--card-alt); border: 1px solid var(--border); padding: 12px; border-radius: 8px; cursor: pointer; text-align: left; font-size: 0.9rem; color: var(--text); }\n' +
+'    .mc-option.correct { background: rgba(16, 185, 129, 0.2); border-color: var(--success); }\n' +
+'    .mc-option.wrong { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }\n' +
+'    .socratic-box { margin-top: 15px; padding: 12px; background: rgba(56, 189, 248, 0.08); border-left: 3px solid var(--primary); border-radius: 0 6px 6px 0; font-size: 0.85rem; display: none; line-height: 1.5; }\n' +
+'    .cloze-item { line-height: 1.9; font-size: 0.95rem; margin-bottom: 12px; background: #0a0e17; padding: 12px; border-radius: 8px; border: 1px solid var(--border); }\n' +
+'    select.gap-select { background: var(--card-alt); color: var(--primary); border: 1px solid var(--primary); padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 0.88rem; }\n' +
+'    select.gap-select.correct { border-color: var(--success); color: var(--success); }\n' +
+'    select.gap-select.wrong { border-color: var(--danger); color: var(--danger); }\n' +
+'    .eval-group { display: flex; gap: 8px; margin-top: 12px; }\n' +
+'    .eval-btn { padding: 8px 14px; border-radius: 6px; border: none; font-weight: 700; cursor: pointer; font-size: 0.85rem; }\n' +
+'    .eval-c { background: var(--success); color: #000; }\n' +
+'    .eval-a { background: var(--accent); color: #000; }\n' +
+'    .eval-i { background: var(--danger); color: #fff; }\n' +
+'    input.student-name-box { width: 100%; max-width: 320px; background: #0a0e17; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--text); font-size: 0.9rem; margin-bottom: 12px; outline: none; }\n' +
+'    input.student-name-box:focus { border-color: var(--primary); }\n' +
+'    textarea.writing-box { width: 100%; height: 160px; background: #0a0e17; border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--text); font-size: 0.95rem; resize: vertical; margin-bottom: 8px; outline: none; }\n' +
+'  </style>\n' +
+'</head>\n' +
+'<body>\n' +
+'<div class="container">\n' +
+'  <header>\n' +
+'    <h1>' + cfg.examFormat + '</h1>\n' +
+'    <div class="score-banner">\n' +
+'      <div>Total Mastery Score: <span id="ov-score" class="score-badge">0 / 100 (0%)</span></div>\n' +
+'      <div>Overall Level: <span id="ov-level" class="score-badge">Initial Diagnostic</span></div>\n' +
+'    </div>\n' +
+(cfg.audioBase64 ? '    <audio controls src="' + cfg.audioBase64 + '" style="width:100%; max-width:400px; margin-top:10px; height:32px;"></audio>\n' : '') +
+'  </header>\n' +
+'  <nav class="tabs">\n' +
+'    <button class="tab-btn active" onclick="setPanel(0)">⚡ 1. Speed Match</button>\n' +
+'    <button class="tab-btn" onclick="setPanel(1)">🎯 2. Metacognitive MC (12 Items)</button>\n' +
+'    <button class="tab-btn" onclick="setPanel(2)">📝 3. Context Fill-in (12 Gaps)</button>\n' +
+'    <button class="tab-btn" onclick="setPanel(3)">🤔 4. Self-Eval Questions (5 Qs)</button>\n' +
+'    <button class="tab-btn" onclick="setPanel(4)">✍️ 5. Writing Task</button>\n' +
+'  </nav>\n' +
+'  <!-- STAGE 1: SPEED MATCH -->\n' +
+'  <div class="panel active" id="p-0">\n' +
+'    <div class="score-card">\n' +
+'      <div><strong>Section 1 Performance:</strong> <span id="s1-score-txt" class="score-badge">0 / ' + cfg.matchPool.length + ' pairs matched (0%)</span></div>\n' +
+'      <div class="recom-box" id="s1-recom">Recommendation: Match target words with their Russian/French translations to consolidate cross-linguistic memory links.</div>\n' +
+'    </div>\n' +
+'    <h3>Speed Match: Term ↔ Multilingual Translation</h3>\n' +
+'    <div class="tile-grid" id="tile-board"></div>\n' +
+'  </div>\n' +
+'  <!-- STAGE 2: METACOGNITIVE MC -->\n' +
+'  <div class="panel" id="p-1">\n' +
+'    <div class="score-card">\n' +
+'      <div><strong>Section 2 Performance:</strong> <span id="s2-score-txt" class="score-badge">0 / ' + cfg.mcItems.length + ' items completed (0%)</span></div>\n' +
+'      <div class="recom-box" id="s2-recom">Recommendation: Calibrate your certainty first (Guess, Sure, Don\'t Know), then identify the matching academic definition from the four options.</div>\n' +
+'    </div>\n' +
+'    <div style="font-size:0.85rem; color:var(--accent); font-weight:700;">Question <span id="mc-counter">1</span> of ' + cfg.mcItems.length + ' — Academic Collocation Definition</div>\n' +
+'    <div style="font-size:1.15rem; margin:8px 0 10px;">\n' +
+'      Target Word: <strong id="mc-prompt" style="color:var(--primary)"></strong>\n' +
+'      <button class="btn-audio" onclick="speakCurrentMC()">🔊</button>\n' +
+'    </div>\n' +
+'    <div class="calib-bar">\n' +
+'      <span style="font-size:0.8rem;">Metacognitive Calibration:</span>\n' +
+'      <button class="calib-btn" onclick="setCalib(this, \'guess\')">🎲 Guess</button>\n' +
+'      <button class="calib-btn" onclick="setCalib(this, \'sure\')">🎯 Sure</button>\n' +
+'      <button class="calib-btn" onclick="setCalib(this, \'dont_know\')">🤷 Don\'t Know</button>\n' +
+'    </div>\n' +
+'    <div class="mc-grid" id="mc-options"></div>\n' +
+'    <div class="socratic-box" id="mc-socratic">\n' +
+'      <p><strong>💡 Khanmigo Socratic Coach:</strong> <span id="socratic-txt"></span></p>\n' +
+'    </div>\n' +
+'    <div style="margin-top:15px; text-align:right;">\n' +
+'      <button class="btn" id="mc-next" style="display:none;" onclick="nextMC()">Next Question →</button>\n' +
+'    </div>\n' +
+'  </div>\n' +
+'  <!-- STAGE 3: CONTEXT FILL-IN (12 SENTENCES) -->\n' +
+'  <div class="panel" id="p-2">\n' +
+'    <div class="score-card">\n' +
+'      <div><strong>Section 3 Performance:</strong> <span id="s3-score-txt" class="score-badge">0 / ' + cfg.clozeList.length + ' sentences synthesized (0%)</span></div>\n' +
+'      <div class="recom-box" id="s3-recom">Recommendation: Complete all sentences using the dropdown menus. Notice syntactic collocation constraints.</div>\n' +
+'    </div>\n' +
+'    <h3>Stage 2: Contextual Synthesis Fill-in (All 12 Sentences)</h3>\n' +
+'    <div id="cloze-list" style="margin-top:12px;"></div>\n' +
+'    <div style="margin-top:15px; display:flex; align-items:center; gap:12px;">\n' +
+'      <button class="btn" onclick="evaluateCloze()">Check All Formulations</button>\n' +
+'      <span id="cloze-score" style="font-weight:700;"></span>\n' +
+'    </div>\n' +
+'  </div>\n' +
+'  <!-- STAGE 4: SELF-EVAL QA -->\n' +
+'  <div class="panel" id="p-3">\n' +
+'    <div class="score-card">\n' +
+'      <div><strong>Section 4 Performance:</strong> <span id="s4-score-txt" class="score-badge">0 / ' + cfg.qaList.length + ' answers evaluated (0%)</span></div>\n' +
+'      <div class="recom-box" id="s4-recom">Recommendation: Formulate your answer first in formal academic English before viewing the benchmark.</div>\n' +
+'    </div>\n' +
+'    <div style="font-size:0.8rem; color:var(--accent);">Question <span id="qa-num">1</span> of ' + cfg.qaList.length + '</div>\n' +
+'    <p id="qa-question" style="font-weight:600; font-size:1.05rem; margin:8px 0 12px;"></p>\n' +
+'    <textarea id="qa-input" class="writing-box" style="height:90px;" placeholder="Type your academic response here..."></textarea>\n' +
+'    <button class="btn btn-secondary" onclick="revealBenchmark()">Answer & Reveal Benchmark</button>\n' +
+'    <div id="qa-model-box" style="display:none; margin-top:15px; background:#0a0e17; padding:15px; border-radius:8px; border:1px solid var(--border);">\n' +
+'      <p style="color:var(--primary); font-weight:600; font-size:0.9rem;">Benchmark Answer:</p>\n' +
+'      <p id="qa-model" style="margin:6px 0 14px; font-size:0.95rem;"></p>\n' +
+'      <p style="font-size:0.85rem; color:var(--text-muted);">Calibrate your conceptual correspondence:</p>\n' +
+'      <div class="eval-group">\n' +
+'        <button class="eval-btn eval-c" onclick="submitEval(10)">Correct (+10 pts)</button>\n' +
+'        <button class="eval-btn eval-a" onclick="submitEval(5)">Almost Correct (+5 pts)</button>\n' +
+'        <button class="eval-btn eval-i" onclick="submitEval(0)">Incorrect (0 pts)</button>\n' +
+'      </div>\n' +
+'    </div>\n' +
+'  </div>\n' +
+'  <!-- STAGE 5: WRITING TASK -->\n' +
+'  <div class="panel" id="p-4">\n' +
+'    <h3>Stage 4: Creative Academic Writing Task</h3>\n' +
+'    <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px; background:#0a0e17; padding:12px; border-radius:8px; border:1px solid var(--border);">\n' +
+'      <pre style="white-space: pre-wrap; font-family: inherit;">' + cfg.writingPrompt.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '</pre>\n' +
+'    </div>\n' +
+'    <label style="display:block; font-size:0.85rem; font-weight:700; color:var(--primary); margin-bottom:4px;">Student Name (Required):</label>\n' +
+'    <input type="text" id="student-name-input" class="student-name-box" placeholder="Write your full name here...">\n' +
+'    <textarea id="writing-text" class="writing-box" placeholder="Type your response here..."></textarea>\n' +
+'    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;">\n' +
+'      <button type="button" class="btn" onclick="transmitWritingPayload()">🚀 Submit to Google App Script</button>\n' +
+'      <button type="button" class="btn btn-secondary" onclick="copyWritingText()">📋 Copy Text to Clipboard</button>\n' +
+'    </div>\n' +
+'    <div id="post-status" style="margin-top:12px; font-size:0.85rem;"></div>\n' +
+'    <iframe name="hidden_frame" id="hidden_frame" style="display:none;" onload="handleIframeReturn()"></iframe>\n' +
+'    <form id="gas-form" target="hidden_frame" method="POST" action="https://script.google.com/macros/s/AKfycbxID8_ZvaQfVflyoz4iJXH0k1uFtXM_O0piItLl1zVV_-tmJuB5QQ4wrW5LP5UEKHIY/exec">\n' +
+'      <input type="hidden" name="studentName" id="f-name" value="">\n' +
+'      <input type="hidden" name="task" id="f-task" value="' + cfg.examFormat + '">\n' +
+'      <input type="hidden" name="totalMastery" id="f-total" value="0">\n' +
+'      <input type="hidden" name="studentResponse" id="f-resp" value="">\n' +
+'      <input type="hidden" name="rawText" id="f-raw" value="">\n' +
+'    </form>\n' +
+'  </div>\n' +
+'</div>\n' +
+'<script>\n' +
+'var engineData = ' + jsonConfig + ';\n' +
+'var mcIndex = 0;\n' +
+'var currentCalib = null;\n' +
+'var qaIndex = 0;\n' +
+'var s1Score = 0;\n' +
+'var s2Score = 0;\n' +
+'var s3Score = 0;\n' +
+'var s4Score = 0;\n' +
+'var isSending = false;\n' +
+'function updateOverallScore() {\n' +
+'  var s1Total = engineData.matchPool.length || 1;\n' +
+'  var s2Total = engineData.mcItems.length || 1;\n' +
+'  var s3Total = engineData.clozeList.length || 1;\n' +
+'  var s4Total = (engineData.qaList.length * 10) || 1;\n' +
+'  var s1Norm = (s1Score / s1Total) * 20;\n' +
+'  var s2Norm = (s2Score / s2Total) * 30;\n' +
+'  var s3Norm = (s3Score / s3Total) * 30;\n' +
+'  var s4Norm = (s4Score / s4Total) * 20;\n' +
+'  var total = Math.round(s1Norm + s2Norm + s3Norm + s4Norm);\n' +
+'  document.getElementById("ov-score").innerText = total + " / 100 (" + total + "%)";\n' +
+'  var lvl = "A2 Elementary";\n' +
+'  if (total >= 85) lvl = "C1+ Academic Mastery";\n' +
+'  else if (total >= 70) lvl = "B2+ Strong Competence";\n' +
+'  else if (total >= 50) lvl = "B1 Intermediate Threshold";\n' +
+'  document.getElementById("ov-level").innerText = lvl;\n' +
+'}\n' +
+'function speakWord(txt) {\n' +
+'  if ("speechSynthesis" in window) {\n' +
+'    window.speechSynthesis.cancel();\n' +
+'    var u = new SpeechSynthesisUtterance(txt);\n' +
+'    u.lang = "en-US";\n' +
+'    u.rate = 0.9;\n' +
+'    window.speechSynthesis.speak(u);\n' +
+'  }\n' +
+'}\n' +
+'function speakCurrentMC() {\n' +
+'  if (engineData.mcItems[mcIndex]) speakWord(engineData.mcItems[mcIndex].term);\n' +
+'}\n' +
+'function setPanel(idx) {\n' +
+'  document.querySelectorAll(".tab-btn").forEach(function(t, i) { t.classList.toggle("active", i === idx); });\n' +
+'  document.querySelectorAll(".panel").forEach(function(p, i) { p.classList.toggle("active", i === idx); });\n' +
+'}\n' +
+'var tilePick = null;\n' +
+'function initMatch() {\n' +
+'  var board = document.getElementById("tile-board");\n' +
+'  board.innerHTML = "";\n' +
+'  var pool = [];\n' +
+'  engineData.matchPool.forEach(function(v, i) {\n' +
+'    pool.push({ id: i, txt: v.term, type: "en" });\n' +
+'    pool.push({ id: i, txt: v.trans, type: "trans" });\n' +
+'  });\n' +
+'  pool.sort(function() { return Math.random() - 0.5; });\n' +
+'  pool.forEach(function(item) {\n' +
+'    var d = document.createElement("div");\n' +
+'    d.className = "tile";\n' +
+'    d.innerText = item.txt;\n' +
+'    d.onclick = function() {\n' +
+'      if (d.classList.contains("matched")) return;\n' +
+'      if (!tilePick) {\n' +
+'        tilePick = { el: d, item: item };\n' +
+'        d.classList.add("selected");\n' +
+'      } else {\n' +
+'        if (tilePick.el === d) {\n' +
+'          d.classList.remove("selected");\n' +
+'          tilePick = null;\n' +
+'          return;\n' +
+'        }\n' +
+'        if (tilePick.item.id === item.id && tilePick.item.type !== item.type) {\n' +
+'          d.classList.add("matched");\n' +
+'          tilePick.el.classList.add("matched");\n' +
+'          s1Score++;\n' +
+'          var totalPairs = engineData.matchPool.length;\n' +
+'          var pct = Math.round((s1Score / totalPairs) * 100);\n' +
+'          document.getElementById("s1-score-txt").innerText = s1Score + " / " + totalPairs + " pairs (" + pct + "%)";\n' +
+'          if (s1Score === totalPairs) {\n' +
+'            document.getElementById("s1-recom").innerText = "Recommendation: Outstanding translation retention! Mental associations are firmly linked.";\n' +
+'          } else {\n' +
+'            document.getElementById("s1-recom").innerText = "Recommendation: " + (totalPairs - s1Score) + " pairs remaining. Notice recurring lexical stems.";\n' +
+'          }\n' +
+'          updateOverallScore();\n' +
+'          tilePick = null;\n' +
+'        } else {\n' +
+'          tilePick.el.classList.remove("selected");\n' +
+'          tilePick = null;\n' +
+'        }\n' +
+'      }\n' +
+'    };\n' +
+'    board.appendChild(d);\n' +
+'  });\n' +
+'}\n' +
+'function setCalib(btn, lvl) {\n' +
+'  document.querySelectorAll(".calib-btn").forEach(function(b) { b.classList.remove("active"); });\n' +
+'  btn.classList.add("active");\n' +
+'  currentCalib = lvl;\n' +
+'}\n' +
+'function loadMC() {\n' +
+'  currentCalib = null;\n' +
+'  document.querySelectorAll(".calib-btn").forEach(function(b) { b.classList.remove("active"); });\n' +
+'  document.getElementById("mc-socratic").style.display = "none";\n' +
+'  document.getElementById("mc-next").style.display = "none";\n' +
+'  if (!engineData.mcItems.length) return;\n' +
+'  var cur = engineData.mcItems[mcIndex];\n' +
+'  document.getElementById("mc-counter").innerText = (mcIndex + 1);\n' +
+'  document.getElementById("mc-prompt").innerText = cur.term;\n' +
+'  var opts = [cur.def];\n' +
+'  while (opts.length < 4 && opts.length < engineData.mcItems.length) {\n' +
+'    var r = engineData.mcItems[Math.floor(Math.random() * engineData.mcItems.length)];\n' +
+'    if (opts.indexOf(r.def) === -1) opts.push(r.def);\n' +
+'  }\n' +
+'  opts.sort(function() { return Math.random() - 0.5; });\n' +
+'  var container = document.getElementById("mc-options");\n' +
+'  container.innerHTML = "";\n' +
+'  opts.forEach(function(opt) {\n' +
+'    var b = document.createElement("button");\n' +
+'    b.className = "mc-option";\n' +
+'    b.innerText = opt;\n' +
+'    b.onclick = function() { evalMC(b, opt === cur.def, cur); };\n' +
+'    container.appendChild(b);\n' +
+'  });\n' +
+'}\n' +
+'function evalMC(btn, isCorrect, itm) {\n' +
+'  if (!currentCalib) {\n' +
+'    alert("Please calibrate your certainty (Guess, Sure, Don\'t Know) first.");\n' +
+'    return;\n' +
+'  }\n' +
+'  var soc = document.getElementById("mc-socratic");\n' +
+'  var txt = document.getElementById("socratic-txt");\n' +
+'  soc.style.display = "block";\n' +
+'  if (isCorrect) {\n' +
+'    btn.classList.add("correct");\n' +
+'    s2Score++;\n' +
+'    if (currentCalib === "sure") {\n' +
+'      txt.innerText = "Accurate schema verification! Certainty matched neural retrieval.";\n' +
+'    } else {\n' +
+'      txt.innerText = "Correct recognition! Even though marked \'" + currentCalib + "\', subconscious semantic priming succeeded.";\n' +
+'    }\n' +
+'  } else {\n' +
+'    btn.classList.add("wrong");\n' +
+'    txt.innerText = "Socratic clue: Consider the morpheme roots of \'" + itm.term + "\'. Review distractor definition boundaries.";\n' +
+'  }\n' +
+'  var totalMC = engineData.mcItems.length;\n' +
+'  var pct = Math.round((s2Score / totalMC) * 100);\n' +
+'  document.getElementById("s2-score-txt").innerText = s2Score + " / " + totalMC + " correct (" + pct + "%)";\n' +
+'  if (pct >= 80) document.getElementById("s2-recom").innerText = "Recommendation: Outstanding vocabulary retention. Ready for high-band C1 reading sections.";\n' +
+'  else if (pct >= 50) document.getElementById("s2-recom").innerText = "Recommendation: Moderate accuracy. Focus on precision differences between close definitions.";\n' +
+'  else document.getElementById("s2-recom").innerText = "Recommendation: Review the core roots of target expressions to establish firmer semantic anchors.";\n' +
+'  updateOverallScore();\n' +
+'  document.getElementById("mc-next").style.display = "inline-block";\n' +
+'}\n' +
+'function nextMC() {\n' +
+'  mcIndex = (mcIndex + 1) % engineData.mcItems.length;\n' +
+'  loadMC();\n' +
+'}\n' +
+'function initCloze() {\n' +
+'  var c = document.getElementById("cloze-list");\n' +
+'  c.innerHTML = "";\n' +
+'  engineData.clozeList.forEach(function(cl, i) {\n' +
+'    var div = document.createElement("div");\n' +
+'    div.className = "cloze-item";\n' +
+'    var choices = [cl.key];\n' +
+'    while (choices.length < 5 && choices.length < engineData.mcItems.length) {\n' +
+'      var r = engineData.mcItems[Math.floor(Math.random() * engineData.mcItems.length)].term;\n' +
+'      if (choices.indexOf(r) === -1) choices.push(r);\n' +
+'    }\n' +
+'    choices.sort(function() { return Math.random() - 0.5; });\n' +
+'    var sel = "<select class=\\"gap-select\\" data-ans=\\"" + cl.key + "\\">";\n' +
+'    sel += "<option value=\\"\\">-- select collocation --</option>";\n' +
+'    choices.forEach(function(opt) { sel += "<option value=\\"" + opt + "\\">" + opt + "</option>"; });\n' +
+'    sel += "</select>";\n' +
+'    div.innerHTML = (i + 1) + ". " + cl.prefix + " " + sel + " " + cl.suffix;\n' +
+'    c.appendChild(div);\n' +
+'  });\n' +
+'}\n' +
+'function evaluateCloze() {\n' +
+'  var selects = document.querySelectorAll(".gap-select");\n' +
+'  var score = 0;\n' +
+'  selects.forEach(function(s) {\n' +
+'    if (s.value === s.getAttribute("data-ans")) {\n' +
+'      s.className = "gap-select correct";\n' +
+'      score++;\n' +
+'    } else {\n' +
+'      s.className = "gap-select wrong";\n' +
+'    }\n' +
+'  });\n' +
+'  s3Score = score;\n' +
+'  var totalCloze = engineData.clozeList.length;\n' +
+'  var pct = Math.round((s3Score / totalCloze) * 100);\n' +
+'  document.getElementById("s3-score-txt").innerText = s3Score + " / " + totalCloze + " correct (" + pct + "%)";\n' +
+'  if (s3Score === totalCloze) document.getElementById("s3-recom").innerText = "Recommendation: Flawless synthesis! Collocations firmly consolidated in context.";\n' +
+'  else document.getElementById("s3-recom").innerText = "Recommendation: " + (totalCloze - s3Score) + " gaps need attention. Check collocations governing adjacent prepositions.";\n' +
+'  document.getElementById("cloze-score").innerText = "Completed " + score + " / " + selects.length;\n' +
+'  updateOverallScore();\n' +
+'}\n' +
+'function loadQA() {\n' +
+'  if (!engineData.qaList.length) return;\n' +
+'  document.getElementById("qa-num").innerText = qaIndex + 1;\n' +
+'  document.getElementById("qa-question").innerText = engineData.qaList[qaIndex].q;\n' +
+'  document.getElementById("qa-input").value = "";\n' +
+'  document.getElementById("qa-model-box").style.display = "none";\n' +
+'}\n' +
+'function revealBenchmark() {\n' +
+'  document.getElementById("qa-model").innerText = engineData.qaList[qaIndex].a;\n' +
+'  document.getElementById("qa-model-box").style.display = "block";\n' +
+'}\n' +
+'function submitEval(score) {\n' +
+'  s4Score += score;\n' +
+'  var maxScore = engineData.qaList.length * 10;\n' +
+'  var pct = Math.round((s4Score / maxScore) * 100);\n' +
+'  document.getElementById("s4-score-txt").innerText = s4Score + " / " + maxScore + " pts (" + pct + "%)";\n' +
+'  if (pct >= 80) document.getElementById("s4-recom").innerText = "Recommendation: Outstanding synthesis fidelity. Precise alignment with academic criteria.";\n' +
+'  else document.getElementById("s4-recom").innerText = "Recommendation: Review benchmark models to mirror academic clause structures.";\n' +
+'  updateOverallScore();\n' +
+'  qaIndex = (qaIndex + 1) % engineData.qaList.length;\n' +
+'  loadQA();\n' +
+'}\n' +
+'function transmitWritingPayload() {\n' +
+'  var studentName = document.getElementById("student-name-input").value.trim();\n' +
+'  var val = document.getElementById("writing-text").value.trim();\n' +
+'  var st = document.getElementById("post-status");\n' +
+'  if (!studentName) {\n' +
+'    st.innerHTML = "<span style=\\"color:var(--danger)\\">Please enter your name in the Student Name box before submitting.</span>";\n' +
+'    document.getElementById("student-name-input").focus();\n' +
+'    return;\n' +
+'  }\n' +
+'  if (!val) {\n' +
+'    st.innerHTML = "<span style=\\"color:var(--danger)\\">Please write your journal response first.</span>";\n' +
+'    return;\n' +
+'  }\n' +
+'  st.innerHTML = "<span style=\\"color:var(--primary)\\">Transmitting payload via tri-mode pipeline (Form + JSON + URL query)...</span>";\n' +
+'  isSending = true;\n' +
+'  var totalVal = document.getElementById("ov-score").innerText;\n' +
+'  document.getElementById("f-name").value = studentName;\n' +
+'  document.getElementById("f-resp").value = val;\n' +
+'  document.getElementById("f-raw").value = val;\n' +
+'  document.getElementById("f-total").value = totalVal;\n' +
+'  document.getElementById("gas-form").submit();\n' +
+'  try {\n' +
+'    var payload = { studentName: studentName, task: engineData.examFormat, totalMastery: totalVal, studentResponse: val, rawText: val, timestamp: new Date().toISOString() };\n' +
+'    fetch("https://script.google.com/macros/s/AKfycbxID8_ZvaQfVflyoz4iJXH0k1uFtXM_O0piItLl1zVV_-tmJuB5QQ4wrW5LP5UEKHIY/exec", {\n' +
+'      method: "POST",\n' +
+'      mode: "no-cors",\n' +
+'      headers: { "Content-Type": "application/json" },\n' +
+'      body: JSON.stringify(payload)\n' +
+'    }).catch(function(){});\n' +
+'  } catch(e) {}\n' +
+'  setTimeout(function() {\n' +
+'    if (isSending) {\n' +
+'      st.innerHTML = "<span style=\\"color:var(--success)\\">✓ Dispatched! Name and text recorded. Use \'Copy Text\' as instant backup.</span>";\n' +
+'      isSending = false;\n' +
+'    }\n' +
+'  }, 1200);\n' +
+'}\n' +
+'function handleIframeReturn() {\n' +
+'  if (isSending) {\n' +
+'    document.getElementById("post-status").innerHTML = "<span style=\\"color:var(--success)\\">✓ Submission confirmed by Google Apps Script frame!</span>";\n' +
+'    isSending = false;\n' +
+'  }\n' +
+'}\n' +
+'function copyWritingText() {\n' +
+'  var studentName = document.getElementById("student-name-input").value.trim();\n' +
+'  var val = document.getElementById("writing-text").value.trim();\n' +
+'  if (!val) { alert("Nothing to copy."); return;\n' +
+'  }\n' +
+'  var clipboardContent = (studentName ? "Student: " + studentName + "\\n\\n" : "") + val;\n' +
+'  navigator.clipboard.writeText(clipboardContent).then(function() {\n' +
+'    document.getElementById("post-status").innerHTML = "<span style=\\"color:var(--success)\\">✓ Response (with Name) copied to clipboard!</span>";\n' +
+'  });\n' +
+'}\n' +
+'window.onload = function() {\n' +
+'  initMatch();\n' +
+'  loadMC();\n' +
+'  initCloze();\n' +
+'  loadQA();\n' +
+'  updateOverallScore();\n' +
+'};\n' +
+'<' + '/script>\n' +
+'</body>\n' +
+'</html>';
+}
+</script>
+</body>
+</html>
